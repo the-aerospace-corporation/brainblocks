@@ -1,0 +1,6 @@
+setuptools
+wheel
+numpy
+scipy
+sklearn
+pytest

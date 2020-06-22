@@ -1,0 +1,19 @@
+# Excluded Items
+.idea
+.DS_Store
+libbbcore.*
+bin/
+build/
+dist/
+*py[cod]
+*.egg-info/
+*.png
+.pytest_cache/
+
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+results/
+out/
+test_dir/
