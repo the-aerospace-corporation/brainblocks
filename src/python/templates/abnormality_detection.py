@@ -20,6 +20,9 @@ class AbnormalityDetector():
             pct_conn=0.5,    # PatternPooler initial connection percentage
             pct_learn=0.25): # PatternPooler learn percentage
 
+        self.min_val = min_val
+        self.max_val = max_val
+
         # seed the random number generator
         bb.seed(0)
 
@@ -79,11 +82,20 @@ class AbnormalityDetector():
                 self.encoders[e].reset()
 
         for s in range(num_steps):
+            value = vectors[e][s]
             for e in range(num_encoders):
-                self.encoders[e].compute(vectors[e][s])
+                self.encoders[e].compute(value)
             self.pp.compute(learn)
             self.sl.compute(learn)
-            anoms.append(self.sl.get_score())
+
+            if value == None:
+                anoms.append(0.0)
+            elif value < self.min_val:
+                anoms.append(1.0)
+            elif value > self.max_val:
+                anoms.append(1.0)
+            else:
+                anoms.append(self.sl.get_score())
 
         self.initialized = True
 
