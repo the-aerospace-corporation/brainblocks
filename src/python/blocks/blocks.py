@@ -91,7 +91,8 @@ class ScalarEncoder():
         self.obj = bb.ScalarEncoder(min_val, max_val, num_s, num_as)
 
     def compute(self, value):
-        self.obj.compute(value)
+        if value != None:
+            self.obj.compute(value)
 
     @property
     def output(self):
@@ -110,7 +111,8 @@ class SymbolsEncoder():
         self.obj = bb.SymbolsEncoder(max_symbols, num_s)
 
     def compute(self, value):
-        self.obj.compute(value)
+        if value != None:
+            self.obj.compute(value)
 
     def get_symbols(self):
         return self.obj.get_symbols()
@@ -138,7 +140,8 @@ class PersistenceEncoder():
         self.obj.reset()
 
     def compute(self, value):
-        self.obj.compute(value)
+        if value != None:
+            self.obj.compute(value)
 
     @property
     def output(self):
