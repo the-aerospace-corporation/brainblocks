@@ -81,18 +81,17 @@ class AbnormalityDetector():
             if isinstance(self.encoders[e], PersistenceEncoder):
                 self.encoders[e].reset()
 
+        limit_flag = 0
         for s in range(num_steps):
-            value = vectors[e][s]
             for e in range(num_encoders):
+                value = vectors[e][s]
+                if value < self.min_val or value > self.max_val:
+                    limit_flag = 1              
                 self.encoders[e].compute(value)
             self.pp.compute(learn)
             self.sl.compute(learn)
 
-            if value == None:
-                anoms.append(0.0)
-            elif value < self.min_val:
-                anoms.append(1.0)
-            elif value > self.max_val:
+            if limit_flag == 1:
                 anoms.append(1.0)
             else:
                 anoms.append(self.sl.get_score())
