@@ -95,7 +95,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="brainblocks",
-    version="0.3.7",
+    version="0.6.0",
     packages=["brainblocks", "brainblocks.tools", "brainblocks.datasets", "brainblocks.metrics", "brainblocks.blocks",
               "brainblocks.templates"],
     package_dir={'brainblocks': 'src/python'},
