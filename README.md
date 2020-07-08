@@ -227,6 +227,7 @@ Make sure you have the following dependencies installed on your system.
 
 ### Install
 
+#### Linux
 *[Required]*
 * Clone this repository:
 ```bash
@@ -250,6 +251,32 @@ $ ./clean.sh
 * Uninstall python package:
 ```bash
 $ ./uninstall.sh
+```
+
+#### Windows
+*[Required]*
+* Clone this repository:
+```bash
+$ git clone https://github.com/the-aerospace-corporation/brainblocks
+```
+* Build and install python package from project directory:
+```bash
+$ cd brainblocks
+$ install.bat
+```
+
+*[Optional]* 
+* Test installation:
+```bash
+$ pytest test/
+```
+* Clean the brainblocks project directory:
+```bash
+$ clean.bat
+```
+* Uninstall python package:
+```bash
+$ uninstall.bat
 ```
 
 ### Run
