@@ -227,7 +227,7 @@ Make sure you have the following dependencies installed on your system.
 
 ### Install
 
-#### Linux
+#### Linux/MacOS
 *[Required]*
 * Clone this repository:
 ```bash
