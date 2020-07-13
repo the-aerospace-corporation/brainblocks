@@ -235,7 +235,7 @@ $ git clone https://github.com/the-aerospace-corporation/brainblocks
 * Build and install python package from project directory:
 ```bash
 $ cd brainblocks
-$ ./install.sh
+$ pthon install.py
 ```
 
 *[Optional]* 
@@ -245,11 +245,11 @@ $ pytest test/
 ```
 * Clean the brainblocks project directory:
 ```bash
-$ ./clean.sh
+$ python clean.py
 ```
 * Uninstall python package:
 ```bash
-$ ./uninstall.sh
+$ python uninstall.py
 ```
 
 ### Run
