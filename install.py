@@ -1,4 +1,5 @@
 import os
+import platform
 import shutil
 import subprocess
 import struct
@@ -18,6 +19,9 @@ print("=========================================================================
 print("Compiling BrainBlocks Backend")
 print("================================================================================")
 
+uname_obj = platform.uname()
+print(uname_obj.system)
+
 def is_python_64bit():
     return (struct.calcsize("P") == 8)
 
@@ -26,15 +30,16 @@ if is_python_64bit():
 else:
     ARCH="x32"
 
-
-cmnd = ["cmake", '-DCMAKE_GENERATOR_PLATFORM=%s' % ARCH, ".."]
-if subprocess.call(cmnd) != 0:
+if uname_obj.system == 'Windows':
+    cmd = ["cmake", '-DCMAKE_GENERATOR_PLATFORM=%s' % ARCH, ".."]
+else:
+    cmd = ["cmake", ".."]
+if subprocess.call(cmd) != 0:
     print("ERROR while cmake configure")
     sys.exit(-1)
 
-
-cmnd = ["cmake", '--build', ".", '--config', 'Release']
-if subprocess.call(cmnd) != 0:
+cmd = ["cmake", '--build', ".", '--config', 'Release']
+if subprocess.call(cmd) != 0:
     print("ERROR while cmake build")
     sys.exit(-1)
 
