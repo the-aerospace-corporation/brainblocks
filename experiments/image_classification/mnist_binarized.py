@@ -24,8 +24,8 @@ print("Loading MNIST data...", flush=True)
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
 
 # define train/test parameters
-num_trains=1#len(x_train)
-num_tests=1#len(x_test)
+num_trains=len(x_train)
+num_tests=len(x_test)
 pixel_thresh=128 # from 0 to 255
 
 # setup BrainBlocks classifier architecture
