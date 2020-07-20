@@ -37,7 +37,6 @@ void pattern_pooler_destruct(struct PatternPooler* pp);
 void pattern_pooler_initialize(struct PatternPooler* pp);
 void pattern_pooler_save(struct PatternPooler* pp, const char* file);
 void pattern_pooler_load(struct PatternPooler* pp, const char* file);
-void pattern_pooler_clear(struct PatternPooler* pp);
 
 void pattern_pooler_compute(
     struct PatternPooler* pp,

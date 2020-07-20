@@ -66,14 +66,6 @@ void symbols_encoder_initialize(struct SymbolsEncoder* e) {
 }
 
 // =============================================================================
-// Clear
-// =============================================================================
-void symbols_encoder_clear(struct SymbolsEncoder* e) {
-    page_clear_bits(e->output, 0); // current
-    page_clear_bits(e->output, 1); // previous
-}
-
-// =============================================================================
 // Compute
 // =============================================================================
 void symbols_encoder_compute(struct SymbolsEncoder* e, const uint32_t value) {

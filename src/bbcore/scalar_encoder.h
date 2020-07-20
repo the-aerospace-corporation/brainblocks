@@ -24,7 +24,6 @@ void scalar_encoder_construct(
 
 void scalar_encoder_destruct(struct ScalarEncoder* e);
 void scalar_encoder_initialize(struct ScalarEncoder* e);
-void scalar_encoder_clear(struct ScalarEncoder* e);
 void scalar_encoder_compute(struct ScalarEncoder* e, double value);
 
 #endif

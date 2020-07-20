@@ -331,7 +331,7 @@ def test_sequence_learner_square():
     sl = SequenceLearner(
         num_spc=10, # number of statelets per column
         num_dps=10, # number of coincidence detectors per statelet
-        num_rpd=24, # number of receptors per coincidence detector
+        num_rpd=12, # number of receptors per coincidence detector
         d_thresh=6, # coincidence detector threshold
         perm_thr=1, # receptor permanence threshold
         perm_inc=1, # receptor permanence increment
@@ -371,7 +371,7 @@ def test_sequence_learner_triangle():
     sl = SequenceLearner(
         num_spc=10, # number of statelets per column
         num_dps=10, # number of coincidence detectors per statelet
-        num_rpd=24, # number of receptors per coincidence detector
+        num_rpd=12, # number of receptors per coincidence detector
         d_thresh=6, # coincidence detector threshold
         perm_thr=1, # receptor permanence threshold
         perm_inc=1, # receptor permanence increment
@@ -411,7 +411,7 @@ def test_sequence_learner_sine():
     sl = SequenceLearner(
         num_spc=10, # number of statelets per column
         num_dps=10, # number of coincidence detectors per statelet
-        num_rpd=24, # number of receptors per coincidence detector
+        num_rpd=12, # number of receptors per coincidence detector
         d_thresh=6, # coincidence detector threshold
         perm_thr=1, # receptor permanence threshold
         perm_inc=1, # receptor permanence increment

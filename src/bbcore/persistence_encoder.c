@@ -76,14 +76,6 @@ void persistence_encoder_initialize(struct PersistenceEncoder* e) {
 }
 
 // =============================================================================
-// Clear
-// =============================================================================
-void persistence_encoder_clear(struct PersistenceEncoder* e) {
-    page_clear_bits(e->output, 0); // current
-    page_clear_bits(e->output, 1); // previous
-}
-
-// =============================================================================
 // Compute
 // =============================================================================
 void persistence_encoder_compute(struct PersistenceEncoder* e, double value) {

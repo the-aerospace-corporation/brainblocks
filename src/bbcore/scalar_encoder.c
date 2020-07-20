@@ -66,14 +66,6 @@ void scalar_encoder_initialize(struct ScalarEncoder* e) {
 }
 
 // =============================================================================
-// Clear
-// =============================================================================
-void scalar_encoder_clear(struct ScalarEncoder* e) {
-    page_clear_bits(e->output, 0); // current
-    page_clear_bits(e->output, 1); // previous
-}
-
-// =============================================================================
 // Compute
 // =============================================================================
 void scalar_encoder_compute(struct ScalarEncoder* e, double value) {

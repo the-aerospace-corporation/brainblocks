@@ -28,7 +28,6 @@ void persistence_encoder_construct(
 
 void persistence_encoder_destruct(struct PersistenceEncoder* e);
 void persistence_encoder_initialize(struct PersistenceEncoder* e);
-void persistence_encoder_clear(struct PersistenceEncoder* e);
 void persistence_encoder_compute(struct PersistenceEncoder* e, double value);
 void persistence_encoder_reset(struct PersistenceEncoder* e);
 

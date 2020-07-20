@@ -219,16 +219,6 @@ void pattern_classifier_load(struct PatternClassifier* pc, const char* file) {
 }
 
 // =============================================================================
-// Clear
-// =============================================================================
-void pattern_classifier_clear(struct PatternClassifier* pc) {
-    page_clear_bits(pc->input, 0); // current
-    page_clear_bits(pc->input, 1); // previous
-    page_clear_bits(pc->output, 0); // current
-    page_clear_bits(pc->output, 1); // previous
-}
-
-// =============================================================================
 // Compute
 // =============================================================================
 void pattern_classifier_compute(

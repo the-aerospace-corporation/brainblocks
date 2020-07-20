@@ -55,14 +55,12 @@ PYBIND11_MODULE(bb_backend, m) {
     // Blank Block
     py::class_<BlankBlockClass>(m, "BlankBlock")
         .def(py::init<const uint32_t>(), "Blank Block Creation", "num_s"_a)
-        .def_property_readonly("output", &BlankBlockClass::get_output, "Get output Page object")
-        .def("clear", &BlankBlockClass::clear, "Clear block");
+        .def_property_readonly("output", &BlankBlockClass::get_output, "Get output Page object");
 
     // Scalar Encoder
     py::class_<ScalarEncoderClass>(m, "ScalarEncoder")
         .def(py::init<const double, const double, const uint32_t, const uint32_t>(),
             "Construct ScalarEncoder", "min_val"_a, "max_val"_a, "num_s"_a, "num_as"_a)
-        .def("clear", &ScalarEncoderClass::clear, "Clear block")
         .def("compute", &ScalarEncoderClass::compute, "Compute block", "value"_a)
         .def_property_readonly("output", &ScalarEncoderClass::get_output, "Get output Page object");
 
@@ -70,7 +68,6 @@ PYBIND11_MODULE(bb_backend, m) {
     py::class_<SymbolsEncoderClass>(m, "SymbolsEncoder")
         .def(py::init<const uint32_t, const uint32_t>(),
             "Construct SymbolEncoder", "max_symbols"_a, "num_s"_a)
-        .def("clear", &SymbolsEncoderClass::clear, "Clear block")
         .def("compute", &SymbolsEncoderClass::compute, "Compute block", "value"_a)
         .def("get_symbols", &SymbolsEncoderClass::get_symbols, "Get symbols")
         .def_property_readonly("output", &SymbolsEncoderClass::get_output, "Get output Page object");
@@ -80,7 +77,6 @@ PYBIND11_MODULE(bb_backend, m) {
         .def(py::init<const double, const double, const uint32_t, const uint32_t, const uint32_t>(),
             "Construct PersistenceEncoder", "min_val"_a, "max_val"_a, "num_s"_a, "num_as"_a, "max_steps"_a)
         .def("reset", &PersistenceEncoderClass::reset, "Reset persistence")
-        .def("clear", &PersistenceEncoderClass::clear, "Clear block")
         .def("compute", &PersistenceEncoderClass::compute, "Compute block", "value"_a)
         .def_property_readonly("output", &PersistenceEncoderClass::get_output, "Get output Page object");
 
@@ -91,7 +87,6 @@ PYBIND11_MODULE(bb_backend, m) {
         .def("initialize", &PatternClassifierClass::initialize, "Initialize block")
         .def("save", &PatternClassifierClass::save, "Save block")
         .def("load", &PatternClassifierClass::load, "Load block")
-        .def("clear", &PatternClassifierClass::clear, "Clear block")
         .def("compute", &PatternClassifierClass::compute, "Compute block", "label"_a, "learn"_a)
         .def("get_probabilities", &PatternClassifierClass::get_probabilities, "Get label probabilities")
         .def("coincidence_set", &PatternClassifierClass::get_coincidence_set, "Get a particular CoincidenceSet object", "d"_a)
@@ -105,7 +100,6 @@ PYBIND11_MODULE(bb_backend, m) {
         .def("initialize", &PatternPoolerClass::initialize, "Initialize block")
         .def("save", &PatternPoolerClass::save, "Save block")
         .def("load", &PatternPoolerClass::load, "Load block")
-        .def("clear", &PatternPoolerClass::clear, "Clear block")
         .def("compute", &PatternPoolerClass::compute, "Compute block", "learn"_a)
         .def("coincidence_set", &PatternPoolerClass::get_coincidence_set, "Get a particular CoincidenceSet object", "d"_a)
         .def_property_readonly("input", &PatternPoolerClass::get_input, "Get input Page object")
@@ -118,11 +112,16 @@ PYBIND11_MODULE(bb_backend, m) {
         .def("initialize", &SequenceLearnerClass::initialize, "Initialize block")
         .def("save", &SequenceLearnerClass::save, "Save block")
         .def("load", &SequenceLearnerClass::load, "Load block")
-        .def("clear", &SequenceLearnerClass::clear, "Clear block")
         .def("compute", &SequenceLearnerClass::compute, "Compute block")
         .def("get_score", &SequenceLearnerClass::get_score, "Get abnormality score")
-        .def("coincidence_set", &SequenceLearnerClass::get_coincidence_set, "Get a particular CoincidenceSet object", "d"_a)
+        .def("get_historical_count", &SequenceLearnerClass::get_historical_count, "Get number of historical statelets")
+		.def("get_coincidence_set_count", &SequenceLearnerClass::get_coincidence_set_count, "Get number of used coincidence sets")
+		.def("get_historical_statelets", &SequenceLearnerClass::get_historical_statelets, "Get historical statelets")
+		.def("get_num_coincidence_sets_per_statelet", &SequenceLearnerClass::get_num_coincidence_sets_per_statelet, "Get number of coincidence sets per statelet")
+        .def("get_hidden_coincidence_set", &SequenceLearnerClass::get_hidden_coincidence_set, "Get a particular hidden CoincidenceSet object", "d"_a)
+        .def("get_output_coincidence_set", &SequenceLearnerClass::get_output_coincidence_set, "Get a particular output CoincidenceSet object", "d"_a)
         .def_property_readonly("input", &SequenceLearnerClass::get_input, "Get input Page object")
+        .def_property_readonly("hidden", &SequenceLearnerClass::get_hidden, "Get hidden Page object")
         .def_property_readonly("output", &SequenceLearnerClass::get_output, "Get output Page object");
 
 #ifdef VERSION_INFO

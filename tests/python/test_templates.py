@@ -63,7 +63,7 @@ def test_abnormality_detector():
         num_as=8,       # number of active statelets
         num_spc=10,     # number of statelets per column
         num_dps=10,     # number of coincidence detectors per statelet
-        num_rpd=24,     # number of receptors per coincidence detector
+        num_rpd=12,     # number of receptors per coincidence detector
         d_thresh=6,     # coincidence detector threshold
         pct_pool=0.8,   # pooling percentage
         pct_conn=0.5,   # initially connected percentage

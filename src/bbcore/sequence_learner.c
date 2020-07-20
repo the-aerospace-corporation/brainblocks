@@ -54,7 +54,6 @@ void sequence_learner_construct(
         exit(1);
     }
 
-
     // initialize variables
     sl->num_c = 0;
     sl->num_spc = num_spc;
@@ -69,12 +68,16 @@ void sequence_learner_construct(
     sl->perm_dec = perm_dec;
     sl->pct_score = 0.0;
     sl->init_flag = 0;
-    sl->n_next_d = NULL;
+    sl->s_next_d = NULL;
     sl->input = malloc(sizeof(*sl->input));
+    sl->hidden = malloc(sizeof(*sl->hidden));
     sl->output = malloc(sizeof(*sl->output));
     sl->connections_ba = malloc(sizeof(*sl->connections_ba));
     sl->activeconns_ba = malloc(sizeof(*sl->activeconns_ba));
-    sl->coincidence_sets = NULL;
+    sl->d_hidden = NULL;
+    sl->d_output = NULL;
+    sl->count_hs = 0;
+    sl->count_hd = 0;
 
     // construct input page (output constructed in initialize())
     page_construct(sl->input, 2, 0);
@@ -89,13 +92,15 @@ void sequence_learner_destruct(struct SequenceLearner* sl) {
     if (sl->init_flag == 1) {
 
         // destruct output page, connections bitarray, and activeconns bitarray
-        page_destruct(sl->output);    
+        page_destruct(sl->hidden);
+        page_destruct(sl->output);
         bitarray_destruct(sl->connections_ba);
         bitarray_destruct(sl->activeconns_ba);
 
-        // destruct each element in coincidence_sets
+        // destruct each element in d_hidden and d_output
         for (uint32_t d = 0; d < sl->num_d; d++) {
-            coincidence_set_destruct(&sl->coincidence_sets[d]);
+            coincidence_set_destruct(&sl->d_hidden[d]);
+            coincidence_set_destruct(&sl->d_output[d]);
         }
     }
 
@@ -103,10 +108,12 @@ void sequence_learner_destruct(struct SequenceLearner* sl) {
     page_destruct(sl->input);
 
     // free pointers
-    free(sl->n_next_d);
+    free(sl->s_next_d);
     free(sl->input);
+    free(sl->hidden);
     free(sl->output);
-    free(sl->coincidence_sets);
+    free(sl->d_hidden);
+    free(sl->d_output);
     free(sl->connections_ba);
     free(sl->activeconns_ba);
 }
@@ -124,21 +131,29 @@ void sequence_learner_initialize(struct SequenceLearner* sl) {
     sl->num_s = sl->num_c * sl->num_spc;
     sl->num_d = sl->num_s * sl->num_dps;
 
-    // construct and initialize output page based on input page num_bits
+    // construct and initialize output and hidden pages
+    page_construct(sl->hidden, 2, sl->num_s);
     page_construct(sl->output, 2, sl->num_s);
+    page_initialize(sl->hidden);
     page_initialize(sl->output);
 
     // construct bitarrays
     bitarray_construct(sl->connections_ba, sl->num_s);
     bitarray_construct(sl->activeconns_ba, sl->num_s);
 
-    // initialize neuron's next dendrite array
-    sl->n_next_d = calloc(sl->num_s, sizeof(*sl->n_next_d));
+    // initialize array of statelets' next coincidence set
+    sl->s_next_d = calloc(sl->num_s, sizeof(*sl->s_next_d));
 
-    // construct coincidence_sets
-    sl->coincidence_sets = malloc(sl->num_d * sizeof(*sl->coincidence_sets));
+    // construct hidden coincidence detectors
+    sl->d_hidden = malloc(sl->num_d * sizeof(*sl->d_hidden));
     for (uint32_t d = 0; d < sl->num_d; d++) {
-        coincidence_set_construct(&sl->coincidence_sets[d], sl->num_rpd);
+        coincidence_set_construct(&sl->d_hidden[d], sl->num_rpd);
+    }
+
+    // construct output coincidence detectors
+    sl->d_output = malloc(sl->num_d * sizeof(*sl->d_output));
+    for (uint32_t d = 0; d < sl->num_d; d++) {
+        coincidence_set_construct(&sl->d_output[d], sl->num_rpd);
     }
 
     // set init_flag to true
@@ -156,13 +171,23 @@ void sequence_learner_save(struct SequenceLearner* sl, const char* file) {
        exit(1);
     }
 
+    // for each coincidence detector
     for (uint32_t d = 0; d < sl->num_d; d++) {
-        struct CoincidenceSet* cs = &sl->coincidence_sets[d];
+        struct CoincidenceSet* cs;
+
+        // save hidden coincidence detector receptor addresses and permanences
+        cs = &sl->d_hidden[d];
+        fwrite(cs->addrs, cs->num_r * sizeof(uint32_t), 1, fptr);
+        fwrite(cs->perms, cs->num_r * sizeof(int32_t), 1, fptr);
+
+        // save hidden coincidence detector receptor addresses and permanences
+        cs = &sl->d_output[d];
         fwrite(cs->addrs, cs->num_r * sizeof(uint32_t), 1, fptr);
         fwrite(cs->perms, cs->num_r * sizeof(int32_t), 1, fptr);
     }
 
-    fwrite(sl->n_next_d, sl->num_s * sizeof(uint32_t), 1, fptr);
+    // save next available coincidence detector on each statelet
+    fwrite(sl->s_next_d, sl->num_s * sizeof(uint32_t), 1, fptr);
     fclose(fptr); 
 }
 
@@ -177,33 +202,27 @@ void sequence_learner_load(struct SequenceLearner* sl, const char* file) {
        exit(1);
     }
 
+    // for each coincidence detector
     for (uint32_t d = 0; d < sl->num_d; d++) {
-        struct CoincidenceSet* cs = &sl->coincidence_sets[d];
+        struct CoincidenceSet* cs;
 
-        if (fread(cs->addrs, cs->num_r * sizeof(uint32_t), 1, fptr) == 0) {
-            printf("Error:\n"); // TODO
-        }
+        // load hidden coincidence detector receptor addresses and permanences
+        cs = &sl->d_hidden[d];
+        if (fread(cs->addrs, cs->num_r * sizeof(uint32_t), 1, fptr) == 0) {printf("Error:\n");} // TODO: error check
+        if (fread(cs->perms, cs->num_r * sizeof(int32_t), 1, fptr) == 0) {printf("Error:\n");} // TODO: error check
 
-        if (fread(cs->perms, cs->num_r * sizeof(int32_t), 1, fptr) == 0) {
-            printf("Error:\n"); // TODO
-        }
+        // load output coincidence detector receptor addresses and permanences
+        cs = &sl->d_output[d];
+        if (fread(cs->addrs, cs->num_r * sizeof(uint32_t), 1, fptr) == 0) {printf("Error:\n");} // TODO: error check
+        if (fread(cs->perms, cs->num_r * sizeof(int32_t), 1, fptr) == 0) {printf("Error:\n");} // TODO: error check
     }
 
-    if (fread(sl->n_next_d, sl->num_s * sizeof(uint32_t), 1, fptr) == 0) {
+    // load next available coincidence detector on each statelet
+    if (fread(sl->s_next_d, sl->num_s * sizeof(uint32_t), 1, fptr) == 0) {
         printf("Error:\n"); // TODO
     }
 
     fclose(fptr); 
-}
-
-// =============================================================================
-// Clear
-// =============================================================================
-void sequence_learner_clear(struct SequenceLearner* sl) {
-    page_clear_bits(sl->input, 0); // current
-    page_clear_bits(sl->input, 1); // previous
-    page_clear_bits(sl->output, 0); // current
-    page_clear_bits(sl->output, 1); // previous
 }
 
 // =============================================================================
@@ -218,23 +237,26 @@ void sequence_learner_compute(
     }
 
     page_step(sl->input);
+    page_step(sl->hidden);
     page_step(sl->output);
     page_fetch(sl->input);
 
-    if (sl->input->changed_flag || sl->output->changed_flag) {
+    if (sl->input->changed_flag || sl->hidden->changed_flag) {
         struct ActArray* input_aa = page_get_actarray(sl->input, 0);
 
-        sequence_learner_overlap_(sl, input_aa);
-        sequence_learner_activate_(sl, input_aa, learn_flag);
-        
+        sequence_learner_overlap(sl, input_aa);
+        sequence_learner_activate(sl, input_aa, learn_flag);
+
         if (learn_flag) {
-            sequence_learner_learn_(sl, input_aa);
+            sequence_learner_learn(sl, input_aa);
         }
 
-        page_compute_changed(sl->output);
+        page_compute_changed(sl->hidden);       
     }
     else {
+        page_copy_previous_to_current(sl->hidden);
         page_copy_previous_to_current(sl->output);
+        sl->hidden->changed_flag = 0;
         sl->output->changed_flag = 0;
     }
 }
@@ -247,31 +269,62 @@ double sequence_learner_get_score(struct SequenceLearner* sl) {
 }
 
 // =============================================================================
+// Get Historical Statelets
+// =============================================================================
+struct BitArray* sequence_learner_get_historical_statelets(struct SequenceLearner* sl) {
+    struct BitArray* hist_ba = malloc(sizeof(*hist_ba)); // TODO: how do I free this?
+    bitarray_construct(hist_ba, sl->num_s);
+    
+    for (uint32_t s = 0; s < sl->num_s; s++) {
+        if (sl->s_next_d[s] > 0) {
+            bitarray_set_bit(hist_ba, s);
+        }
+    }
+    
+    return hist_ba;
+}
+
+// =============================================================================
 // Overlap
 // =============================================================================
-void sequence_learner_overlap_(
+void sequence_learner_overlap(
         struct SequenceLearner* sl,
         const struct ActArray* input_aa) {
 
-    // loop through each active column
+    // get previous hidden state bitarray
+    struct BitArray* hidden_ba = page_get_bitarray(sl->hidden, 1);
+
+    // for every active column
     for (uint32_t k = 0; k < input_aa->num_acts; k++) {
         uint32_t c = input_aa->acts[k];
 
+        // for every coincidence detector on the active column
         for (uint32_t cd = 0; cd < sl->num_dpc; cd++) {
             uint32_t d = cd + (c * sl->num_dpc);
 
+            // update the connections bitarray with hidden coincidence detector information
             bitarray_clear(sl->connections_ba);
-            
             for (uint32_t r = 0; r < sl->num_rpd; r++) {
-                if (sl->coincidence_sets[d].perms[r] > 0) { // TODO: change 0 to perm_thr
-                    uint32_t bit = sl->coincidence_sets[d].addrs[r];
-                    bitarray_set_bit(sl->connections_ba, bit);
+                if (sl->d_hidden[d].perms[r] >= sl->perm_thr) {
+                    bitarray_set_bit(sl->connections_ba, sl->d_hidden[d].addrs[r]);
                 }
             }
 
-            struct BitArray* output_ba = page_get_bitarray(sl->output, 1);
-            bitarray_and(sl->connections_ba, output_ba, sl->activeconns_ba);
-            sl->coincidence_sets[d].overlap = bitarray_count(sl->activeconns_ba);
+            // overlap hidden coincidence detector connections with previous hidden state
+            bitarray_and(sl->connections_ba, hidden_ba, sl->activeconns_ba);
+            sl->d_hidden[d].overlap = bitarray_count(sl->activeconns_ba);
+
+            // update the connections bitarray with output coincidence detector information
+            bitarray_clear(sl->connections_ba);
+            for (uint32_t r = 0; r < sl->num_rpd; r++) {
+                if (sl->d_output[d].perms[r] >= sl->perm_thr) {
+                    bitarray_set_bit(sl->connections_ba, sl->d_output[d].addrs[r]);
+                }
+            }
+
+            // overlap output coincidence detector connections with previous hidden state
+            bitarray_and(sl->connections_ba, hidden_ba, sl->activeconns_ba);
+            sl->d_output[d].overlap = bitarray_count(sl->activeconns_ba);
         }
     }
 }
@@ -279,65 +332,111 @@ void sequence_learner_overlap_(
 // =============================================================================
 // Activate
 // =============================================================================
-void sequence_learner_activate_(
+void sequence_learner_activate(
         struct SequenceLearner* sl,
         const struct ActArray* input_aa,
         const uint32_t learn_flag) {
 
     sl->pct_score = 0.0;
 
+    // for every active column
     for (uint32_t k = 0; k < input_aa->num_acts; k++) {
         uint32_t c = input_aa->acts[k];
         uint32_t surprise_flag = 1;
 
-        // handle recognition
+        // ====================
+        // Recognition
+        // ====================
+        // for every coincidence detector on the active column
         for (uint32_t cd = 0; cd < sl->num_dpc; cd++) {
-            uint32_t d = cd + (c * sl->num_dpc);
-            
-            sl->coincidence_sets[d].state = 0;
-            
-            if (sl->coincidence_sets[d].overlap >= sl->d_thresh) {
-                uint32_t s = d / sl->num_dps;
-                sl->coincidence_sets[d].state = 1;
-                page_set_bit(sl->output, 0, s);
+
+            // get global index of the coincidence detector
+            uint32_t d = cd + (c * sl->num_dpc); // global index of coincidence detector
+
+            // deactivate hidden and output coincidence detectors
+            sl->d_hidden[d].state = 0;
+            sl->d_output[d].state = 0;
+
+            // if hidden coincidence detector overlap is above the threshold
+            if (sl->d_hidden[d].overlap >= sl->d_thresh) {
+                uint32_t s = d / sl->num_dps;   // get global index of statelet
+                sl->d_hidden[d].state = 1;      // activate hidden coincidence detector
+                page_set_bit(sl->hidden, 0, s); // activate hidden statelet
                 surprise_flag = 0;
+            }
+
+            // if output coincidence detector overlap is above the threshold
+            if (sl->d_output[d].overlap >= sl->d_thresh) {
+                uint32_t s = d / sl->num_dps;   // get global index of statelet
+                //sl->d_hidden[d].state = 1;      // activate output coincidence detector
+                page_set_bit(sl->output, 0, s); // activate output statelet
             }
         }
 
-        // handle surprise
-        if (surprise_flag) {
+        // ====================
+        // Surprise
+        // ====================
+        if (surprise_flag == 1) {
             sl->pct_score++;
 
-            uint32_t s_beg = c * sl->num_spc; // initial statelet
-            uint32_t s_end = s_beg + sl->num_spc - 1; // final statelet
-            uint32_t s_rand = utils_rand_uint(s_beg, s_end); // random statelet
+            uint32_t s_beg = c * sl->num_spc;                // global index of first statelet 
+            uint32_t s_end = s_beg + sl->num_spc - 1;        // global index of final statelet 
+            uint32_t s_rand = utils_rand_uint(s_beg, s_end); // global index of random statelet
 
-            // activate random statelet
+            // activate random hidden and output statelets
+            page_set_bit(sl->hidden, 0, s_rand);
             page_set_bit(sl->output, 0, s_rand);
 
-            // activate next available coincidence detector
+            // activate next available hidden and output coincidence detectors
             if (learn_flag) {
-                uint32_t d_beg = s_rand * sl->num_dps;
-                uint32_t d_next = d_beg + sl->n_next_d[s_rand];                
+                uint32_t d_beg = s_rand * sl->num_dps;          // global index of first coincidence detector on random statelet
+                uint32_t d_next = d_beg + sl->s_next_d[s_rand]; // global index of next available coincidence detector on random statelet
 
-                sl->coincidence_sets[d_next].state = 1;
+                // activate next available hidden and output coincidence detector
+                sl->d_hidden[d_next].state = 1;
+                sl->d_output[d_next].state = 1;
 
-                if (sl->n_next_d[s_rand] < sl->num_dps) {
-                    sl->n_next_d[s_rand]++;
+                // if next available coincidence detector is less than the number of coincidence detectors per statelet
+                if (sl->s_next_d[s_rand] < sl->num_dps) {
+
+                    // update historical coincidence detector and statelet counters
+                    // remember: both hidden and output were activated in this case
+                    sl->count_hd += 2; 
+                    if (sl->s_next_d[s_rand] == 0) {
+                        sl->count_hs += 2;
+                    }
+                    
+                    // update next available coincidence detector on the random statelet
+                    sl->s_next_d[s_rand]++;
                 }
             }
 
-            // activate all historical statelets
+            // activate all hidden historical statelets
+            // for each global index of statelets on the column
             for (uint32_t s = s_beg; s <= s_end; s++) {
-                if (s != s_rand && sl->n_next_d[s] > 0) {
-                    page_set_bit(sl->output, 0, s);
 
+                // if the statelet is not the random statelet
+                // and the statelet has at lease one coincidence detector
+                if (s != s_rand && sl->s_next_d[s] > 0) {
+
+                    // activate the hidden statlet
+                    page_set_bit(sl->hidden, 0, s);
+
+                    // activate next available hidden coincidence detector
                     if (learn_flag) {
-                        uint32_t d_beg_ = s * sl->num_dps;
-                        uint32_t d_next_ = d_beg_ + sl->n_next_d[s];
-                        sl->coincidence_sets[d_next_].state = 1;
-                        if (sl->n_next_d[s] < sl->num_dps) {
-                            sl->n_next_d[s]++;
+                        uint32_t d_beg = s * sl->num_dps;
+                        uint32_t d_next = d_beg + sl->s_next_d[s];
+
+                        // activate next available hidden coincidence detector
+                        sl->d_hidden[d_next].state = 1;
+
+                        if (sl->s_next_d[s] < sl->num_dps) {
+                            sl->count_hd++;
+                            if (sl->s_next_d[s] == 0) {
+                                sl->count_hs++;
+                            }
+
+                            sl->s_next_d[s]++;
                         }
                     }
                 }
@@ -348,22 +447,38 @@ void sequence_learner_activate_(
     sl->pct_score = sl->pct_score / input_aa->num_acts;
 }
 
+
 // =============================================================================
 // Learn
 // =============================================================================
-void sequence_learner_learn_(
+void sequence_learner_learn(
         struct SequenceLearner* sl,
         const struct ActArray* input_aa) {
 
+    // for every active column
     for (uint32_t k = 0; k < input_aa->num_acts; k++) {
         uint32_t c = input_aa->acts[k];
 
+        // for every coincidence detector on the active column
         for (uint32_t cd = 0; cd < sl->num_dpc; cd++) {
+            
+            // get global index of the coincidence detector
             uint32_t d = cd + (c * sl->num_dpc);
 
-            if (sl->coincidence_sets[d].state == 1) {
+            // learn active hidden coincidence set
+            if (sl->d_hidden[d].state == 1) {
                 coincidence_set_learn_move(
-                    &sl->coincidence_sets[d],
+                    &sl->d_hidden[d],
+                    page_get_bitarray(sl->hidden, 1),
+                    page_get_actarray(sl->hidden, 1),
+                    sl->perm_inc,
+                    sl->perm_dec);
+            }
+
+            // learn active output coincidence set
+            if (sl->d_output[d].state == 1) {
+                coincidence_set_learn_move(
+                    &sl->d_output[d],
                     page_get_bitarray(sl->output, 1),
                     page_get_actarray(sl->output, 1),
                     sl->perm_inc,

@@ -72,9 +72,6 @@ class BlankBlock():
 
         self.obj = bb.BlankBlock(num_s)
 
-    def clear(self):
-        self.obj.clear()
-
     @property
     def output(self):
         return Page(self.obj.output)
@@ -92,9 +89,6 @@ class ScalarEncoder():
             num_as=128):  # number of active statelets
 
         self.obj = bb.ScalarEncoder(min_val, max_val, num_s, num_as)
-
-    def clear(self):
-        self.obj.clear()
 
     def compute(self, value):
         if value != None:
@@ -115,9 +109,6 @@ class SymbolsEncoder():
             num_s=1024):   # number of statelets
 
         self.obj = bb.SymbolsEncoder(max_symbols, num_s)
-
-    def clear(self):
-        self.obj.clear()
 
     def compute(self, value):
         if value != None:
@@ -147,9 +138,6 @@ class PersistenceEncoder():
 
     def reset(self):
         self.obj.reset()
-
-    def clear(self):
-        self.obj.clear()
 
     def compute(self, value):
         if value != None:
@@ -192,9 +180,6 @@ class PatternClassifier():
 
     def load(self, file_str='./pc.bin'):
         self.obj.load(file_str.encode('utf-8'))
-
-    def clear(self):
-        self.obj.clear()
 
     def compute(self, label=None, learn=False):
         if learn:
@@ -256,9 +241,6 @@ class PatternPooler():
     def load(self, file_str='./pl.bin'):
         self.obj.load(file_str.encode('utf-8'))
 
-    def clear(self):
-        self.obj.clear()
-
     def compute(self, learn=True):
         self.obj.compute(learn)
 
@@ -304,24 +286,40 @@ class SequenceLearner():
     def load(self, file_str='./obj.bin'):
         self.obj.load(file_str.encode('utf-8'))
 
-    def clear(self):
-        self.obj.clear()
-
     def compute(self, learn=True):
         self.obj.compute(learn)
 
     def get_score(self):
         return self.obj.get_score()
 
+    def get_historical_count(self):
+        return self.obj.get_historical_count()
+
+    def get_coincidence_set_count(self):
+        return self.obj.get_coincidence_set_count()
+
+    def get_historical_statelets(self):
+        return self.obj.get_historical_statelets()
+
+    def get_num_coincidence_sets_per_statelet(self):
+        return self.obj.get_num_coincidence_sets_per_statelet()
+
     def print_column(self, c):
         self.obj.print_column(c)
 
-    def coincidence_sets(self, d):
-        return CoincidenceSet(self.obj.coincidence_set(d))
+    def get_hidden_coincidence_set(self, d):
+        return CoincidenceSet(self.obj.get_hidden_coincidence_set(d))
+
+    def get_output_coincidence_set(self, d):
+        return CoincidenceSet(self.obj.get_output_coincidence_set(d))
 
     @property
     def input(self):
         return Page(self.obj.input)
+
+    @property
+    def hidden(self):
+        return Page(self.obj.hidden)
 
     @property
     def output(self):

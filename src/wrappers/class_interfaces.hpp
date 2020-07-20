@@ -184,20 +184,15 @@ class CoincidenceSetClass {
 // =============================================================================
 class BlankBlockClass {
     public:
-        // Construct block
+        // Construct BlankBlock
         BlankBlockClass(const uint32_t num_o) {
             blank_block_construct(&b, num_o);
         };
 
-        // Deconstruct block
+        // Deconstruct BlankBlock
         ~BlankBlockClass() {
             blank_block_destruct(&b);
         };
-
-        // CLear block
-        void clear() {
-            blank_block_clear(&b);
-        }
 
         // Get output Page object
         PageClass* get_output() {
@@ -214,24 +209,18 @@ class BlankBlockClass {
 // =============================================================================
 class ScalarEncoderClass {
     public:
-        // Construct block
-        ScalarEncoderClass(
-                const double min_val,
-                const double max_val,
-                const uint32_t num_s,
-                const uint32_t num_as) {
+        // Construct ScalarEncoder
+        ScalarEncoderClass(const double min_val,
+                           const double max_val,
+                           const uint32_t num_s,
+                           const uint32_t num_as) {
             scalar_encoder_construct(&e, min_val, max_val, num_s, num_as);
         };
 
-        // Deconstruct block
+        // Deconstruct ScalarEncoder
         ~ScalarEncoderClass() {
             scalar_encoder_destruct(&e);
         };
-
-        // CLear block
-        void clear() {
-            scalar_encoder_clear(&e);
-        }
 
         // Compute block
         void compute(double value) {
@@ -253,22 +242,16 @@ class ScalarEncoderClass {
 // =============================================================================
 class SymbolsEncoderClass {
     public:
-        // Construct block
-        SymbolsEncoderClass(
-                const uint32_t max_symbols,
-                const uint32_t num_s) {
+        // Construct SymbolsEncoder
+        SymbolsEncoderClass(const uint32_t max_symbols,
+                            const uint32_t num_s) {
             symbols_encoder_construct(&e, max_symbols, num_s);
         };
 
-        // Deconstruct block
+        // Deconstruct SymbolsEncoder
         ~SymbolsEncoderClass() {
             symbols_encoder_destruct(&e);
         };
-
-        // CLear block
-        void clear() {
-            symbols_encoder_clear(&e);
-        }
 
         // Compute block
         void compute(const uint32_t value) {
@@ -305,17 +288,16 @@ class SymbolsEncoderClass {
 // =============================================================================
 class PersistenceEncoderClass {
     public:
-        // Construct block
-        PersistenceEncoderClass(
-                const double min_val,
-                const double max_val,
-                const uint32_t num_s,
-                const uint32_t num_as,
-                const uint32_t max_steps) {
+        // Construct PersistenceEncoder
+        PersistenceEncoderClass(const double min_val,
+                                const double max_val,
+                                const uint32_t num_s,
+                                const uint32_t num_as,
+                                const uint32_t max_steps) {
             persistence_encoder_construct(&e, min_val, max_val, num_s, num_as, max_steps);
         };
 
-        // Deconstruct block
+        // Deconstruct PersistenceEncoder
         ~PersistenceEncoderClass() {
             persistence_encoder_destruct(&e);
         };
@@ -324,11 +306,6 @@ class PersistenceEncoderClass {
         void reset() {
             persistence_encoder_reset(&e);
         };
-
-        // CLear block
-        void clear() {
-            persistence_encoder_clear(&e);
-        }
 
         // Compute block
         void compute(double value) {
@@ -350,7 +327,7 @@ class PersistenceEncoderClass {
 // =============================================================================
 class PatternClassifierClass {
     public:
-        // Construct block
+        // Construct PatternClassifier
         PatternClassifierClass(
                 const std::vector<uint32_t> labels,
                 const uint32_t num_l,
@@ -378,7 +355,7 @@ class PatternClassifierClass {
                 pct_learn);
         };
 
-        // Deconstruct block
+        // Deconstruct PatternClassifier
         ~PatternClassifierClass() {
             pattern_classifier_destruct(&pc);
         };
@@ -397,11 +374,6 @@ class PatternClassifierClass {
         void load(std::string file_str) {
             pattern_classifier_load(&pc, file_str.c_str());
         };
-
-        // CLear block
-        void clear() {
-            pattern_classifier_clear(&pc);
-        }
 
         // Compute block
         void compute(uint32_t in_label, const uint32_t learn_flag) {
@@ -455,7 +427,7 @@ class PatternClassifierClass {
 // =============================================================================
 class PatternPoolerClass {
     public:
-        // Construct block
+        // Construct PatternPooler
         PatternPoolerClass(
                 const uint32_t num_s,
                 const uint32_t num_as,
@@ -477,7 +449,7 @@ class PatternPoolerClass {
                 pct_learn);
         };
 
-        // Deconstruct block
+        // Deconstruct PatternPooler
         ~PatternPoolerClass() { 
             pattern_pooler_destruct(&pp);
         };
@@ -496,11 +468,6 @@ class PatternPoolerClass {
         void load(std::string file_str) {
             pattern_pooler_load(&pp, file_str.c_str());
         };
-
-        // CLear block
-        void clear() {
-            pattern_pooler_clear(&pp);
-        }
 
         // Compute block
         void compute(const uint32_t learn_flag) {
@@ -540,7 +507,7 @@ class PatternPoolerClass {
 // =============================================================================
 class SequenceLearnerClass {
     public:
-        // Construct block
+        // Construct SequenceLearner
         SequenceLearnerClass(
                 const uint32_t num_spc,
                 const uint32_t num_dps,
@@ -560,7 +527,7 @@ class SequenceLearnerClass {
                 perm_dec);
         };
 
-        // Deconstruct block
+        // Deconstruct SequenceLearner
         ~SequenceLearnerClass() {
             sequence_learner_destruct(&sl);
         };
@@ -580,11 +547,6 @@ class SequenceLearnerClass {
             sequence_learner_load(&sl, file_str.c_str());
         };
 
-        // CLear block
-        void clear() {
-            sequence_learner_clear(&sl);
-        }
-
         // Compute block
         void compute(const uint32_t learn_flag) {
             sequence_learner_compute(&sl, learn_flag);
@@ -595,22 +557,76 @@ class SequenceLearnerClass {
             return sequence_learner_get_score(&sl);
         };
 
-        // Get a particular CoincidenceSet object
-        CoincidenceSetClass* get_coincidence_set(const uint32_t d) {
+        // Get number of historical statelets
+        uint32_t get_historical_count() {
+			return sl.count_hs;
+        };
+
+        // Get number of used coincidence sets
+        uint32_t get_coincidence_set_count() {
+			return sl.count_hd;
+        };
+
+        // Get historical statelets
+        std::vector<uint8_t> get_historical_statelets() {
+            struct BitArray* ba = sequence_learner_get_historical_statelets(&sl);
+            uint32_t num_bits = ba->num_bits;
+            std::vector<uint8_t> bits;
+            bits.reserve(num_bits);
+
+            for (uint32_t i = 0; i < num_bits; i++) {
+                bits.push_back(bitarray_get_bit(ba, i));
+            }
+
+            return bits;
+        };
+
+        // Get number of coincidence sets per statelet
+        std::vector<uint32_t> get_num_coincidence_sets_per_statelet() {
+            std::vector<uint32_t> array;
+            array.reserve(sl.num_s);
+
+            for (uint32_t s = 0; s < sl.num_s; s++) {
+                array.push_back(sl.s_next_d[s]);
+            }
+
+            return array;
+        };
+
+        // Get a particular hidden CoincidenceSet object
+        CoincidenceSetClass* get_hidden_coincidence_set(const uint32_t d) {
             if (d > sl.num_d) {
-                throw std::range_error("Error: Index out of range in get_coincidence_set()");
+                throw std::range_error("Error: Index out of range in get_hidden_coincidence_set()");
             }
 
             if (sl.init_flag == 0) {
-                throw std::runtime_error("Error: Could not retrieve CoincidenceSet because SequenceLearner is not initialized.");
+                throw std::runtime_error("Error: Could not retrieve CoincidenceSet object because SequenceLearner is not initialized.");
             }
 
-            return new CoincidenceSetClass(&sl.coincidence_sets[d]);
+            return new CoincidenceSetClass(&sl.d_hidden[d]);
+        };
+
+        // Get a particular output CoincidenceSet object
+        CoincidenceSetClass* get_output_coincidence_set(const uint32_t d) {
+            if (d > sl.num_d) {
+                throw std::range_error("Error: Index out of range in get_output_coincidence_set()");
+            }
+
+            if (sl.init_flag == 0) {
+                throw std::runtime_error("Error: Could not retrieve CoincidenceSet object because SequenceLearner is not initialized.");
+            }
+
+            return new CoincidenceSetClass(&sl.d_output[d]);
         };
 
         // Get input Page object
         PageClass* get_input() {
             return new PageClass(sl.input);
+        };
+
+        // Get hidden Page object
+        PageClass* get_hidden() {
+            return new PageClass(sl.hidden);
         };
 
         // Get output Page object
