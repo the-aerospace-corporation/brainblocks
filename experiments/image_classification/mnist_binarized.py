@@ -24,9 +24,9 @@ print("Loading MNIST data...", flush=True)
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
 
 # define train/test parameters
-num_trains = len(x_train)
-num_tests = len(x_test)
-pixel_thresh = 128 # from 0 to 255
+num_trains=1#len(x_train)
+num_tests=1#len(x_test)
+pixel_thresh=128 # from 0 to 255
 
 # setup BrainBlocks classifier architecture
 input_block = BlankBlock(num_s=784)
@@ -61,7 +61,7 @@ t0 = time.time()
 for i in range(num_tests):
     bitimage = binarize_image(x_test[i], pixel_thresh)
     input_block.output.bits = flatten_image(bitimage)
-    classifier.compute(0, learn=False)
+    classifier.compute(learn=False)
     probs = classifier.get_probabilities()
     if np.argmax(probs) == y_test[i]:
         num_correct += 1
@@ -78,9 +78,9 @@ print("- testing time: {:0.6f}s".format(test_time), flush=True)
 print("- accuracy: {:0.2f}%".format(accuracy*100), flush=True)
 
 # display sample image
-#plt.subplot(121),plt.imshow(x_test[1], cmap='gray')
+#plt.subplot(121),plt.imshow(x_train[0], cmap='gray')
 #plt.title('Original Image'), plt.xticks([]), plt.yticks([])
-#bitimage = binarize_image(x_test[1], pixel_thresh)
+#bitimage = binarize_image(x_train[0], pixel_thresh)
 #plt.subplot(122),plt.imshow(bitimage, cmap='gray')
 #plt.title('Binariazed Image'), plt.xticks([]), plt.yticks([])
 #plt.show()
