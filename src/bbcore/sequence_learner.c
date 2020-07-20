@@ -197,6 +197,16 @@ void sequence_learner_load(struct SequenceLearner* sl, const char* file) {
 }
 
 // =============================================================================
+// Clear
+// =============================================================================
+void sequence_learner_clear(struct SequenceLearner* sl) {
+    page_clear_bits(sl->input, 0); // current
+    page_clear_bits(sl->input, 1); // previous
+    page_clear_bits(sl->output, 0); // current
+    page_clear_bits(sl->output, 1); // previous
+}
+
+// =============================================================================
 // Compute
 // =============================================================================
 void sequence_learner_compute(

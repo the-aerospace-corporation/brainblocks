@@ -184,15 +184,20 @@ class CoincidenceSetClass {
 // =============================================================================
 class BlankBlockClass {
     public:
-        // Construct BlankBlock
+        // Construct block
         BlankBlockClass(const uint32_t num_o) {
             blank_block_construct(&b, num_o);
         };
 
-        // Deconstruct BlankBlock
+        // Deconstruct block
         ~BlankBlockClass() {
             blank_block_destruct(&b);
         };
+
+        // CLear block
+        void clear() {
+            blank_block_clear(&b);
+        }
 
         // Get output Page object
         PageClass* get_output() {
@@ -209,18 +214,24 @@ class BlankBlockClass {
 // =============================================================================
 class ScalarEncoderClass {
     public:
-        // Construct ScalarEncoder
-        ScalarEncoderClass(const double min_val,
-                           const double max_val,
-                           const uint32_t num_s,
-                           const uint32_t num_as) {
+        // Construct block
+        ScalarEncoderClass(
+                const double min_val,
+                const double max_val,
+                const uint32_t num_s,
+                const uint32_t num_as) {
             scalar_encoder_construct(&e, min_val, max_val, num_s, num_as);
         };
 
-        // Deconstruct ScalarEncoder
+        // Deconstruct block
         ~ScalarEncoderClass() {
             scalar_encoder_destruct(&e);
         };
+
+        // CLear block
+        void clear() {
+            scalar_encoder_clear(&e);
+        }
 
         // Compute block
         void compute(double value) {
@@ -242,16 +253,22 @@ class ScalarEncoderClass {
 // =============================================================================
 class SymbolsEncoderClass {
     public:
-        // Construct SymbolsEncoder
-        SymbolsEncoderClass(const uint32_t max_symbols,
-                            const uint32_t num_s) {
+        // Construct block
+        SymbolsEncoderClass(
+                const uint32_t max_symbols,
+                const uint32_t num_s) {
             symbols_encoder_construct(&e, max_symbols, num_s);
         };
 
-        // Deconstruct SymbolsEncoder
+        // Deconstruct block
         ~SymbolsEncoderClass() {
             symbols_encoder_destruct(&e);
         };
+
+        // CLear block
+        void clear() {
+            symbols_encoder_clear(&e);
+        }
 
         // Compute block
         void compute(const uint32_t value) {
@@ -288,16 +305,17 @@ class SymbolsEncoderClass {
 // =============================================================================
 class PersistenceEncoderClass {
     public:
-        // Construct PersistenceEncoder
-        PersistenceEncoderClass(const double min_val,
-                                const double max_val,
-                                const uint32_t num_s,
-                                const uint32_t num_as,
-                                const uint32_t max_steps) {
+        // Construct block
+        PersistenceEncoderClass(
+                const double min_val,
+                const double max_val,
+                const uint32_t num_s,
+                const uint32_t num_as,
+                const uint32_t max_steps) {
             persistence_encoder_construct(&e, min_val, max_val, num_s, num_as, max_steps);
         };
 
-        // Deconstruct PersistenceEncoder
+        // Deconstruct block
         ~PersistenceEncoderClass() {
             persistence_encoder_destruct(&e);
         };
@@ -306,6 +324,11 @@ class PersistenceEncoderClass {
         void reset() {
             persistence_encoder_reset(&e);
         };
+
+        // CLear block
+        void clear() {
+            persistence_encoder_clear(&e);
+        }
 
         // Compute block
         void compute(double value) {
@@ -327,7 +350,7 @@ class PersistenceEncoderClass {
 // =============================================================================
 class PatternClassifierClass {
     public:
-        // Construct PatternClassifier
+        // Construct block
         PatternClassifierClass(
                 const std::vector<uint32_t> labels,
                 const uint32_t num_l,
@@ -355,7 +378,7 @@ class PatternClassifierClass {
                 pct_learn);
         };
 
-        // Deconstruct PatternClassifier
+        // Deconstruct block
         ~PatternClassifierClass() {
             pattern_classifier_destruct(&pc);
         };
@@ -374,6 +397,11 @@ class PatternClassifierClass {
         void load(std::string file_str) {
             pattern_classifier_load(&pc, file_str.c_str());
         };
+
+        // CLear block
+        void clear() {
+            pattern_classifier_clear(&pc);
+        }
 
         // Compute block
         void compute(uint32_t in_label, const uint32_t learn_flag) {
@@ -427,7 +455,7 @@ class PatternClassifierClass {
 // =============================================================================
 class PatternPoolerClass {
     public:
-        // Construct PatternPooler
+        // Construct block
         PatternPoolerClass(
                 const uint32_t num_s,
                 const uint32_t num_as,
@@ -449,7 +477,7 @@ class PatternPoolerClass {
                 pct_learn);
         };
 
-        // Deconstruct PatternPooler
+        // Deconstruct block
         ~PatternPoolerClass() { 
             pattern_pooler_destruct(&pp);
         };
@@ -468,6 +496,11 @@ class PatternPoolerClass {
         void load(std::string file_str) {
             pattern_pooler_load(&pp, file_str.c_str());
         };
+
+        // CLear block
+        void clear() {
+            pattern_pooler_clear(&pp);
+        }
 
         // Compute block
         void compute(const uint32_t learn_flag) {
@@ -507,7 +540,7 @@ class PatternPoolerClass {
 // =============================================================================
 class SequenceLearnerClass {
     public:
-        // Construct SequenceLearner
+        // Construct block
         SequenceLearnerClass(
                 const uint32_t num_spc,
                 const uint32_t num_dps,
@@ -527,7 +560,7 @@ class SequenceLearnerClass {
                 perm_dec);
         };
 
-        // Deconstruct SequenceLearner
+        // Deconstruct block
         ~SequenceLearnerClass() {
             sequence_learner_destruct(&sl);
         };
@@ -546,6 +579,11 @@ class SequenceLearnerClass {
         void load(std::string file_str) {
             sequence_learner_load(&sl, file_str.c_str());
         };
+
+        // CLear block
+        void clear() {
+            sequence_learner_clear(&sl);
+        }
 
         // Compute block
         void compute(const uint32_t learn_flag) {

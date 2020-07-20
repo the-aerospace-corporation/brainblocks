@@ -1,22 +1,26 @@
-from brainblocks.blocks import ScalarEncoder, SequenceLearner
+from brainblocks.blocks import SymbolsEncoder, SequenceLearner
+from sklearn import preprocessing
 
 # define data and scores
 scores = []
 values = [
-    0.0, 0.0, 0.0, 0.0, 0.0,
-    1.0, 1.0, 1.0, 1.0, 1.0,
-    0.0, 0.0, 0.0, 0.0, 0.0,
-    1.0, 1.0, 1.0, 1.0, 1.0,
-    0.0, 0.0, 0.0, 0.0, 0.0,
-    1.0, 1.0, 1.0, 1.0, 1.0,
-    0.0, 0.0, 0.2, 0.0, 0.0]  # <-- abnormality is 0.2
+    'a', 'a', 'a', 'a', 'a',
+    'b', 'c', 'd', 'e', 'f',
+    'a', 'a', 'a', 'a', 'a',
+    'b', 'c', 'd', 'e', 'f',
+    'a', 'a', 'a', 'a', 'a',
+    'b', 'c', 'd', 'e', 'f',
+    'a', 'a', 'a', 'a', 'a']
+
+# convert to integer values
+le = preprocessing.LabelEncoder()
+le.fit(values)
+int_values = le.transform(values)
 
 # define blocks
-e = ScalarEncoder(
-    min_val=0.0, # minimum input value
-    max_val=1.0, # maximum input value
-    num_s=64,    # number of statelets
-    num_as=8)    # number of active statelets
+e = SymbolsEncoder(
+    max_symbols=26, # maximum number of symbols
+    num_s=208)      # number of statelets
 
 sl = SequenceLearner(
     num_spc=10, # number of statelets per column
@@ -31,10 +35,10 @@ sl = SequenceLearner(
 sl.input.add_child(e.output)
 
 # loop through data
-for i in range(len(values)):
+for i in range(len(int_values)):
 
     # convert data using scalar encoder
-    e.compute(values[i])
+    e.compute(int_values[i])
 
     # learn the sequence
     sl.compute(learn=True)
@@ -46,4 +50,4 @@ for i in range(len(values)):
 # print output
 print("value, score")
 for i in range(len(scores)):
-    print("%0.1f, %0.1f" % (values[i], scores[i]))
+    print("%5s, %0.1f" % (values[i], scores[i]))
