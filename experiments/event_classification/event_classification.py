@@ -90,7 +90,7 @@ if __name__ == '__main__':
 
     aed = AbnormalEventDetector(5, 5)
 
-    print('val  scr  lbl  prob  output abnormal_event active_statelets')
+    print('val  scr  lbl  prob  ae  output_active_statelets')
 
     for i in range(len(values)):
         e.compute(value=values[i])
@@ -103,7 +103,7 @@ if __name__ == '__main__':
         abnormal_event = aed.compute(score)
 
         if abnormal_event:
-            for _ in range(30):
+            for _ in range(50):
                 pc.compute(label=new_label, learn=True)
             new_label += 1
 
@@ -114,4 +114,4 @@ if __name__ == '__main__':
             winner_str = str(winner)
 
         sl_acts = '[' + ', '.join(map(str, sl.output.acts)) + ']'
-        print('%0.1f  %0.1f  %3s  %0.2f  %d  %s' % (values[i], score, winner_str, probs[winner], abnormal_event, sl_acts))
+        print('%0.1f  %0.1f  %3s  %0.2f  %2d  %s' % (values[i], score, winner_str, probs[winner], abnormal_event, sl_acts))
