@@ -1,3 +1,7 @@
+# ignore tensorflow warnings regarding numpy version
+import warnings
+warnings.filterwarnings('ignore')
+
 import time
 import numpy as np
 import tensorflow as tf
@@ -7,19 +11,16 @@ from brainblocks.blocks import BlankBlock, PatternClassifier
 
 # helper function to convert HOG feature descriptor to bits
 def binarize_hog(fd, threshold=0.3):
-    bits = [0 for x in range(len(fd))]
-    for i in range(len(fd)):
-        if fd[i] >= threshold:
-            bits[i] = 1
-    return bits
+    return 1 * (fd > threshold)
 
 # retrieve MNIST data via Tensorflow
 print("Loading MNIST data...", flush=True)
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
 
 # define train/test parameters
-num_trains=1#len(x_train)
-num_tests=1#len(x_test)
+num_epochs=1
+num_trains=len(x_train)
+num_tests=len(x_test)
 hog_thresh=0.3
 orientations=6
 pixels_per_cell=(7, 7)
@@ -52,17 +53,18 @@ classifier.input.add_child(input_block.output)
 # train BrainBLocks classifier
 print("Training...", flush=True)
 t0 = time.time()
-for i in range(num_trains):
-    hog_fd = hog(x_train[i],
-                 orientations=orientations,
-                 pixels_per_cell=pixels_per_cell,
-                 cells_per_block=cells_per_block,
-                 visualize=False,
-                 multichannel=False,
-                 feature_vector=True)
-    bit_fd = binarize_hog(hog_fd, hog_thresh)
-    input_block.output.bits = bit_fd
-    classifier.compute(y_train[i], learn=True)
+for _ in range(num_epochs):
+    for i in range(num_trains):
+        hog_fd = hog(x_train[i],
+                     orientations=orientations,
+                     pixels_per_cell=pixels_per_cell,
+                     cells_per_block=cells_per_block,
+                     visualize=False,
+                     multichannel=False,
+                     feature_vector=True)
+        bit_fd = binarize_hog(hog_fd, hog_thresh)
+        input_block.output.bits = bit_fd
+        classifier.compute(y_train[i], learn=True)
 t1 = time.time()
 train_time = t1 - t0
 
