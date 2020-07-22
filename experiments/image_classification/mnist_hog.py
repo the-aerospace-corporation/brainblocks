@@ -23,7 +23,7 @@ num_trains=len(x_train)
 num_tests=len(x_test)
 hog_thresh=0.3
 orientations=6
-pixels_per_cell=(7, 7)
+pixels_per_cell=(4, 4)
 cells_per_block=(2, 2)
 
 hog_fd = hog(x_train[0],
