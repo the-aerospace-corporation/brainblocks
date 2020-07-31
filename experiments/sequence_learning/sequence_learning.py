@@ -294,6 +294,110 @@ def two_events():
     plot_statelet_usage(directory, 'output', output_s_usage, 75)
 
 # ==============================================================================
+# Three Events
+# ==============================================================================
+def three_events():
+    experiment_name = 'three_events'
+    directory = './' + experiment_name
+    mkdir_p(directory)
+    print()
+    print('experiment=\'%s\'' % (experiment_name))
+
+    e = SymbolsEncoder(
+        max_symbols=26, # maximum number of symbols
+        num_s=208)      # number of statelets
+
+    sl = SequenceLearner(
+        num_spc=10, # number of statelets per column
+        num_dps=50, # number of coincidence detectors per statelet
+        num_rpd=12, # number of receptors per coincidence detector
+        d_thresh=6, # coincidence detector threshold
+        perm_thr=1, # receptor permanence threshold
+        perm_inc=1, # receptor permanence increment
+        perm_dec=0) # receptor permanence decrement
+
+    sl.input.add_child(e.output)
+
+    values = [
+        'a', 'a', 'a', 'a', 'a',
+        'a', 'a', 'a', 'a', 'a',
+        'b', 'c', 'd', 'e', 'f',
+        'a', 'a', 'a', 'a', 'a',
+        'a', 'a', 'a', 'a', 'a',
+        'f', 'e', 'd', 'c', 'b',
+        'a', 'a', 'a', 'a', 'a',
+        'a', 'a', 'a', 'a', 'a',
+        'b', 'c', 'd', 'c', 'b',
+        'a', 'a', 'a', 'a', 'a',
+        'a', 'a', 'a', 'a', 'a',
+        'b', 'c', 'd', 'e', 'f',
+        'a', 'a', 'a', 'a', 'a',
+        'a', 'a', 'a', 'a', 'a',
+        'f', 'e', 'd', 'c', 'b',
+        'a', 'a', 'a', 'a', 'a',
+        'a', 'a', 'a', 'a', 'a',
+        'b', 'c', 'd', 'c', 'b',
+        'a', 'a', 'a', 'a', 'a',
+        'a', 'a', 'a', 'a', 'a',
+        'b', 'c', 'd', 'e', 'f',
+        'a', 'a', 'a', 'a', 'a',
+        'a', 'a', 'a', 'a', 'a',
+        'f', 'e', 'd', 'c', 'b',
+        'a', 'a', 'a', 'a', 'a',
+        'a', 'a', 'a', 'a', 'a',
+        'b', 'c', 'd', 'c', 'b',
+        'a', 'a', 'a', 'a', 'a',
+        'a', 'a', 'a', 'a', 'a']
+
+    le = preprocessing.LabelEncoder()
+    le.fit(values)
+    int_values = le.transform(values)
+
+    scores = [0.0 for _ in range(len(values))]
+    count_s_acts = [0 for _ in range(len(values))]
+    count_s_hist = [0 for _ in range(len(values))]
+    count_cs = [0 for _ in range(len(values))]
+    hidden_s_usage = [0 for _ in range(2240)]
+    output_s_usage = [0 for _ in range(2240)]
+
+    print('val  scr  s_act  s_his    cs  active output statelets')
+
+    for i in range(len(int_values)):
+        e.compute(value=int_values[i])
+        sl.compute(learn=True)
+
+        # update information
+        hidden_s_bits = sl.hidden.bits
+        hidden_s_acts = sl.hidden.acts
+        output_s_bits = sl.output.bits
+        output_s_acts = sl.output.acts
+        scores[i] = sl.get_score()
+        count_s_acts[i] = len(output_s_acts)
+        count_s_hist[i] = sl.get_historical_count()
+        count_cs[i] = sl.get_coincidence_set_count()
+
+        # update statelet usage
+        for s in range(len(output_s_usage)):
+            hidden_s_usage[s] += hidden_s_bits[s]
+            output_s_usage[s] += output_s_bits[s]
+
+        # plot statelets
+        if (i+1) % 5 == 0:
+            title = 'step_' + str(i) + '_' + values[i] + '_' + values[i-1]
+            plot_statelets(directory, 'hidden_'+title, hidden_s_bits)
+            plot_statelets(directory, 'output_'+title, output_s_bits)
+
+        # print information
+        output_s_acts_str = '[' + ', '.join(str(act).rjust(4) for act in output_s_acts) + ']'
+        print('{0:>3}  {1:0.1f}  {2:5d}  {3:5d}  {4:4d}  {5:>4}'.format(
+            values[i], scores[i], count_s_acts[i], count_s_hist[i], count_cs[i], output_s_acts_str))
+
+    # plot information
+    plot_results(directory, 'results', values, scores, count_s_acts, count_s_hist, count_cs, 400, 400)
+    plot_statelet_usage(directory, 'hidden', hidden_s_usage, 75)
+    plot_statelet_usage(directory, 'output', output_s_usage, 75)
+
+# ==============================================================================
 # Multiple Prior Contexts
 # ==============================================================================
 def multiple_prior_contexts():
@@ -412,6 +516,7 @@ def multiple_prior_contexts():
 # Main
 # ==============================================================================
 if __name__ == '__main__':
-    one_event()
-    two_events()
-    multiple_prior_contexts()
+    #one_event()
+    #two_events()
+    three_events()
+    #multiple_prior_contexts()

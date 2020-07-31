@@ -342,7 +342,8 @@ void sequence_learner_activate(
     // for every active column
     for (uint32_t k = 0; k < input_aa->num_acts; k++) {
         uint32_t c = input_aa->acts[k];
-        uint32_t surprise_flag = 1;
+        uint32_t hidden_surprise_flag = 1;
+        uint32_t output_surprise_flag = 1;
 
         // ====================
         // Recognition
@@ -362,7 +363,7 @@ void sequence_learner_activate(
                 uint32_t s = d / sl->num_dps;   // get global index of statelet
                 sl->d_hidden[d].state = 1;      // activate hidden coincidence detector
                 page_set_bit(sl->hidden, 0, s); // activate hidden statelet
-                surprise_flag = 0;
+                hidden_surprise_flag = 0;
             }
 
             // if output coincidence detector overlap is above the threshold
@@ -370,13 +371,52 @@ void sequence_learner_activate(
                 uint32_t s = d / sl->num_dps;   // get global index of statelet
                 //sl->d_hidden[d].state = 1;      // activate output coincidence detector
                 page_set_bit(sl->output, 0, s); // activate output statelet
+                output_surprise_flag = 0;
             }
         }
+
+        /*
+        // handles instances where hidden states closed loops with historical statelets
+        // but output statelets never empirically learned the transition
+        if (hidden_surprise_flag == 0 && output_surprise_flag == 1) {
+            sl->pct_score++;
+            
+            uint32_t s_beg = c * sl->num_spc;                // global index of first statelet 
+            uint32_t s_end = s_beg + sl->num_spc - 1;        // global index of final statelet 
+            uint32_t s_rand = utils_rand_uint(s_beg, s_end); // global index of random statelet
+
+            // activate random output statelets
+            page_set_bit(sl->output, 0, s_rand);
+
+            // activate next available output coincidence detector
+            if (learn_flag) {
+                uint32_t d_beg = s_rand * sl->num_dps;          // global index of first coincidence detector on random statelet
+                uint32_t d_next = d_beg + sl->s_next_d[s_rand]; // global index of next available coincidence detector on random statelet
+
+                // activate next available hidden and output coincidence detector
+                sl->d_output[d_next].state = 1;
+
+                // if next available coincidence detector is less than the number of coincidence detectors per statelet
+                if (sl->s_next_d[s_rand] < sl->num_dps) {
+
+                    // update historical coincidence detector and statelet counters
+                    // remember: both hidden and output were activated in this case
+                    sl->count_hd += 1;
+                    if (sl->s_next_d[s_rand] == 0) {
+                        sl->count_hs += 1;
+                    }
+                    
+                    // update next available coincidence detector on the random statelet
+                    sl->s_next_d[s_rand]++;
+                }
+            }
+        }
+        */
 
         // ====================
         // Surprise
         // ====================
-        if (surprise_flag == 1) {
+        if (hidden_surprise_flag == 1) {
             sl->pct_score++;
 
             uint32_t s_beg = c * sl->num_spc;                // global index of first statelet 
