@@ -85,6 +85,7 @@ class AbnormalityDetector():
         for s in range(num_steps):
             for e in range(num_encoders):
                 value = vectors[e][s]
+                limit_flag = 0
                 if value < self.min_val or value > self.max_val:
                     limit_flag = 1              
                 self.encoders[e].compute(value)
