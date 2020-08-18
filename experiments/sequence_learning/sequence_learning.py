@@ -516,7 +516,7 @@ def multiple_prior_contexts():
 # Main
 # ==============================================================================
 if __name__ == '__main__':
-    #one_event()
-    #two_events()
+    one_event()
+    two_events()
     three_events()
-    #multiple_prior_contexts()
+    multiple_prior_contexts()
