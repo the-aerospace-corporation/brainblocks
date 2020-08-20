@@ -50,7 +50,9 @@ PYBIND11_MODULE(bb_backend, m) {
         .def("get_addrs", &CoincidenceSetClass::get_addrs, "Get addresses")
         .def("get_addr", &CoincidenceSetClass::get_addr, "Get a particular address", "d"_a)
         .def("get_perms", &CoincidenceSetClass::get_perms, "Get permanences")
-        .def("get_perm", &CoincidenceSetClass::get_perm, "Get a particular permanence", "d"_a);
+        .def("get_perm", &CoincidenceSetClass::get_perm, "Get a particular permanence", "d"_a)
+        .def("get_bits", &CoincidenceSetClass::get_bits, "Get array of bits representing receptor connections")
+        .def("get_acts", &CoincidenceSetClass::get_acts, "Get array of acts representing receptor connections");
 
     // Blank Block
     py::class_<BlankBlockClass>(m, "BlankBlock")

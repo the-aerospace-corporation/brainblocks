@@ -239,3 +239,11 @@ void coincidence_set_update_connections(
         }
     }
 }
+
+// =============================================================================
+// Get Connections
+// =============================================================================
+struct BitArray* coincidence_set_get_connections(struct CoincidenceSet* cs) {
+    coincidence_set_update_connections(cs, 20); // TODO: put perm_thr in coincidence_set
+    return cs->connections_ba;
+}

@@ -133,46 +133,75 @@ class CoincidenceSetClass {
         //~CoincidenceSetClass() {};
 
         // Get addresses
-         std::vector<uint32_t> get_addrs() {
+        std::vector<uint32_t> get_addrs() {
             std::vector<uint32_t> addrs;
             addrs.reserve(d->num_r);
-             
-            for (uint32_t i = 0; i < d->num_r; i++) {
-                addrs.push_back(d->addrs[i]);
+
+            for (uint32_t r = 0; r < d->num_r; r++) {
+                addrs.push_back(d->addrs[r]);
             }
 
             return addrs;
-         }
+        }
 
         // Get a particular address
-         uint32_t get_addr(const uint32_t i) {
-            if (i > d->num_r) {
+        uint32_t get_addr(const uint32_t r) {
+            if (r > d->num_r) {
                 throw std::range_error("Error: Index out of range in get_addrs()");
             }
 
-            return d->addrs[i];
-         }
+            return d->addrs[r];
+        }
 
         // Get permanences
-         std::vector<uint32_t> get_perms() {
+        std::vector<uint32_t> get_perms() {
             std::vector<uint32_t> perms;
             perms.reserve(d->num_r);
-             
-            for (uint32_t i = 0; i < d->num_r; i++) {
-                perms.push_back(d->perms[i]);
+
+            for (uint32_t r = 0; r < d->num_r; r++) {
+                perms.push_back(d->perms[r]);
             }
 
             return perms;
-         }
+        }
 
         // Get a particular permanence
-         uint32_t get_perm(const uint32_t i) {
-            if (i > d->num_r) {
+        uint32_t get_perm(const uint32_t r) {
+            if (r > d->num_r) {
                 throw std::range_error("Error: Index out of range in get_perms()");
             }
 
-            return d->perms[i];
-         }
+            return d->perms[r];
+        }
+
+        // Get array of bits representing receptor connections
+        std::vector<uint8_t> get_bits() {
+            struct BitArray* ba = coincidence_set_get_connections(d);
+            uint32_t num_bits = ba->num_bits;
+            std::vector<uint8_t> bits;
+            bits.reserve(num_bits);
+
+            for (uint32_t i = 0; i < num_bits; i++) {
+                bits.push_back(bitarray_get_bit(ba, i));
+            }
+
+            return bits;
+        };
+        
+        // Get array of acts representing receptor connections
+        std::vector<uint32_t> get_acts() {
+            struct BitArray* ba = coincidence_set_get_connections(d);
+            struct ActArray* aa = bitarray_get_actarray(ba);
+            uint32_t num_acts = aa->num_acts;
+            std::vector<uint32_t> acts;
+            acts.reserve(num_acts);
+
+            for (uint32_t i = 0; i < num_acts; i++) {
+                acts.push_back(aa->acts[i]);
+            }
+
+            return acts;
+        };
 
     private:
         struct CoincidenceSet* d;

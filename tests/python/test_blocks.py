@@ -36,7 +36,7 @@ def test_read_coincidence_set():
     pp.input.add_child(e.output)
     pp.initialize()
 
-    cs = pp.coincidence_sets(0)
+    cs = pp.coincidence_set(0)
 
     addrs = cs.get_addrs()
     addr0 = cs.get_addr(0)

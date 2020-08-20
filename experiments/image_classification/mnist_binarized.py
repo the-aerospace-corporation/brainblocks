@@ -1,22 +1,18 @@
-# ignore tensorflow warnings regarding numpy version
 import warnings
-warnings.filterwarnings('ignore')
-
+warnings.filterwarnings('ignore') # ignore tensorflow warnings about numpy version
 import time
 import numpy as np
+np.set_printoptions(threshold=100000)
 import tensorflow as tf
-import matplotlib.pyplot as plt
 from brainblocks.blocks import BlankBlock, PatternClassifier
+from _helper import mkdir_p, binarize, flatten, plot_iteration
 
-# helper function to convert monochrome image pixels to bits
-def binarize(pixels, threshold=128):
-    return 1 * (pixels > threshold)
+results_path = 'mnist_binarized/'
+mkdir_p(results_path)
+mkdir_p(results_path + 'results/')
+mkdir_p(results_path + 'active_statelets/')
 
-# helper function to flatten 2d image to 1d vector
-def flatten(image):
-    return [y for x in image for y in x] 
-
-# retrieve MNIST data via Tensorflow
+# retrieve MNIST data
 print("Loading MNIST data...", flush=True)
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
 
@@ -26,13 +22,12 @@ num_trains=len(x_train)
 num_tests=len(x_test)
 pixel_thresh=128 # from 0 to 255
 
-# setup BrainBlocks classifier architecture
+# setup BrainBlocks architecture
 blankblock = BlankBlock(num_s=784)
-
 classifier = PatternClassifier(
     labels=(0,1,2,3,4,5,6,7,8,9),
-    num_s=8000,
-    num_as=10,
+    num_s=784, #8000
+    num_as=9, #10
     perm_thr=20,
     perm_inc=2,
     perm_dec=1,
@@ -42,7 +37,7 @@ classifier = PatternClassifier(
 
 classifier.input.add_child(blankblock.output)
 
-# train BrainBLocks classifier
+# train BrainBlocks classifier
 print("Training...", flush=True)
 t0 = time.time()
 for _ in range(num_epochs):
@@ -53,7 +48,7 @@ for _ in range(num_epochs):
 t1 = time.time()
 train_time = t1 - t0
 
-# test BrainBLocks Classifier
+# test BrainBlocks classifier
 print("Testing...", flush=True)
 num_correct = 0
 t0 = time.time()
@@ -64,22 +59,18 @@ for i in range(num_tests):
     probs = classifier.get_probabilities()
     if np.argmax(probs) == y_test[i]:
         num_correct += 1
+
+    if i < 100:
+        plot_iteration(results_path, i, y_test[i], x_test[i], bitimage, classifier)
+
 t1 = time.time()
 test_time = t1 - t0
 
 # output results
 accuracy = num_correct / num_tests
 print("Results:")
-print("- number of training images: {:d}".format(num_trains), flush=True)
-print("- number of testing images: {:d}".format(num_tests), flush=True)
-print("- training time: {:0.6f}s".format(train_time), flush=True)
-print("- testing time: {:0.6f}s".format(test_time), flush=True)
-print("- accuracy: {:0.2f}%".format(accuracy*100), flush=True)
-
-# display sample image
-#plt.subplot(121),plt.imshow(x_train[0], cmap='gray')
-#plt.title('Original Image'), plt.xticks([]), plt.yticks([])
-#bitimage = binarize(x_train[0], pixel_thresh)
-#plt.subplot(122),plt.imshow(bitimage, cmap='gray')
-#plt.title('Binariazed Image'), plt.xticks([]), plt.yticks([])
-#plt.show()
+print("- number of training images: {:d}".format(num_trains))
+print("- number of testing images: {:d}".format(num_tests))
+print("- training time: {:0.6f}s".format(train_time))
+print("- testing time: {:0.6f}s".format(test_time))
+print("- accuracy: {:0.2f}%".format(accuracy*100))

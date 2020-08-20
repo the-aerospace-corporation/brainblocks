@@ -52,15 +52,23 @@ class CoincidenceSet():
     def get_addrs(self):
         return self.obj.get_addrs()
 
-    def get_addr(self, d):
-        return self.obj.get_addr(d)
+    def get_addr(self, r):
+        return self.obj.get_addr(r)
 
     def get_perms(self):
         return self.obj.get_perms()
 
-    def get_perm(self, d):
-        return self.obj.get_perm(d)
+    def get_perm(self, r):
+        return self.obj.get_perm(r)
 
+    def get_bits(self):
+        return self.obj.get_bits()
+
+    def get_acts(self):
+        return self.obj.get_acts()
+
+    bits = property(get_bits, None, None, "Read Bits")
+    acts = property(get_acts, None, None, "Read Acts")
 
 # ==============================================================================
 # BlankBlock
@@ -197,7 +205,7 @@ class PatternClassifier():
     def get_probabilities(self):
         return self.obj.get_probabilities()
 
-    def coincidence_sets(self, d):
+    def coincidence_set(self, d):
         return CoincidenceSet(self.obj.coincidence_set(d))
 
     @property
@@ -244,7 +252,7 @@ class PatternPooler():
     def compute(self, learn=True):
         self.obj.compute(learn)
 
-    def coincidence_sets(self, d):
+    def coincidence_set(self, d):
         return CoincidenceSet(self.obj.coincidence_set(d))
 
     @property

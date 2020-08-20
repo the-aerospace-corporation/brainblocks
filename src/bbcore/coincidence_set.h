@@ -60,4 +60,6 @@ void coincidence_set_update_connections(
     struct CoincidenceSet* cs,
     const uint32_t perm_thr);
 
+struct BitArray* coincidence_set_get_connections(struct CoincidenceSet* cs);
+
 #endif
