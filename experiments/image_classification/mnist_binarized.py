@@ -2,13 +2,11 @@ import warnings
 warnings.filterwarnings('ignore') # ignore tensorflow warnings about numpy version
 import time
 import numpy as np
-np.set_printoptions(threshold=100000)
 import tensorflow as tf
 from brainblocks.blocks import BlankBlock, PatternClassifier
 from _helper import mkdir_p, binarize, flatten, plot_iteration
 
 results_path = 'mnist_binarized/'
-mkdir_p(results_path)
 mkdir_p(results_path + 'results/')
 mkdir_p(results_path + 'active_statelets/')
 
@@ -16,18 +14,21 @@ mkdir_p(results_path + 'active_statelets/')
 print("Loading MNIST data...", flush=True)
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
 
-# define train/test parameters
+run_t0 = time.time()
+
+# define scenario parameters
 num_epochs=1
 num_trains=len(x_train)
 num_tests=len(x_test)
 pixel_thresh=128 # from 0 to 255
+num_s = 8000
 
 # setup BrainBlocks architecture
 blankblock = BlankBlock(num_s=784)
 classifier = PatternClassifier(
     labels=(0,1,2,3,4,5,6,7,8,9),
-    num_s=784, #8000
-    num_as=9, #10
+    num_s=num_s,
+    num_as=9,
     perm_thr=20,
     perm_inc=2,
     perm_dec=1,
@@ -38,39 +39,45 @@ classifier = PatternClassifier(
 classifier.input.add_child(blankblock.output)
 
 # train BrainBlocks classifier
+bb_train_time = 0
 print("Training...", flush=True)
-t0 = time.time()
+
 for _ in range(num_epochs):
     for i in range(num_trains):
         bitimage = binarize(x_train[i], pixel_thresh)
         blankblock.output.bits = flatten(bitimage)
+        t0 = time.time()
         classifier.compute(y_train[i], learn=True)
-t1 = time.time()
-train_time = t1 - t0
+        t1 = time.time()
+        bb_train_time += t1 - t0
 
 # test BrainBlocks classifier
+num_error = 0
+bb_test_time = 0
 print("Testing...", flush=True)
-num_correct = 0
-t0 = time.time()
+
 for i in range(num_tests):
     bitimage = binarize(x_test[i], pixel_thresh)
     blankblock.output.bits = flatten(bitimage)
+    t0 = time.time()
     classifier.compute(learn=False)
     probs = classifier.get_probabilities()
-    if np.argmax(probs) == y_test[i]:
-        num_correct += 1
+    if np.argmax(probs) != y_test[i]:
+        num_error += 1
+    t1 = time.time()
+    bb_test_time += t1 - t0
 
     if i < 100:
-        plot_iteration(results_path, i, y_test[i], x_test[i], bitimage, classifier)
+        plot_iteration(results_path, i, y_test[i], x_test[i], bitimage, classifier, num_s)
 
-t1 = time.time()
-test_time = t1 - t0
+run_t1 = time.time()
 
 # output results
-accuracy = num_correct / num_tests
+accuracy = 1 - (num_error / num_tests)
 print("Results:")
-print("- number of training images: {:d}".format(num_trains))
-print("- number of testing images: {:d}".format(num_tests))
-print("- training time: {:0.6f}s".format(train_time))
-print("- testing time: {:0.6f}s".format(test_time))
-print("- accuracy: {:0.2f}%".format(accuracy*100))
+print("- Number of training images: {:d}".format(num_trains))
+print("- Number of testing images: {:d}".format(num_tests))
+print("- Total run time: {:0.6f}s".format(run_t1 - run_t0))
+print("- BB training time: {:0.6f}s".format(bb_train_time))
+print("- BB testing time: {:0.6f}s".format(bb_test_time))
+print("- Accuracy: {:0.2f}%".format(accuracy*100))

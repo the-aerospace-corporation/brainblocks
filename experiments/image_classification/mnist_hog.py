@@ -1,23 +1,24 @@
-# ignore tensorflow warnings regarding numpy version
 import warnings
-warnings.filterwarnings('ignore')
-
+warnings.filterwarnings('ignore') # ignore tensorflow warnings about numpy version
 import time
+import math
 import numpy as np
 import tensorflow as tf
-import matplotlib.pyplot as plt
 from skimage.feature import hog
 from brainblocks.blocks import BlankBlock, PatternClassifier
+from _helper import mkdir_p, binarize, flatten, plot_iteration
 
-# helper function to convert HOG feature descriptor to bits
-def binarize_hog(fd, threshold=0.3):
-    return 1 * (fd > threshold)
+results_path = 'mnist_hog/'
+mkdir_p(results_path + 'results/')
+mkdir_p(results_path + 'active_statelets/')
 
-# retrieve MNIST data via Tensorflow
+# retrieve MNIST data
 print("Loading MNIST data...", flush=True)
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
 
-# define train/test parameters
+run_t0 = time.time()
+
+# define scenario parameters
 num_epochs=1
 num_trains=len(x_train)
 num_tests=len(x_test)
@@ -25,6 +26,7 @@ hog_thresh=0.3
 orientations=6
 pixels_per_cell=(4, 4)
 cells_per_block=(2, 2)
+num_s = 8000
 
 hog_fd = hog(x_train[0],
              orientations=orientations,
@@ -34,13 +36,12 @@ hog_fd = hog(x_train[0],
              multichannel=False,
              feature_vector=True)
 
-# setup BrainBlocks classifier architecture
-input_block = BlankBlock(num_s=len(hog_fd))
-
+# setup BrainBlocks architecture
+blankblock = BlankBlock(num_s=len(hog_fd))
 classifier = PatternClassifier(
     labels=(0,1,2,3,4,5,6,7,8,9),
-    num_s=8000,
-    num_as=10,
+    num_s=num_s,
+    num_as=9,
     perm_thr=20,
     perm_inc=2,
     perm_dec=1,
@@ -48,11 +49,12 @@ classifier = PatternClassifier(
     pct_conn=1.0,
     pct_learn=0.25)
 
-classifier.input.add_child(input_block.output)
+classifier.input.add_child(blankblock.output)
 
-# train BrainBLocks classifier
+# train BrainBlocks classifier
+bb_train_time = 0
 print("Training...", flush=True)
-t0 = time.time()
+
 for _ in range(num_epochs):
     for i in range(num_trains):
         hog_fd = hog(x_train[i],
@@ -62,16 +64,18 @@ for _ in range(num_epochs):
                      visualize=False,
                      multichannel=False,
                      feature_vector=True)
-        bit_fd = binarize_hog(hog_fd, hog_thresh)
-        input_block.output.bits = bit_fd
+        bit_fd = binarize(hog_fd, hog_thresh)
+        blankblock.output.bits = bit_fd
+        t0 = time.time()
         classifier.compute(y_train[i], learn=True)
-t1 = time.time()
-train_time = t1 - t0
+        t1 = time.time()
+        bb_train_time += t1 - t0
 
-# test BrainBLocks Classifier
+# test BrainBlocks classifier
+num_error = 0
+bb_test_time = 0
 print("Testing...", flush=True)
-num_correct = 0
-t0 = time.time()
+
 for i in range(num_tests):
     hog_fd = hog(x_test[i],
                  orientations=orientations,
@@ -80,21 +84,34 @@ for i in range(num_tests):
                  visualize=False,
                  multichannel=False,
                  feature_vector=True)
-    bit_fd = binarize_hog(hog_fd, hog_thresh)
-    input_block.output.bits = bit_fd
+    bit_fd = binarize(hog_fd, hog_thresh)
+    blankblock.output.bits = bit_fd
+    t0 = time.time()
     classifier.compute(learn=False)
     probs = classifier.get_probabilities()
-    if np.argmax(probs) == y_test[i]:
-        num_correct += 1
-t1 = time.time()
-test_time = t1 - t0
+    if np.argmax(probs) != y_test[i]:
+        num_error += 1
+    t1 = time.time()
+    bb_test_time += t1 - t0
+
+    if i < 100:
+        square = math.ceil(math.sqrt(len(bit_fd)))
+        num_i = square * square
+        bitimage = [0 for _ in range(num_i)]
+        for j in range(len(bit_fd)):
+            if bit_fd[j] == 1:
+                bitimage[j] = 1
+        bitimage = np.array(bitimage).reshape((square, square))
+        plot_iteration(results_path, i, y_test[i], x_test[i], bitimage, classifier, num_s)
+
+run_t1 = time.time()
 
 # output results
-accuracy = num_correct / num_tests
+accuracy = 1 - (num_error / num_tests)
 print("Results:")
-print("- number of training images: {:d}".format(num_trains), flush=True)
-print("- number of testing images: {:d}".format(num_tests), flush=True)
-print("- HOG feature descriptor size: {:d}".format(len(hog_fd)), flush=True)
-print("- training time: {:0.6f}s".format(train_time), flush=True)
-print("- testing time: {:0.6f}s".format(test_time), flush=True)
-print("- accuracy: {:0.2f}%".format(accuracy*100), flush=True)
+print("- Number of training images: {:d}".format(num_trains))
+print("- Number of testing images: {:d}".format(num_tests))
+print("- Total run time: {:0.6f}s".format(run_t1 - run_t0))
+print("- BB training time: {:0.6f}s".format(bb_train_time))
+print("- BB testing time: {:0.6f}s".format(bb_test_time))
+print("- Accuracy: {:0.2f}%".format(accuracy*100))

@@ -22,11 +22,12 @@ def flatten(image):
     return [y for x in image for y in x] 
 
 def plot_example(fname, img_raw, img_binary, img_encoded, img_decoded, label, pred, prob):
-    fig, axes = plt.subplots(1, 4, sharex=True, sharey=True, figsize=(8, 3))
+    fig, axes = plt.subplots(1, 4, figsize=(8, 3))
     title = 'label={:d}, pred={:d}, prob={:0.2f}'.format(label, pred, prob)
     plt.suptitle(title, fontsize=18)
-    plt.xticks([])
-    plt.yticks([])
+    for i in range(4):
+        axes[i].set_xticks([])
+        axes[i].set_yticks([])
     axes[0].set_title('Raw Data'), 
     axes[0].imshow(img_raw, cmap='gray')
     axes[1].set_title('Binary Input'), 
@@ -37,7 +38,6 @@ def plot_example(fname, img_raw, img_binary, img_encoded, img_decoded, label, pr
     axes[3].imshow(img_decoded, cmap='gray')
     plt.subplots_adjust(wspace=0.05)
     plt.savefig(fname, bbox_inches='tight')
-    #plt.savefig(fname)
 
 def plot_statelets(fname, s_dicts=[]):
     # plots statelet information from a list of dictionaries
@@ -81,13 +81,18 @@ def plot_statelets(fname, s_dicts=[]):
     plt.savefig(fname, bbox_inches='tight')
     plt.close()
 
-def plot_iteration(path, idx, label, raw, binary, classifier):
-    num_x = len(raw[0])
-    num_y = len(raw)
-    num_i = num_x * num_y
+def plot_iteration(path, idx, label, raw, binary, classifier, num_s):
+    num_ix = len(raw[0])
+    num_iy = len(raw)
+    num_i = num_ix * num_iy
+
+    square = math.ceil(math.sqrt(num_s))
+    num_sx = square
+    num_sy = square
+    num_s_ = square * square
 
     s_dicts = []
-    encoded = [0 for _ in range(num_i)]
+    encoded = [0 for _ in range(num_s_)]
     decoded = [0 for _ in range(num_i)]
     for act in classifier.output.acts:
         conns = classifier.coincidence_set(act).bits[:num_i]
@@ -102,8 +107,8 @@ def plot_iteration(path, idx, label, raw, binary, classifier):
             if conns[i] == 1:
                 decoded[i] += 1
 
-    encoded = np.array(encoded).reshape((num_x, num_y))
-    decoded = np.array(decoded).reshape((num_x, num_y))
+    encoded = np.array(encoded).reshape((num_sx, num_sy))
+    decoded = np.array(decoded).reshape((num_ix, num_iy))
 
     probs = classifier.get_probabilities()
     pred = np.argmax(probs)
