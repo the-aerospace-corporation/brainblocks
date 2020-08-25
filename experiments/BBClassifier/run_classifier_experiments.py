@@ -186,28 +186,28 @@ def run_encoder_act_bits_experiment(datasets):
     #
     classifier_configs = []
 
-    bb_config = {'num_bits': 128, 'num_acts': 4}
-    clf_name1 = "%d / %d bits" % (bb_config['num_acts'], bb_config['num_bits'])
+    bb_config = {'num_bits': 128, 'num_as': 4}
+    clf_name1 = "%d / %d bits" % (bb_config['num_as'], bb_config['num_bits'])
     classifier_configs.append((clf_name1, bb_config))
 
-    bb_config = {'num_bits': 128, 'num_acts': 8}
-    clf_name1 = "%d / %d bits" % (bb_config['num_acts'], bb_config['num_bits'])
+    bb_config = {'num_bits': 128, 'num_as': 8}
+    clf_name1 = "%d / %d bits" % (bb_config['num_as'], bb_config['num_bits'])
     classifier_configs.append((clf_name1, bb_config))
 
-    bb_config = {'num_bits': 128, 'num_acts': 16}
-    clf_name1 = "%d / %d bits" % (bb_config['num_acts'], bb_config['num_bits'])
+    bb_config = {'num_bits': 128, 'num_as': 16}
+    clf_name1 = "%d / %d bits" % (bb_config['num_as'], bb_config['num_bits'])
     classifier_configs.append((clf_name1, bb_config))
 
-    bb_config = {'num_bits': 128, 'num_acts': 32}
-    clf_name1 = "%d / %d bits" % (bb_config['num_acts'], bb_config['num_bits'])
+    bb_config = {'num_bits': 128, 'num_as': 32}
+    clf_name1 = "%d / %d bits" % (bb_config['num_as'], bb_config['num_bits'])
     classifier_configs.append((clf_name1, bb_config))
 
-    bb_config = {'num_bits': 128, 'num_acts': 64}
-    clf_name1 = "%d / %d bits" % (bb_config['num_acts'], bb_config['num_bits'])
+    bb_config = {'num_bits': 128, 'num_as': 64}
+    clf_name1 = "%d / %d bits" % (bb_config['num_as'], bb_config['num_bits'])
     classifier_configs.append((clf_name1, bb_config))
 
-    bb_config = {'num_bits': 128, 'num_acts': 112}
-    clf_name2 = "%d / %d bits" % (bb_config['num_acts'], bb_config['num_bits'])
+    bb_config = {'num_bits': 128, 'num_as': 112}
+    clf_name2 = "%d / %d bits" % (bb_config['num_as'], bb_config['num_bits'])
     classifier_configs.append((clf_name2, bb_config))
 
     # evaluate classifiers based on configurations and datasets
@@ -235,11 +235,11 @@ def run_grid_vector_magnitude_experiment(datasets):
     # clf_name1 = 'Grid Vectors %d' % bb_config['num_grids']
     # classifier_configs.append((clf_name1, bb_config))
 
-    # template_bb_config = {'use_grid': True, 'num_neurons': 300, 'num_acts': 10}
-    # template_bb_config = {'use_grid': True, 'num_input_dims': 3, 'num_bins': 16, 'num_acts': 4,
+    # template_bb_config = {'use_grid': True, 'num_s': 300, 'num_as': 10}
+    # template_bb_config = {'use_grid': True, 'num_input_dims': 3, 'num_bins': 16, 'num_as': 4,
     #                      'num_grids': 80, 'max_period': 1.9, 'min_period': 1.3}
-    template_bb_config = {'num_input_dims': num_input_dims, 'num_bins': 16, 'num_acts': 4,
-                          'num_grids': 80, 'max_period': 3.0, 'num_neurons': 1024, 'min_period': 1.0}
+    template_bb_config = {'num_input_dims': num_input_dims, 'num_bins': 16, 'num_as': 4,
+                          'num_grids': 80, 'max_period': 3.0, 'num_s': 1024, 'min_period': 1.0}
 
     bb_config = deepcopy(template_bb_config)
     bb_config['max_period'] = 3.0
@@ -298,7 +298,7 @@ def run_basic_grid_encoder_experiment(datasets):
     #
     classifier_configs = []
 
-    template_bb_config = {'num_input_dims': 2, 'num_bins': 16, 'num_acts': 4,
+    template_bb_config = {'num_input_dims': 2, 'num_bins': 16, 'num_as': 4,
                           'num_grids': 80, 'max_period': 1.9, 'min_period': 1.3}
 
     bb_config = deepcopy(template_bb_config)
@@ -323,28 +323,28 @@ def run_basic_mesh_encoder_experiment(datasets):
     #
     classifier_configs = []
 
-    bb_config = {'num_neurons': 256, 'num_acts': 1}
-    # bb_config = {'use_mesh': True, 'num_neurons': 300, 'num_acts': 15}
+    bb_config = {'num_s': 256, 'num_as': 1}
+    # bb_config = {'use_mesh': True, 'num_s': 300, 'num_as': 15}
     clf_name1 = '15/300 neurons'
     classifier_configs.append((clf_name1, bb_config))
 
-    # bb_config = {'use_mesh': True, 'num_neurons': 300, 'num_acts': 15}
+    # bb_config = {'use_mesh': True, 'num_s': 300, 'num_as': 15}
     # clf_name1 = '15/300 neurons'
     # classifier_configs.append((clf_name1, bb_config))
 
-    # bb_config = {'use_mesh': True, 'num_neurons': 400, 'num_acts': 20}
+    # bb_config = {'use_mesh': True, 'num_s': 400, 'num_as': 20}
     # clf_name1 = '20/400 neurons'
     # classifier_configs.append((clf_name1, bb_config))
 
-    # bb_config = {'use_mesh': True, 'num_neurons': 500, 'num_acts': 25}
+    # bb_config = {'use_mesh': True, 'num_s': 500, 'num_as': 25}
     # clf_name1 = '25/500 neurons'
     # classifier_configs.append((clf_name1, bb_config))
 
-    # bb_config = {'use_mesh': True, 'num_neurons': 300, 'num_acts': 15, 'num_epochs': 8}
+    # bb_config = {'use_mesh': True, 'num_s': 300, 'num_as': 15, 'num_epochs': 8}
     # clf_name1 = '8 Epochs'
     # classifier_configs.append((clf_name1, bb_config))
 
-    # bb_config = {'use_mesh': True, 'num_neurons': 300, 'num_acts': 15, 'num_epochs': 16}
+    # bb_config = {'use_mesh': True, 'num_s': 300, 'num_acts': 15, 'num_epochs': 16}
     # clf_name1 = '16 Epochs'
     # classifier_configs.append((clf_name1, bb_config))
 
@@ -366,15 +366,15 @@ def run_many_neuron_experiment(datasets):
     #
     classifier_configs = []
 
-    bb_config = {'num_neurons': 1024, 'num_acts': 1, 'num_epochs': 3}
+    bb_config = {'num_s': 1024, 'num_acts': 1, 'num_epochs': 3}
     clf_name1 = '16/1024 neurons, 3 Epochs'
     classifier_configs.append((clf_name1, bb_config))
 
-    bb_config = {'num_neurons': 1024, 'num_acts': 1, 'num_epochs': 6}
+    bb_config = {'num_s': 1024, 'num_acts': 1, 'num_epochs': 6}
     clf_name1 = '16/1024 neurons, 6 Epochs'
     classifier_configs.append((clf_name1, bb_config))
 
-    bb_config = {'num_neurons': 1024, 'num_acts': 1, 'num_epochs': 9}
+    bb_config = {'num_s': 1024, 'num_acts': 1, 'num_epochs': 9}
     clf_name1 = '16/1024 neurons, 9 Epochs'
     classifier_configs.append((clf_name1, bb_config))
 
@@ -479,20 +479,20 @@ def run_classifier_total_neurons_experiment(datasets):
     #
     classifier_configs = []
 
-    bb_config = {'num_neurons': 128}
-    clf_name1 = "Total Neurons %d" % (bb_config['num_neurons'])
+    bb_config = {'num_s': 128}
+    clf_name1 = "Total Neurons %d" % (bb_config['num_s'])
     classifier_configs.append((clf_name1, bb_config))
 
-    bb_config = {'num_neurons': 256}
-    clf_name1 = "Total Neurons %d" % (bb_config['num_neurons'])
+    bb_config = {'num_s': 256}
+    clf_name1 = "Total Neurons %d" % (bb_config['num_s'])
     classifier_configs.append((clf_name1, bb_config))
 
-    bb_config = {'num_neurons': 512}
-    clf_name1 = "Total Neurons %d" % (bb_config['num_neurons'])
+    bb_config = {'num_s': 512}
+    clf_name1 = "Total Neurons %d" % (bb_config['num_s'])
     classifier_configs.append((clf_name1, bb_config))
 
-    bb_config = {'num_neurons': 1024}
-    clf_name1 = "Total Neurons %d" % (bb_config['num_neurons'])
+    bb_config = {'num_s': 1024}
+    clf_name1 = "Total Neurons %d" % (bb_config['num_s'])
     classifier_configs.append((clf_name1, bb_config))
 
     # evaluate classifiers based on configurations and datasets

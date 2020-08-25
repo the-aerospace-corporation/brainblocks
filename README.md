@@ -13,7 +13,7 @@ The design of BrainBlocks represents the practical experience gained from solvin
 BrainBlocks is a Python 3 library that runs on a single CPU core with a C-backend.
 It is fast and has a low memory footprint due to *novel algorithm design*.
 
-The current release is **BrainBlocks 0.6.0**.
+The current release is **BrainBlocks 0.6.1**.
 
 * [Motivation](#motivation)
 * [Gallery](#gallery)
