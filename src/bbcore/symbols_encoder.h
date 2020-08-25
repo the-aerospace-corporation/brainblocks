@@ -22,6 +22,7 @@ void symbols_encoder_construct(
 
 void symbols_encoder_destruct(struct SymbolsEncoder* e);
 void symbols_encoder_initialize(struct SymbolsEncoder* e);
+void symbols_encoder_clear(struct SymbolsEncoder* e);
 void symbols_encoder_compute(struct SymbolsEncoder* e, const uint32_t value);
 
 #endif

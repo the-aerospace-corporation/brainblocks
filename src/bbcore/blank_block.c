@@ -21,3 +21,11 @@ void blank_block_destruct(struct BlankBlock* b) {
     page_destruct(b->output);
     free(b->output);
 }
+
+// =============================================================================
+// Clear
+// =============================================================================
+void blank_block_clear(struct BlankBlock* b) {
+    page_clear_bits(b->output, 0); // current
+    page_clear_bits(b->output, 1); // previous
+}

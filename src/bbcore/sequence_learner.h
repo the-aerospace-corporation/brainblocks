@@ -46,6 +46,7 @@ void sequence_learner_destruct(struct SequenceLearner* sl);
 void sequence_learner_initialize(struct SequenceLearner* sl);
 void sequence_learner_save(struct SequenceLearner* sl, const char* file);
 void sequence_learner_load(struct SequenceLearner* sl, const char* file);
+void sequence_learner_clear(struct SequenceLearner* sl);
 
 void sequence_learner_compute(
     struct SequenceLearner* sl,

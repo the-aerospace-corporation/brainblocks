@@ -194,6 +194,16 @@ void pattern_pooler_load(struct PatternPooler* pp, const char* file) {
 }
 
 // =============================================================================
+// Clear
+// =============================================================================
+void pattern_pooler_clear(struct PatternPooler* pp) {
+    page_clear_bits(pp->input, 0); // current
+    page_clear_bits(pp->input, 1); // previous
+    page_clear_bits(pp->output, 0); // current
+    page_clear_bits(pp->output, 1); // previous
+}
+
+// =============================================================================
 // Compute
 // =============================================================================
 void pattern_pooler_compute(

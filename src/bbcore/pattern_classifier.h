@@ -44,6 +44,7 @@ void pattern_classifier_destruct(struct PatternClassifier* pc);
 void pattern_classifier_initialize(struct PatternClassifier* pc);
 void pattern_classifier_save(struct PatternClassifier* pc, const char* file);
 void pattern_classifier_load(struct PatternClassifier* pc, const char* file);
+void pattern_classifier_clear(struct PatternClassifier* pc);
 
 void pattern_classifier_compute(
         struct PatternClassifier* pc,

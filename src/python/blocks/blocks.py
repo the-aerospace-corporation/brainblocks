@@ -80,6 +80,9 @@ class BlankBlock():
 
         self.obj = bb.BlankBlock(num_s)
 
+    def clear(self):
+        self.obj.clear()
+
     @property
     def output(self):
         return Page(self.obj.output)
@@ -97,6 +100,9 @@ class ScalarEncoder():
             num_as=128):  # number of active statelets
 
         self.obj = bb.ScalarEncoder(min_val, max_val, num_s, num_as)
+
+    def clear(self):
+        self.obj.clear()
 
     def compute(self, value):
         if value != None:
@@ -117,6 +123,9 @@ class SymbolsEncoder():
             num_s=1024):   # number of statelets
 
         self.obj = bb.SymbolsEncoder(max_symbols, num_s)
+
+    def clear(self):
+        self.obj.clear()
 
     def compute(self, value):
         if value != None:
@@ -146,6 +155,9 @@ class PersistenceEncoder():
 
     def reset(self):
         self.obj.reset()
+
+    def clear(self):
+        self.obj.clear()
 
     def compute(self, value):
         if value != None:
@@ -188,6 +200,9 @@ class PatternClassifier():
 
     def load(self, file_str='./pc.bin'):
         self.obj.load(file_str.encode('utf-8'))
+
+    def clear(self):
+        self.obj.clear()
 
     def compute(self, label=None, learn=False):
         if learn:
@@ -249,6 +264,9 @@ class PatternPooler():
     def load(self, file_str='./pl.bin'):
         self.obj.load(file_str.encode('utf-8'))
 
+    def clear(self):
+        self.obj.clear()
+
     def compute(self, learn=True):
         self.obj.compute(learn)
 
@@ -293,6 +311,9 @@ class SequenceLearner():
 
     def load(self, file_str='./obj.bin'):
         self.obj.load(file_str.encode('utf-8'))
+
+    def clear(self):
+        self.obj.clear()
 
     def compute(self, learn=True):
         self.obj.compute(learn)

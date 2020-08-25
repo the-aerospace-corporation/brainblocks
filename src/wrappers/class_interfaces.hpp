@@ -223,6 +223,11 @@ class BlankBlockClass {
             blank_block_destruct(&b);
         };
 
+        // Clear block
+        void clear() {
+            blank_block_clear(&b);
+        }
+
         // Get output Page object
         PageClass* get_output() {
             return new PageClass(b.output);
@@ -239,10 +244,11 @@ class BlankBlockClass {
 class ScalarEncoderClass {
     public:
         // Construct ScalarEncoder
-        ScalarEncoderClass(const double min_val,
-                           const double max_val,
-                           const uint32_t num_s,
-                           const uint32_t num_as) {
+        ScalarEncoderClass(
+                const double min_val,
+                const double max_val,
+                const uint32_t num_s,
+                const uint32_t num_as) {
             scalar_encoder_construct(&e, min_val, max_val, num_s, num_as);
         };
 
@@ -250,6 +256,11 @@ class ScalarEncoderClass {
         ~ScalarEncoderClass() {
             scalar_encoder_destruct(&e);
         };
+
+        // Clear block
+        void clear() {
+            scalar_encoder_clear(&e);
+        }
 
         // Compute block
         void compute(double value) {
@@ -272,8 +283,9 @@ class ScalarEncoderClass {
 class SymbolsEncoderClass {
     public:
         // Construct SymbolsEncoder
-        SymbolsEncoderClass(const uint32_t max_symbols,
-                            const uint32_t num_s) {
+        SymbolsEncoderClass(
+                const uint32_t max_symbols,
+                const uint32_t num_s) {
             symbols_encoder_construct(&e, max_symbols, num_s);
         };
 
@@ -281,6 +293,11 @@ class SymbolsEncoderClass {
         ~SymbolsEncoderClass() {
             symbols_encoder_destruct(&e);
         };
+
+        // Clear block
+        void clear() {
+            symbols_encoder_clear(&e);
+        }
 
         // Compute block
         void compute(const uint32_t value) {
@@ -318,11 +335,12 @@ class SymbolsEncoderClass {
 class PersistenceEncoderClass {
     public:
         // Construct PersistenceEncoder
-        PersistenceEncoderClass(const double min_val,
-                                const double max_val,
-                                const uint32_t num_s,
-                                const uint32_t num_as,
-                                const uint32_t max_steps) {
+        PersistenceEncoderClass(
+                const double min_val,
+                const double max_val,
+                const uint32_t num_s,
+                const uint32_t num_as,
+                const uint32_t max_steps) {
             persistence_encoder_construct(&e, min_val, max_val, num_s, num_as, max_steps);
         };
 
@@ -335,6 +353,11 @@ class PersistenceEncoderClass {
         void reset() {
             persistence_encoder_reset(&e);
         };
+
+        // Clear block
+        void clear() {
+            persistence_encoder_clear(&e);
+        }
 
         // Compute block
         void compute(double value) {
@@ -403,6 +426,11 @@ class PatternClassifierClass {
         void load(std::string file_str) {
             pattern_classifier_load(&pc, file_str.c_str());
         };
+
+        // Clear block
+        void clear() {
+            pattern_classifier_clear(&pc);
+        }
 
         // Compute block
         void compute(uint32_t in_label, const uint32_t learn_flag) {
@@ -498,6 +526,11 @@ class PatternPoolerClass {
             pattern_pooler_load(&pp, file_str.c_str());
         };
 
+        // Clear block
+        void clear() {
+            pattern_pooler_clear(&pp);
+        }
+
         // Compute block
         void compute(const uint32_t learn_flag) {
             pattern_pooler_compute(&pp, learn_flag);
@@ -575,6 +608,11 @@ class SequenceLearnerClass {
         void load(std::string file_str) {
             sequence_learner_load(&sl, file_str.c_str());
         };
+
+        // Clear block
+        void clear() {
+            sequence_learner_clear(&sl);
+        }
 
         // Compute block
         void compute(const uint32_t learn_flag) {
