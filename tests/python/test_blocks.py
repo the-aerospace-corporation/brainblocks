@@ -1,6 +1,7 @@
 from brainblocks.blocks import BlankBlock, ScalarEncoder, SymbolsEncoder, \
     PersistenceEncoder, PatternClassifier, PatternPooler, SequenceLearner
 from sklearn import preprocessing
+import os
 import numpy as np
 
 # printing boolean arrays neatly
@@ -318,6 +319,10 @@ def test_pattern_pooler():
     np.testing.assert_array_equal(before_a, after_a)
     np.testing.assert_array_equal(before_b, after_b)
 
+    pp.save(file_str='pp.bin')
+    pp.load(file_str='pp.bin')
+    os.remove('pp.bin')
+
 # ==============================================================================
 # SequenceLearner Square
 # ==============================================================================
@@ -357,6 +362,10 @@ def test_sequence_learner_square():
         actual_scores[i] = sl.get_score()
 
     np.testing.assert_array_equal(actual_scores, expect_scores)
+
+    sl.save(file_str='sl.bin')
+    sl.load(file_str='sl.bin')
+    os.remove('sl.bin')
 
 # ==============================================================================
 # SequenceLearner Triangle
@@ -398,6 +407,10 @@ def test_sequence_learner_triangle():
 
     np.testing.assert_array_equal(actual_scores, expect_scores)
 
+    sl.save(file_str='sl.bin')
+    sl.load(file_str='sl.bin')
+    os.remove('sl.bin')
+
 # ==============================================================================
 # SequenceLearner Sine
 # ==============================================================================
@@ -438,6 +451,10 @@ def test_sequence_learner_sine():
 
     np.testing.assert_array_equal(actual_scores, expect_scores)
 
+    sl.save(file_str='sl.bin')
+    sl.load(file_str='sl.bin')
+    os.remove('sl.bin')
+
 # ==============================================================================
 # Main
 # ==============================================================================
@@ -451,3 +468,4 @@ if __name__ == '__main__':
     test_pattern_pooler()
     test_sequence_learner_square()
     test_sequence_learner_triangle()
+    test_sequence_learner_sine()

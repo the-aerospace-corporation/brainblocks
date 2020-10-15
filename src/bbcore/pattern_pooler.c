@@ -150,15 +150,23 @@ void pattern_pooler_initialize(struct PatternPooler* pp) {
 void pattern_pooler_save(struct PatternPooler* pp, const char* file) {
     FILE *fptr;
 
+    // check if file can be opened
     if ((fptr = fopen(file,"wb")) == NULL) {
-       printf("Error: pattern_pooler_save() cannot open file");
+       printf("Error in pattern_pooler_save(): cannot open file");
        exit(1);
     }
 
+    // check if block has been initialized
+    if (pp->init_flag == 0) {
+        printf("Error in pattern_pooler_save(): block not initialized\n");
+    }
+
+    // save coincidence detector receptor addresses and permanences
+    struct CoincidenceSet* cs;
     for (uint32_t s = 0; s < pp->num_s; s++) {
-        struct CoincidenceSet* cs = &pp->coincidence_sets[s];
-        fwrite(cs->addrs, cs->num_r * sizeof(uint32_t), 1, fptr);
-        fwrite(cs->perms, cs->num_r * sizeof(int32_t), 1, fptr);
+        cs = &pp->coincidence_sets[s];
+        fwrite(cs->addrs, cs->num_r * sizeof(cs->addrs[0]), 1, fptr);
+        fwrite(cs->perms, cs->num_r * sizeof(cs->perms[0]), 1, fptr);
     }
 
     fclose(fptr); 
@@ -170,21 +178,23 @@ void pattern_pooler_save(struct PatternPooler* pp, const char* file) {
 void pattern_pooler_load(struct PatternPooler* pp, const char* file) {
     FILE *fptr;
 
+    // check if file can be opened
     if ((fptr = fopen(file,"rb")) == NULL) {
-       printf("Error: pattern_pooler_load() cannot open file\n");
+       printf("Error in pattern_pooler_load(): cannot open file\n");
        exit(1);
     }
 
+    // check if block has been initialized
+    if (pp->init_flag == 0) {
+        printf("Error in pattern_pooler_load(): block not initialized\n");
+    }
+
+    // load coincidence detector receptor addresses and permanences
+    struct CoincidenceSet* cs;
     for (uint32_t s = 0; s < pp->num_s; s++) {
-        struct CoincidenceSet* cs = &pp->coincidence_sets[s];
-
-        if (fread(cs->addrs, cs->num_r * sizeof(uint32_t), 1, fptr) == 0) {
-            printf("Error:\n"); // TODO
-        }
-
-        if (fread(cs->perms, cs->num_r * sizeof(int32_t), 1, fptr) == 0) {
-            printf("Error:\n"); // TODO
-        }
+        cs = &pp->coincidence_sets[s];
+        fread(cs->addrs, cs->num_r * sizeof(cs->addrs[0]), 1, fptr);
+        fread(cs->perms, cs->num_r * sizeof(cs->perms[0]), 1, fptr);
 
         coincidence_set_update_connections(
             &pp->coincidence_sets[s], pp->perm_thr);

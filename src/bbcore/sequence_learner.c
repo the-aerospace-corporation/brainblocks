@@ -166,29 +166,37 @@ void sequence_learner_initialize(struct SequenceLearner* sl) {
 void sequence_learner_save(struct SequenceLearner* sl, const char* file) {
     FILE *fptr;
 
+    // check if file can be opened
     if ((fptr = fopen(file,"wb")) == NULL) {
-       printf("Error: sequence_learner_save() cannot open file");
+       printf("Error in sequence_learner_save(): cannot open file");
        exit(1);
     }
 
-    // for each coincidence detector
+    // check if block has been initialized
+    if (sl->init_flag == 0) {
+        printf("Error in sequence_learner_save(): block not initialized\n");
+    }
+
+    struct CoincidenceSet* cs;
+
+    // save hidden coincidence detector receptor addresses and permanences
     for (uint32_t d = 0; d < sl->num_d; d++) {
-        struct CoincidenceSet* cs;
-
-        // save hidden coincidence detector receptor addresses and permanences
         cs = &sl->d_hidden[d];
-        fwrite(cs->addrs, cs->num_r * sizeof(uint32_t), 1, fptr);
-        fwrite(cs->perms, cs->num_r * sizeof(int32_t), 1, fptr);
-
-        // save hidden coincidence detector receptor addresses and permanences
+        fwrite(cs->addrs, cs->num_r * sizeof(cs->addrs[0]), 1, fptr);
+        fwrite(cs->perms, cs->num_r * sizeof(cs->perms[0]), 1, fptr);
+    }
+    
+    // save output coincidence detector receptor addresses and permanences
+    for (uint32_t d = 0; d < sl->num_d; d++) {
         cs = &sl->d_output[d];
-        fwrite(cs->addrs, cs->num_r * sizeof(uint32_t), 1, fptr);
-        fwrite(cs->perms, cs->num_r * sizeof(int32_t), 1, fptr);
+        fwrite(cs->addrs, cs->num_r * sizeof(cs->addrs[0]), 1, fptr);
+        fwrite(cs->perms, cs->num_r * sizeof(cs->perms[0]), 1, fptr);        
     }
 
     // save next available coincidence detector on each statelet
-    fwrite(sl->s_next_d, sl->num_s * sizeof(uint32_t), 1, fptr);
-    fclose(fptr); 
+    fwrite(sl->s_next_d, sl->num_s * sizeof(sl->s_next_d[0]), 1, fptr);
+
+    fclose(fptr);
 }
 
 // =============================================================================
@@ -197,30 +205,35 @@ void sequence_learner_save(struct SequenceLearner* sl, const char* file) {
 void sequence_learner_load(struct SequenceLearner* sl, const char* file) {
     FILE *fptr;
 
+    // check if file can be opened
     if ((fptr = fopen(file,"rb")) == NULL) {
-       printf("Error: sequence_learner_load() cannot open file\n");
+       printf("Error in sequence_learner_load(): cannot open file\n");
        exit(1);
     }
 
-    // for each coincidence detector
+    // check if block has been initialized
+    if (sl->init_flag == 0) {
+        printf("Error in sequence_learner_load(): block not initialized\n");
+    }
+
+    struct CoincidenceSet* cs;
+
+    // load hidden coincidence detector receptor addresses and permanences
     for (uint32_t d = 0; d < sl->num_d; d++) {
-        struct CoincidenceSet* cs;
-
-        // load hidden coincidence detector receptor addresses and permanences
         cs = &sl->d_hidden[d];
-        if (fread(cs->addrs, cs->num_r * sizeof(uint32_t), 1, fptr) == 0) {printf("Error:\n");} // TODO: error check
-        if (fread(cs->perms, cs->num_r * sizeof(int32_t), 1, fptr) == 0) {printf("Error:\n");} // TODO: error check
+        fread(cs->addrs, cs->num_r * sizeof(cs->addrs[0]), 1, fptr);
+        fread(cs->perms, cs->num_r * sizeof(cs->perms[0]), 1, fptr);
+    }
 
-        // load output coincidence detector receptor addresses and permanences
+    // load output coincidence detector receptor addresses and permanences
+    for (uint32_t d = 0; d < sl->num_d; d++) {
         cs = &sl->d_output[d];
-        if (fread(cs->addrs, cs->num_r * sizeof(uint32_t), 1, fptr) == 0) {printf("Error:\n");} // TODO: error check
-        if (fread(cs->perms, cs->num_r * sizeof(int32_t), 1, fptr) == 0) {printf("Error:\n");} // TODO: error check
+        fread(cs->addrs, cs->num_r * sizeof(cs->addrs[0]), 1, fptr);
+        fread(cs->perms, cs->num_r * sizeof(cs->perms[0]), 1, fptr);        
     }
 
     // load next available coincidence detector on each statelet
-    if (fread(sl->s_next_d, sl->num_s * sizeof(uint32_t), 1, fptr) == 0) {
-        printf("Error:\n"); // TODO
-    }
+    fread(sl->s_next_d, sl->num_s * sizeof(sl->s_next_d[0]), 1, fptr);
 
     fclose(fptr); 
 }
