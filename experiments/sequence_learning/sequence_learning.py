@@ -316,18 +316,22 @@ def three_events(statelet_snapshots_on=False):
     print()
     print('experiment=\'%s\'' % (experiment_name))
 
+    NUM_S = 208
+    NUM_SPC = 10
+    TOTAL_NUM_S = NUM_S * NUM_SPC
+
     e = SymbolsEncoder(
-        max_symbols=26, # maximum number of symbols
-        num_s=208)      # number of statelets
+        max_symbols=26,  # maximum number of symbols
+        num_s=NUM_S)  # number of statelets
 
     sl = SequenceLearner(
-        num_spc=10, # number of statelets per column
-        num_dps=50, # number of coincidence detectors per statelet
-        num_rpd=12, # number of receptors per coincidence detector
-        d_thresh=6, # coincidence detector threshold
-        perm_thr=1, # receptor permanence threshold
-        perm_inc=1, # receptor permanence increment
-        perm_dec=0) # receptor permanence decrement
+        num_spc=NUM_SPC,  # number of statelets per column
+        num_dps=50,  # number of coincidence detectors per statelet
+        num_rpd=12,  # number of receptors per coincidence detector
+        d_thresh=6,  # coincidence detector threshold
+        perm_thr=1,  # receptor permanence threshold
+        perm_inc=1,  # receptor permanence increment
+        perm_dec=0)  # receptor permanence decrement
 
     sl.input.add_child(e.output)
 
@@ -352,8 +356,8 @@ def three_events(statelet_snapshots_on=False):
     count_s_hidden_acts = [0 for _ in range(len(values))]
     count_s_hist = [0 for _ in range(len(values))]
     count_cs = [0 for _ in range(len(values))]
-    hidden_s_usage = [0 for _ in range(2240)]
-    output_s_usage = [0 for _ in range(2240)]
+    hidden_s_usage = [0 for _ in range(TOTAL_NUM_S)]
+    output_s_usage = [0 for _ in range(TOTAL_NUM_S)]
 
     print('val  scr  s_act  s_his    cs  active output statelets')
 
