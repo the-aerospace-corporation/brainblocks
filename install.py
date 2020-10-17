@@ -53,8 +53,10 @@ os.chdir('..')
 # install python requirements
 subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
 
-# uninstall brainblocks from environment
-subprocess.check_call([sys.executable, "-m", "pip", "uninstall", "brainblocks", "-y"])
+# uninstall brainblocks from environment if it exists
+result = subprocess.check_output([sys.executable, "-m", "pip", "list"])
+if "brainblocks" in str(result):
+    subprocess.check_call([sys.executable, "-m", "pip", "uninstall", "brainblocks", "-y"])
 
 # create wheel package and install
 subprocess.check_call([sys.executable, "setup.py", "bdist_wheel"])
