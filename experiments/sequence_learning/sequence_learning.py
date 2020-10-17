@@ -22,7 +22,7 @@ def mkdir_p(path):
 # ==============================================================================
 # Plot Results
 # ==============================================================================
-def plot_results(directory, title, values, scores, total_statelets, total_historical, total_coincidence_sets, s_upper_limit, cs_upper_limit):
+def plot_results(directory, title, values, scores, total_statelets, total_hidden_statelets, total_historical, total_coincidence_sets, s_upper_limit, cs_upper_limit):
     t = [i for i in range(len(values))]
 
     plt.clf()
@@ -41,11 +41,20 @@ def plot_results(directory, title, values, scores, total_statelets, total_histor
     ax1.set_ylabel('score')
 
     # axis 2: statelets
-    ax2.plot(t, total_statelets, drawstyle='steps-mid', label='active')
-    ax2.fill_between(t, total_historical, 0, alpha=0.2, label='historical')
+    ax2.plot(t, total_statelets, drawstyle='steps-mid', label='output')
+    ax2.plot(t, total_hidden_statelets, drawstyle='steps-mid', label='hidden')
+    #ax2.fill_between(t, total_historical, 0, alpha=0.2, label='historical')
     ax2.set_ylabel('statelets')
-    ax2.set_ylim(0, s_upper_limit)
-    ax2.legend(loc='upper left')
+    #ax2.set_ylim(0, s_upper_limit)
+    #ax2.legend(loc='upper left')
+
+    # create the legend on the figure, not the axes
+    handles, labels = ax2.get_legend_handles_labels()
+    #fig.legend(handles, labels, loc='upper right',
+    #              bbox_to_anchor=(1.1, 0.9))  # , fontsize=20)
+
+    fig.legend(handles, labels, fontsize=8, title_fontsize=8, bbox_to_anchor=(1.15, 1),
+               bbox_transform=ax2.transAxes)
 
     # axis 3: coincidence sets
     ax3.plot(t, total_coincidence_sets, drawstyle='steps-mid')
@@ -115,7 +124,7 @@ def plot_statelet_usage(directory, title, statelets, vmax=None):
 # ==============================================================================
 # One Event
 # ==============================================================================
-def one_event():
+def one_event(statelet_snapshots_on=False):
     experiment_name = 'one_event'
     directory = './' + experiment_name
     mkdir_p(directory)
@@ -155,7 +164,8 @@ def one_event():
     int_values = le.transform(values)
 
     scores = [0.0 for _ in range(len(values))]
-    count_s_acts = [0 for _ in range(len(values))]
+    count_s_output_acts = [0 for _ in range(len(values))]
+    count_s_hidden_acts = [0 for _ in range(len(values))]
     count_s_hist = [0 for _ in range(len(values))]
     count_cs = [0 for _ in range(len(values))]
     hidden_s_usage = [0 for _ in range(2240)]
@@ -173,7 +183,8 @@ def one_event():
         output_s_bits = sl.output.bits
         output_s_acts = sl.output.acts
         scores[i] = sl.get_score()
-        count_s_acts[i] = len(output_s_acts)
+        count_s_output_acts[i] = len(output_s_acts)
+        count_s_hidden_acts[i] = len(hidden_s_acts)
         count_s_hist[i] = sl.get_historical_count()
         count_cs[i] = sl.get_coincidence_set_count()
 
@@ -183,7 +194,7 @@ def one_event():
             output_s_usage[s] += output_s_bits[s]
 
         # plot statelets
-        if (i+1) % 5 == 0:
+        if statelet_snapshots_on and (i+1) % 5 == 0:
             title = 'step_' + str(i) + '_' + values[i] + '_' + values[i-1]
             plot_statelets(directory, 'hidden_'+title, hidden_s_bits)
             plot_statelets(directory, 'output_'+title, output_s_bits)
@@ -191,17 +202,17 @@ def one_event():
         # print information
         output_s_acts_str = '[' + ', '.join(str(act).rjust(4) for act in output_s_acts) + ']'
         print('{0:>3}  {1:0.1f}  {2:5d}  {3:5d}  {4:4d}  {5:>4}'.format(
-            values[i], scores[i], count_s_acts[i], count_s_hist[i], count_cs[i], output_s_acts_str))
+            values[i], scores[i], count_s_output_acts[i], count_s_hist[i], count_cs[i], output_s_acts_str))
 
     # plot information
-    plot_results(directory, 'results', values, scores, count_s_acts, count_s_hist, count_cs, 200, 200)
+    plot_results(directory, 'results', values, scores, count_s_output_acts, count_s_hidden_acts, count_s_hist, count_cs, 400, 400)
     plot_statelet_usage(directory, 'hidden', hidden_s_usage, 40)
     plot_statelet_usage(directory, 'output', output_s_usage, 40)
 
 # ==============================================================================
 # Two Events
 # ==============================================================================
-def two_events():
+def two_events(statelet_snapshots_on=False):
     experiment_name = 'two_events'
     directory = './' + experiment_name
     mkdir_p(directory)
@@ -250,7 +261,8 @@ def two_events():
     int_values = le.transform(values)
 
     scores = [0.0 for _ in range(len(values))]
-    count_s_acts = [0 for _ in range(len(values))]
+    count_s_output_acts = [0 for _ in range(len(values))]
+    count_s_hidden_acts = [0 for _ in range(len(values))]
     count_s_hist = [0 for _ in range(len(values))]
     count_cs = [0 for _ in range(len(values))]
     hidden_s_usage = [0 for _ in range(2240)]
@@ -268,7 +280,8 @@ def two_events():
         output_s_bits = sl.output.bits
         output_s_acts = sl.output.acts
         scores[i] = sl.get_score()
-        count_s_acts[i] = len(output_s_acts)
+        count_s_output_acts[i] = len(output_s_acts)
+        count_s_hidden_acts[i] = len(hidden_s_acts)
         count_s_hist[i] = sl.get_historical_count()
         count_cs[i] = sl.get_coincidence_set_count()
 
@@ -278,7 +291,7 @@ def two_events():
             output_s_usage[s] += output_s_bits[s]
 
         # plot statelets
-        if (i+1) % 5 == 0:
+        if statelet_snapshots_on and (i+1) % 5 == 0:
             title = 'step_' + str(i) + '_' + values[i] + '_' + values[i-1]
             plot_statelets(directory, 'hidden_'+title, hidden_s_bits)
             plot_statelets(directory, 'output_'+title, output_s_bits)
@@ -286,17 +299,17 @@ def two_events():
         # print information
         output_s_acts_str = '[' + ', '.join(str(act).rjust(4) for act in output_s_acts) + ']'
         print('{0:>3}  {1:0.1f}  {2:5d}  {3:5d}  {4:4d}  {5:>4}'.format(
-            values[i], scores[i], count_s_acts[i], count_s_hist[i], count_cs[i], output_s_acts_str))
+            values[i], scores[i], count_s_output_acts[i], count_s_hist[i], count_cs[i], output_s_acts_str))
 
     # plot information
-    plot_results(directory, 'results', values, scores, count_s_acts, count_s_hist, count_cs, 400, 400)
+    plot_results(directory, 'results', values, scores, count_s_output_acts, count_s_hidden_acts, count_s_hist, count_cs, 400, 400)
     plot_statelet_usage(directory, 'hidden', hidden_s_usage, 75)
     plot_statelet_usage(directory, 'output', output_s_usage, 75)
 
 # ==============================================================================
 # Three Events
 # ==============================================================================
-def three_events():
+def three_events(statelet_snapshots_on=False):
     experiment_name = 'three_events'
     directory = './' + experiment_name
     mkdir_p(directory)
@@ -328,25 +341,6 @@ def three_events():
         'a', 'a', 'a', 'a', 'a',
         'a', 'a', 'a', 'a', 'a',
         'b', 'c', 'd', 'c', 'b',
-        'a', 'a', 'a', 'a', 'a',
-        'a', 'a', 'a', 'a', 'a',
-        'b', 'c', 'd', 'e', 'f',
-        'a', 'a', 'a', 'a', 'a',
-        'a', 'a', 'a', 'a', 'a',
-        'f', 'e', 'd', 'c', 'b',
-        'a', 'a', 'a', 'a', 'a',
-        'a', 'a', 'a', 'a', 'a',
-        'b', 'c', 'd', 'c', 'b',
-        'a', 'a', 'a', 'a', 'a',
-        'a', 'a', 'a', 'a', 'a',
-        'b', 'c', 'd', 'e', 'f',
-        'a', 'a', 'a', 'a', 'a',
-        'a', 'a', 'a', 'a', 'a',
-        'f', 'e', 'd', 'c', 'b',
-        'a', 'a', 'a', 'a', 'a',
-        'a', 'a', 'a', 'a', 'a',
-        'b', 'c', 'd', 'c', 'b',
-        'a', 'a', 'a', 'a', 'a',
         'a', 'a', 'a', 'a', 'a']
 
     le = preprocessing.LabelEncoder()
@@ -354,7 +348,8 @@ def three_events():
     int_values = le.transform(values)
 
     scores = [0.0 for _ in range(len(values))]
-    count_s_acts = [0 for _ in range(len(values))]
+    count_s_output_acts = [0 for _ in range(len(values))]
+    count_s_hidden_acts = [0 for _ in range(len(values))]
     count_s_hist = [0 for _ in range(len(values))]
     count_cs = [0 for _ in range(len(values))]
     hidden_s_usage = [0 for _ in range(2240)]
@@ -372,7 +367,8 @@ def three_events():
         output_s_bits = sl.output.bits
         output_s_acts = sl.output.acts
         scores[i] = sl.get_score()
-        count_s_acts[i] = len(output_s_acts)
+        count_s_output_acts[i] = len(output_s_acts)
+        count_s_hidden_acts[i] = len(hidden_s_acts)
         count_s_hist[i] = sl.get_historical_count()
         count_cs[i] = sl.get_coincidence_set_count()
 
@@ -382,7 +378,7 @@ def three_events():
             output_s_usage[s] += output_s_bits[s]
 
         # plot statelets
-        if (i+1) % 5 == 0:
+        if statelet_snapshots_on and (i+1) % 5 == 0 or i == 43:
             title = 'step_' + str(i) + '_' + values[i] + '_' + values[i-1]
             plot_statelets(directory, 'hidden_'+title, hidden_s_bits)
             plot_statelets(directory, 'output_'+title, output_s_bits)
@@ -390,17 +386,17 @@ def three_events():
         # print information
         output_s_acts_str = '[' + ', '.join(str(act).rjust(4) for act in output_s_acts) + ']'
         print('{0:>3}  {1:0.1f}  {2:5d}  {3:5d}  {4:4d}  {5:>4}'.format(
-            values[i], scores[i], count_s_acts[i], count_s_hist[i], count_cs[i], output_s_acts_str))
+            values[i], scores[i], count_s_output_acts[i], count_s_hist[i], count_cs[i], output_s_acts_str))
 
     # plot information
-    plot_results(directory, 'results', values, scores, count_s_acts, count_s_hist, count_cs, 400, 400)
+    plot_results(directory, 'results', values, scores, count_s_output_acts, count_s_hidden_acts, count_s_hist, count_cs, 400, 400)
     plot_statelet_usage(directory, 'hidden', hidden_s_usage, 75)
     plot_statelet_usage(directory, 'output', output_s_usage, 75)
 
 # ==============================================================================
 # Multiple Prior Contexts
 # ==============================================================================
-def multiple_prior_contexts():
+def multiple_prior_contexts(statelet_snapshots_on=False):
     experiment_name = 'multiple_prior_contexts'
     directory = './' + experiment_name
     mkdir_p(directory)
@@ -454,7 +450,8 @@ def multiple_prior_contexts():
     int_values = le.transform(values)
 
     scores = [0.0 for _ in range(len(values))]
-    count_s_acts = [0 for _ in range(len(values))]
+    count_s_output_acts = [0 for _ in range(len(values))]
+    count_s_hidden_acts = [0 for _ in range(len(values))]
     count_s_hist = [0 for _ in range(len(values))]
     count_cs = [0 for _ in range(len(values))]
     hidden_s_usage = [0 for _ in range(2240)]
@@ -472,7 +469,8 @@ def multiple_prior_contexts():
         output_s_bits = sl.output.bits
         output_s_acts = sl.output.acts
         scores[i] = sl.get_score()
-        count_s_acts[i] = len(output_s_acts)
+        count_s_output_acts[i] = len(output_s_acts)
+        count_s_hidden_acts[i] = len(hidden_s_acts)
         count_s_hist[i] = sl.get_historical_count()
         count_cs[i] = sl.get_coincidence_set_count()
 
@@ -482,7 +480,7 @@ def multiple_prior_contexts():
             output_s_usage[s] += output_s_bits[s]
 
         # plot statelets
-        if (i+1) % 6 == 0:
+        if statelet_snapshots_on and (i+1) % 6 == 0:
             title = values[i] + '_' + values[i-1]
             plot_statelets(directory, 'hidden_'+title, hidden_s_bits)
             plot_statelets(directory, 'output_'+title, output_s_bits)
@@ -490,10 +488,10 @@ def multiple_prior_contexts():
         # print information
         output_s_acts_str = '[' + ', '.join(str(act).rjust(4) for act in output_s_acts) + ']'
         print('{0:>3}  {1:0.1f}  {2:5d}  {3:5d}  {4:4d}  {5:>4}'.format(
-            values[i], scores[i], count_s_acts[i], count_s_hist[i], count_cs[i], output_s_acts_str))
+            values[i], scores[i], count_s_output_acts[i], count_s_hist[i], count_cs[i], output_s_acts_str))
 
     # plot information
-    plot_results(directory, 'results', values, scores, count_s_acts, count_s_hist, count_cs, 600, 2200)
+    plot_results(directory, 'results', values, scores, count_s_output_acts, count_s_hidden_acts, count_s_hist, count_cs, 400, 400)
     plot_statelet_usage(directory, 'hidden', hidden_s_usage, 75)
     plot_statelet_usage(directory, 'output', output_s_usage, 75)
 
@@ -517,6 +515,6 @@ def multiple_prior_contexts():
 # ==============================================================================
 if __name__ == '__main__':
     one_event()
-    two_events()
-    three_events()
+    two_events(statelet_snapshots_on=False) # default
+    three_events(statelet_snapshots_on=True)
     multiple_prior_contexts()
