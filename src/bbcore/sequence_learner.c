@@ -277,8 +277,7 @@ void sequence_learner_compute(
         }
 
         page_compute_changed(sl->hidden);
-        // FIXME:  should this be included?  It was missing.
-        //page_compute_changed(sl->output);
+        page_compute_changed(sl->output); // TODO: might not be needed since hidden states are the primary driver
     }
     else {
         page_copy_previous_to_current(sl->hidden);
