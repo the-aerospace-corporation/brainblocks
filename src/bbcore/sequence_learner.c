@@ -276,7 +276,9 @@ void sequence_learner_compute(
             sequence_learner_learn(sl, input_aa);
         }
 
-        page_compute_changed(sl->hidden);       
+        page_compute_changed(sl->hidden);
+        // FIXME:  should this be included?  It was missing.
+        //page_compute_changed(sl->output);
     }
     else {
         page_copy_previous_to_current(sl->hidden);

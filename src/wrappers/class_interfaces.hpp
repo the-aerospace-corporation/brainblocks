@@ -437,6 +437,15 @@ class PatternClassifierClass {
             pattern_classifier_compute(&pc, in_label, learn_flag);
         };
 
+        // Get statelet label
+        uint32_t get_statelet_label(uint32_t s) {
+            if (s >= pc.num_s) {
+                 throw std::range_error("Error: s exceeds statelet range for this PatternClassifier");
+            }
+            
+            return pc.s_labels[s];
+        };
+
         // Get label probabilities
         std::vector<double> get_probabilities() {
             std::vector<double> probs;
@@ -462,6 +471,20 @@ class PatternClassifierClass {
             }
 
             return new CoincidenceSetClass(&pc.coincidence_sets[d]);
+        };
+
+        // Get decoding in bits 
+        std::vector<uint8_t> decode_bits() {
+            struct BitArray* ba = pattern_classifier_decode(&pc);
+            uint32_t num_bits = ba->num_bits;
+            std::vector<uint8_t> bits;
+            bits.reserve(num_bits);
+
+            for (uint32_t i = 0; i < num_bits; i++) {
+                bits.push_back(bitarray_get_bit(ba, i));
+            }
+
+            return bits;
         };
 
         // Get input Page object

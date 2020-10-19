@@ -60,4 +60,6 @@ void pattern_classifier_learn_(
     struct PatternClassifier* pc,
     const uint32_t in_label);
 
+struct BitArray* pattern_classifier_decode(struct PatternClassifier* pc);
+
 #endif

@@ -95,8 +95,10 @@ PYBIND11_MODULE(bb_backend, m) {
         .def("load", &PatternClassifierClass::load, "Load block")
         .def("clear", &PatternClassifierClass::clear, "Clear block")
         .def("compute", &PatternClassifierClass::compute, "Compute block", "label"_a, "learn"_a)
+        .def("get_statelet_label", &PatternClassifierClass::get_statelet_label, "Get statelet label")
         .def("get_probabilities", &PatternClassifierClass::get_probabilities, "Get label probabilities")
         .def("coincidence_set", &PatternClassifierClass::get_coincidence_set, "Get a particular CoincidenceSet object", "d"_a)
+        .def("decode_bits", &PatternClassifierClass::decode_bits, "Get decoding in bits")
         .def_property_readonly("input", &PatternClassifierClass::get_input, "Get input Page object")
         .def_property_readonly("output", &PatternClassifierClass::get_output, "Get output Page object");
 

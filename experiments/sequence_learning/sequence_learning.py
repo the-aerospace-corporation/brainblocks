@@ -4,8 +4,12 @@ import math
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import brainblocks.bb_backend as bb
 from brainblocks.blocks import SymbolsEncoder, SequenceLearner
 from sklearn import preprocessing
+
+# seed for deterministic random generator
+bb.seed(0)
 
 # printing boolean arrays neatly
 np.set_printoptions(precision=3, suppress=True, threshold=1000000, linewidth=100,
@@ -319,6 +323,7 @@ def three_events(statelet_snapshots_on=False):
     NUM_S = 208
     NUM_SPC = 10
     TOTAL_NUM_S = NUM_S * NUM_SPC
+
 
     e = SymbolsEncoder(
         max_symbols=26,  # maximum number of symbols

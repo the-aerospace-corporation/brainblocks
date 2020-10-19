@@ -359,3 +359,19 @@ void pattern_classifier_learn_(
         }
     }
 }
+
+struct BitArray* pattern_classifier_decode(struct PatternClassifier* pc) {
+    struct ActArray* output_aa = page_get_actarray(pc->output, CURR);
+    struct BitArray* backtrace_ba = malloc(sizeof(*backtrace_ba)); // TODO: how do I clean this up?
+    uint32_t num_bits = pc->coincidence_sets[0].connections_ba->num_bits;
+    
+    bitarray_construct(backtrace_ba, num_bits);
+
+    for (uint32_t k = 0; k < pc->num_as; k++) {
+        uint32_t s = output_aa->acts[k];
+        struct BitArray* conn_ba = coincidence_set_get_connections(&pc->coincidence_sets[s]);
+        bitarray_or(conn_ba, backtrace_ba, backtrace_ba);
+    }
+    
+    return backtrace_ba;
+}

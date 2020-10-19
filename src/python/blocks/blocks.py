@@ -217,11 +217,17 @@ class PatternClassifier():
         else:
             self.obj.compute(0, 0)
 
+    def get_statelet_label(self, s):
+        return self.obj.get_statelet_label(s)
+
     def get_probabilities(self):
         return self.obj.get_probabilities()
 
     def coincidence_set(self, d):
         return CoincidenceSet(self.obj.coincidence_set(d))
+
+    def decode_bits(self):
+        return self.obj.decode_bits()
 
     @property
     def input(self):
