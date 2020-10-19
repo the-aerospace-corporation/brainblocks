@@ -90,14 +90,11 @@ for i in range(num_trains):
 
 
     # ========================================
-    # decode what the classifier thinks of this particular class
+    # decode the receptive fields for active statelets
     # =======================================
     if i % 100 == 0:
         print()
-        print('label={}'.format(y_train[i]))
-        #s_acts = classifier.output.acts
-        #cs = classifier.coincidence_set(s_acts[0])
-        #cs_bits = cs.bits
+        print('receptive fields of active statelets for training label={}'.format(y_train[i]))
         decoding = classifier.decode_bits()
 
         for y in range(28):
@@ -112,10 +109,47 @@ for i in range(num_trains):
 t1 = time.time()
 train_time = t1 - t0
 
-
-# plot the receptive field of each statelet in the PC
+# ========================================
+# decode what the classifier thinks of this particular class
+# =======================================
+s_labels = []
+cs_bits = []
 for s in range(num_statelets):
     s_label = classifier.get_statelet_label(s)
     cs = classifier.coincidence_set(s)
-    plot_statelet(s, s_label, cs.bits)
+
+    s_labels.append(s_label)
+    cs_bits.append(cs.bits)
+
+    #plot_statelet(s, s_label, cs.bits)
+
+for label_val in labels:
+
+    # total input bits rounded up to 800 from 28*28=784
+    label_decoded = np.zeros(800, dtype=np.bool)
+
+    # union of all label's receptive fields
+    for s in range(num_statelets):
+        if s_labels[s] == label_val:
+            label_decoded = np.logical_or(label_decoded, np.array(cs_bits[s], dtype=np.bool))
+
+    print()
+    print('union of learned receptive fields for label={}'.format(label_val))
+    decoding = classifier.decode_bits()
+
+    for y in range(28):
+        for x in range(28):
+            i = y * 28 + x
+            #if decoding[i] == 1:
+            if label_decoded[i] == 1:
+                print('X', end=' ')
+            else:
+                print('-', end=' ')
+        print()
+
+# plot the receptive field of each statelet in the PC
+#for s in range(num_statelets):
+#    s_label = classifier.get_statelet_label(s)
+#    cs = classifier.coincidence_set(s)
+#    plot_statelet(s, s_label, cs.bits)
 
