@@ -70,7 +70,7 @@ void page_initialize(struct Page* p) {
     // to attach blocks to this block and it's left hanging and alone
     // Page num_bits must be greater than 0
     if (p->num_bits == 0) {
-        perror("Error: Page num_bits must be greater than 0.");
+        printf("Error in page_initialize: num_bits must be greater than 0.  Make sure your block input page has children.");
         exit(1);
     }
 

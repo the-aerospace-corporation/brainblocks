@@ -213,7 +213,8 @@ void sequence_learner_load(struct SequenceLearner* sl, const char* file) {
 
     // check if block has been initialized
     if (sl->init_flag == 0) {
-        printf("Error in sequence_learner_load(): block not initialized\n");
+        //printf("Error in sequence_learner_load(): block not initialized\n");
+        sequence_learner_initialize(sl);
     }
 
     struct CoincidenceSet* cs;

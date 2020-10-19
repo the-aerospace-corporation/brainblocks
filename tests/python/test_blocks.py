@@ -363,10 +363,6 @@ def test_sequence_learner_square():
 
     np.testing.assert_array_equal(actual_scores, expect_scores)
 
-    sl.save(file_str='sl.bin')
-    sl.load(file_str='sl.bin')
-    os.remove('sl.bin')
-
 # ==============================================================================
 # SequenceLearner Triangle
 # ==============================================================================
@@ -406,10 +402,6 @@ def test_sequence_learner_triangle():
         actual_scores[i] = sl.get_score()
 
     np.testing.assert_array_equal(actual_scores, expect_scores)
-
-    sl.save(file_str='sl.bin')
-    sl.load(file_str='sl.bin')
-    os.remove('sl.bin')
 
 # ==============================================================================
 # SequenceLearner Sine
@@ -451,8 +443,43 @@ def test_sequence_learner_sine():
 
     np.testing.assert_array_equal(actual_scores, expect_scores)
 
-    sl.save(file_str='sl.bin')
-    sl.load(file_str='sl.bin')
+# ==============================================================================
+# SequenceLearner Save Load
+# ==============================================================================
+def test_sequence_learner_save_load():
+    e0 = ScalarEncoder(min_val=0.0, max_val=1.0, num_s=64, num_as=8)
+    e1 = ScalarEncoder(min_val=0.0, max_val=1.0, num_s=64, num_as=8)
+    sl0 = SequenceLearner(num_spc=10, num_dps=10, num_rpd=12, d_thresh=6, perm_thr=1, perm_inc=1, perm_dec=0)
+    sl1 = SequenceLearner(num_spc=10, num_dps=10, num_rpd=12, d_thresh=6, perm_thr=1, perm_inc=1, perm_dec=0)
+    sl0.input.add_child(e0.output)
+    sl1.input.add_child(e1.output)
+
+    values = [
+        0.50, 0.79, 0.98, 0.98, 0.79, 0.50, 0.21, 0.02, 0.02, 0.21,
+        0.50, 0.79, 0.98, 0.98, 0.79, 0.50, 0.21, 0.02, 0.02, 0.21,
+        0.50, 0.79, 0.98, 0.98, 0.79, 0.50, 0.21, 0.02, 0.02, 0.21]
+
+    scores = np.array([0.0 for i in range(len(values))])
+    expect_scores = np.array([0.0 for i in range(len(values))])
+    expect_scores[0] = 1.0
+
+    # save model from sl0
+    for i in range(len(values)):
+        e0.compute(value=values[i])
+        sl0.compute(learn=True)
+
+    sl0.save(file_str='sl.bin')
+
+    # load model into sl1
+    sl1.load(file_str='sl.bin')
+
+    for i in range(len(values)):
+        e1.compute(value=values[i])
+        sl1.compute(learn=True)
+        scores[i] = sl1.get_score()
+
+    np.testing.assert_array_equal(scores, expect_scores)
+    
     os.remove('sl.bin')
 
 # ==============================================================================
@@ -469,3 +496,4 @@ if __name__ == '__main__':
     test_sequence_learner_square()
     test_sequence_learner_triangle()
     test_sequence_learner_sine()
+    test_sequence_learner_save_load()
