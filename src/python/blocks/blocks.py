@@ -1,6 +1,9 @@
 import brainblocks.bb_backend as bb
 import numpy as np
 
+# seed for deterministic random generator
+#bb.seed(0)
+
 
 # ==============================================================================
 # Page
@@ -182,7 +185,7 @@ class PatternClassifier():
             pct_pool=0.8,       # pooling percentage
             pct_conn=0.5,       # initially connected percentage
             pct_learn=0.25,     # learn percentage
-            random_state=None): # random state integer
+            random_state=0): # random state integer
 
         if isinstance(random_state,int):
             bb.seed(random_state)
@@ -252,7 +255,7 @@ class PatternPooler():
             pct_pool=0.8,       # pooling percentage
             pct_conn=0.5,       # initially connected percentage
             pct_learn=0.25,     # learn percentage
-            random_state=None): # random state integer
+            random_state=0): # random state integer
 
         if isinstance(random_state,int):
             bb.seed(random_state)
@@ -301,7 +304,7 @@ class SequenceLearner():
             perm_thr=20,        # receptor permanence threshold
             perm_inc=2,         # receptor permanence increment
             perm_dec=1,         # receptor permanence decrement
-            random_state=None): # random state integer
+            random_state=0): # random state integer
 
         if isinstance(random_state,int):
             bb.seed(random_state)
