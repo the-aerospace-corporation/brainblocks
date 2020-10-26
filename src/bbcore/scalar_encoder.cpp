@@ -1,5 +1,4 @@
-#include "scalar_encoder.h"
-
+#include "scalar_encoder.hpp"
 #include <stdlib.h>
 #include <errno.h>
 #include <stdio.h>
@@ -43,7 +42,7 @@ void scalar_encoder_construct(
     e->num_as = num_as;
     e->range_bits = e->num_s - e->num_as;
     e->init_flag = 0;
-    e->output = malloc(sizeof(*e->output));
+    e->output = (Page*)malloc(sizeof(*e->output));
 
     // construct pages
     page_construct(e->output, 2, e->num_s);

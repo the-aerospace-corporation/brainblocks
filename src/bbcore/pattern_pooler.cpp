@@ -1,6 +1,5 @@
-#include "pattern_pooler.h"
-
-#include "utils.h"
+#include "pattern_pooler.hpp"
+#include "utils.hpp"
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
@@ -8,8 +7,7 @@
 // =============================================================================
 // Constructor
 // =============================================================================
-void pattern_pooler_construct(
-    struct PatternPooler* pp,
+PatternPooler::PatternPooler(
     const uint32_t num_s,
     const uint32_t num_as,
     const uint32_t perm_thr,
@@ -67,87 +65,87 @@ void pattern_pooler_construct(
     }
 
     // initialize variables
-    pp->num_s = num_s;
-    pp->num_as = num_as;
-    pp->perm_thr = perm_thr;    
-    pp->perm_inc = perm_inc;
-    pp->perm_dec = perm_dec;
-    pp->pct_pool = pct_pool;
-    pp->pct_conn = pct_conn;
-    pp->pct_learn = pct_learn;
-    pp->init_flag = 0;
-    pp->learn_mask = NULL;
-    pp->input  = malloc(sizeof(*pp->input));
-    pp->output = malloc(sizeof(*pp->output));
-    pp->coincidence_sets = NULL;
+    this->num_s = num_s;
+    this->num_as = num_as;
+    this->perm_thr = perm_thr;    
+    this->perm_inc = perm_inc;
+    this->perm_dec = perm_dec;
+    this->pct_pool = pct_pool;
+    this->pct_conn = pct_conn;
+    this->pct_learn = pct_learn;
+    this->init_flag = 0;
+    this->learn_mask = NULL;
+    this->input  = (Page*)malloc(sizeof(*this->input));
+    this->output = (Page*)malloc(sizeof(*this->output));
+    this->coincidence_sets = NULL;
 
     // contruct pages
-    page_construct(pp->input, 2, 0);
-    page_construct(pp->output, 2, num_s);
+    page_construct(this->input, 2, 0);
+    page_construct(this->output, 2, num_s);
 }
 
 // =============================================================================
 // Destructor
 // =============================================================================
-void pattern_pooler_destruct(struct PatternPooler* pp) {
+PatternPooler::~PatternPooler() {
 
     // cleanup initialized pointers if applicable
-    if (pp->init_flag == 1) {
+    if (this->init_flag == 1) {
         
         // destruct each element in coincidence_sets
-        for (uint32_t s = 0; s < pp->num_s; s++) {
-            coincidence_set_destruct(&pp->coincidence_sets[s]);
+        for (uint32_t s = 0; s < this->num_s; s++) {
+            coincidence_set_destruct(&this->coincidence_sets[s]);
         }
     }
 
     // destruct input and output pages
-    page_destruct(pp->input);
-    page_destruct(pp->output);
+    page_destruct(this->input);
+    page_destruct(this->output);
 
     // free pointers
-    free(pp->input);
-    free(pp->output);
-    free(pp->coincidence_sets);
-    free(pp->learn_mask);
+    free(this->input);
+    free(this->output);
+    free(this->coincidence_sets);
+    free(this->learn_mask);
 }
 
 // =============================================================================
 // Initialize
 // =============================================================================
-void pattern_pooler_initialize(struct PatternPooler* pp) {
+void PatternPooler::initialize() {
 
     // initialize Pages
-    page_initialize(pp->input);
-    page_initialize(pp->output);
+    page_initialize(this->input);
+    page_initialize(this->output);
 
     // construct coincidence_sets
-    uint32_t num_i = pp->input->bitarrays[0]->num_bits;
-    uint32_t num_spd = (uint32_t)((double)num_i * pp->pct_pool);
-    uint32_t num_learns = (uint32_t)((double)num_spd * pp->pct_learn);
-    uint32_t num_conn = (uint32_t)((double)num_spd * pp->pct_conn);
+    uint32_t num_i = this->input->bitarrays[0]->num_bits;
+    uint32_t num_spd = (uint32_t)((double)num_i * this->pct_pool);
+    uint32_t num_learns = (uint32_t)((double)num_spd * this->pct_learn);
+    uint32_t num_conn = (uint32_t)((double)num_spd * this->pct_conn);
 
-    pp->coincidence_sets = malloc(pp->num_s * sizeof(*pp->coincidence_sets));
+    this->coincidence_sets = (CoincidenceSet*)malloc(this->num_s * sizeof(*this->coincidence_sets));
 
-    for (uint32_t s = 0; s < pp->num_s; s++) {
+    for (uint32_t s = 0; s < this->num_s; s++) {
         coincidence_set_construct_pooled(
-            &pp->coincidence_sets[s], num_i, num_spd, num_conn, pp->perm_thr);
+            &this->coincidence_sets[s], num_i, num_spd, num_conn, this->perm_thr);
     }
 
     // initialize learning mask
-    pp->learn_mask = calloc(num_spd, sizeof(*pp->learn_mask));
+    this->learn_mask = (uint32_t*)calloc(num_spd, sizeof(*this->learn_mask));
 
     for (uint32_t l = 0; l < num_learns; l++) {
-        pp->learn_mask[l] = 1;
+        this->learn_mask[l] = 1;
     }
 
     // set init_flag to true
-    pp->init_flag = 1;
+    this->init_flag = 1;
 }
 
 // =============================================================================
 // Save
 // =============================================================================
-void pattern_pooler_save(struct PatternPooler* pp, const char* file) {
+void PatternPooler::save(const char* file) {
     FILE *fptr;
 
     // check if file can be opened
@@ -157,14 +155,14 @@ void pattern_pooler_save(struct PatternPooler* pp, const char* file) {
     }
 
     // check if block has been initialized
-    if (pp->init_flag == 0) {
+    if (this->init_flag == 0) {
         printf("Error in pattern_pooler_save(): block not initialized\n");
     }
 
     // save coincidence detector receptor addresses and permanences
     struct CoincidenceSet* cs;
-    for (uint32_t s = 0; s < pp->num_s; s++) {
-        cs = &pp->coincidence_sets[s];
+    for (uint32_t s = 0; s < this->num_s; s++) {
+        cs = &this->coincidence_sets[s];
         fwrite(cs->addrs, cs->num_r * sizeof(cs->addrs[0]), 1, fptr);
         fwrite(cs->perms, cs->num_r * sizeof(cs->perms[0]), 1, fptr);
     }
@@ -175,7 +173,7 @@ void pattern_pooler_save(struct PatternPooler* pp, const char* file) {
 // =============================================================================
 // Load
 // =============================================================================
-void pattern_pooler_load(struct PatternPooler* pp, const char* file) {
+void PatternPooler::load(const char* file) {
     FILE *fptr;
 
     // check if file can be opened
@@ -185,19 +183,19 @@ void pattern_pooler_load(struct PatternPooler* pp, const char* file) {
     }
 
     // check if block has been initialized
-    if (pp->init_flag == 0) {
+    if (this->init_flag == 0) {
         printf("Error in pattern_pooler_load(): block not initialized\n");
     }
 
     // load coincidence detector receptor addresses and permanences
     struct CoincidenceSet* cs;
-    for (uint32_t s = 0; s < pp->num_s; s++) {
-        cs = &pp->coincidence_sets[s];
+    for (uint32_t s = 0; s < this->num_s; s++) {
+        cs = &this->coincidence_sets[s];
         fread(cs->addrs, cs->num_r * sizeof(cs->addrs[0]), 1, fptr);
         fread(cs->perms, cs->num_r * sizeof(cs->perms[0]), 1, fptr);
 
         coincidence_set_update_connections(
-            &pp->coincidence_sets[s], pp->perm_thr);
+            &this->coincidence_sets[s], this->perm_thr);
     }
 
     fclose(fptr); 
@@ -206,99 +204,98 @@ void pattern_pooler_load(struct PatternPooler* pp, const char* file) {
 // =============================================================================
 // Clear
 // =============================================================================
-void pattern_pooler_clear(struct PatternPooler* pp) {
-    page_clear_bits(pp->input, 0); // current
-    page_clear_bits(pp->input, 1); // previous
-    page_clear_bits(pp->output, 0); // current
-    page_clear_bits(pp->output, 1); // previous
+// TODO change to clear_states()
+void PatternPooler::clear() {
+    page_clear_bits(this->input, 0); // current
+    page_clear_bits(this->input, 1); // previous
+    page_clear_bits(this->output, 0); // current
+    page_clear_bits(this->output, 1); // previous
 }
 
 // =============================================================================
 // Compute
 // =============================================================================
-void pattern_pooler_compute(
-        struct PatternPooler* pp,
-        const uint32_t learn_flag) {
+void PatternPooler::compute(const uint32_t learn_flag) {
 
-    if (pp->init_flag == 0) {
-        pattern_pooler_initialize(pp);
+    if (this->init_flag == 0) {
+        this->initialize();
     }
 
-    page_step(pp->input);
-    page_step(pp->output);
-    page_fetch(pp->input);
+    page_step(this->input);
+    page_step(this->output);
+    page_fetch(this->input);
 
-    if (pp->input->changed_flag) {
-        pattern_pooler_overlap_(pp);
-        pattern_pooler_activate_(pp);
+    if (this->input->changed_flag) {
+        this->overlap();
+        this->activate();
 
         if (learn_flag) {
-            pattern_pooler_learn_(pp);
+            this->learn();
         }
 
-        page_compute_changed(pp->output);
+        page_compute_changed(this->output);
     }
     else {
-        page_copy_previous_to_current(pp->output);
-        pp->output->changed_flag = 0;
+        page_copy_previous_to_current(this->output);
+        this->output->changed_flag = 0;
     }
 }
 
 // =============================================================================
 // Overlap
 // =============================================================================
-void pattern_pooler_overlap_(struct PatternPooler* pp) {
-    struct BitArray* input_ba = page_get_bitarray(pp->input, CURR);
-    for (uint32_t s = 0; s < pp->num_s; s++) {
-        coincidence_set_overlap(&pp->coincidence_sets[s], input_ba);
+void PatternPooler::overlap() {
+    struct BitArray* input_ba = page_get_bitarray(this->input, CURR);
+    for (uint32_t s = 0; s < this->num_s; s++) {
+        coincidence_set_overlap(&this->coincidence_sets[s], input_ba);
     }
 }
 
 // =============================================================================
 // Activate
 // =============================================================================
-void pattern_pooler_activate_(struct PatternPooler* pp) {
-    for (uint32_t k = 0; k < pp->num_as; k++) {
-        //uint32_t beg_idx = utils_rand_uint(0, pp->num_s);  //TODO: figure out random start
+void PatternPooler::activate() {
+    for (uint32_t k = 0; k < this->num_as; k++) {
+        //uint32_t beg_idx = utils_rand_uint(0, this->num_s);  //TODO: figure out random start
         uint32_t beg_idx = 0;
         uint32_t max_val = 0;
         uint32_t max_idx = beg_idx;
 
-        for (uint32_t s = 0; s < pp->num_s; s++) {
+        for (uint32_t s = 0; s < this->num_s; s++) {
             uint32_t j = s + beg_idx;
-            uint32_t d = (j < pp->num_s) ? j : (j - pp->num_s);
+            uint32_t d = (j < this->num_s) ? j : (j - this->num_s);
             
-            if (pp->coincidence_sets[d].templap > max_val) {
-                max_val = pp->coincidence_sets[d].templap;
+            if (this->coincidence_sets[d].templap > max_val) {
+                max_val = this->coincidence_sets[d].templap;
                 max_idx = d;
             }
         }
 
-        page_set_bit(pp->output, 0, max_idx);
-        pp->coincidence_sets[max_idx].templap = 0;
+        page_set_bit(this->output, 0, max_idx);
+        this->coincidence_sets[max_idx].templap = 0;
     }
 }
 
 // =============================================================================
 // Learn
 // =============================================================================
-void pattern_pooler_learn_(struct PatternPooler* pp) {
-    struct BitArray* input_ba = page_get_bitarray(pp->input, CURR);
-    struct ActArray* output_aa = page_get_actarray(pp->output, CURR);
+void PatternPooler::learn() {
+    struct BitArray* input_ba = page_get_bitarray(this->input, CURR);
+    struct ActArray* output_aa = page_get_actarray(this->output, CURR);
 
     for (uint32_t k = 0; k < output_aa->num_acts; k++) {
         uint32_t d = output_aa->acts[k];
-        utils_shuffle(pp->learn_mask, pp->coincidence_sets[d].num_r);
+        utils_shuffle(this->learn_mask, this->coincidence_sets[d].num_r);
 
         coincidence_set_learn(
-            &pp->coincidence_sets[d],
+            &this->coincidence_sets[d],
             input_ba,
-            pp->learn_mask,
-            pp->perm_inc,
-            pp->perm_dec);
+            this->learn_mask,
+            this->perm_inc,
+            this->perm_dec);
 
         coincidence_set_update_connections(
-            &pp->coincidence_sets[d],
-            pp->perm_thr);
+            &this->coincidence_sets[d],
+            this->perm_thr);
     }
 }

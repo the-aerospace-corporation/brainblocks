@@ -1,9 +1,11 @@
-#ifndef SEQUENCE_LEARNER_H
-#define SEQUENCE_LEARNER_H
+#ifndef SEQUENCE_LEARNER_HPP
+#define SEQUENCE_LEARNER_HPP
 
-#include "bitarray.h"
-#include "page.h"
-#include "coincidence_set.h"
+#define _CRT_SECURE_NO_WARNINGS // remove Windows fopen warnings
+
+#include "bitarray.hpp"
+#include "page.hpp"
+#include "coincidence_set.hpp"
 #include <stdint.h>
 
 struct SequenceLearner {

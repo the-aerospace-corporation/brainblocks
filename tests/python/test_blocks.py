@@ -1,5 +1,6 @@
-from brainblocks.blocks import BlankBlock, ScalarEncoder, SymbolsEncoder, \
-    PersistenceEncoder, PatternClassifier, PatternPooler, SequenceLearner
+from brainblocks.blocks import BlankBlock
+#from brainblocks.blocks import BlankBlock, ScalarEncoder, SymbolsEncoder, \
+#    PersistenceEncoder, PatternClassifier, PatternPooler, SequenceLearner
 from sklearn import preprocessing
 import os
 import numpy as np
@@ -9,7 +10,7 @@ np.set_printoptions(precision=3, suppress=True, threshold=1000000, linewidth=100
                     formatter={'bool': lambda bin_val: 'X' if bin_val else '-'})
 
 # ==============================================================================
-# Write Page
+# Test Read/Write Page
 # ==============================================================================
 def test_read_write_page():
     blank = BlankBlock(num_s=32)
@@ -27,6 +28,7 @@ def test_read_write_page():
     racts = np.array(blank.output.acts)
     np.testing.assert_array_equal(wacts, racts)
 
+'''
 # ==============================================================================
 # Read Coincidence Set
 # ==============================================================================
@@ -481,19 +483,19 @@ def test_sequence_learner_save_load():
     np.testing.assert_array_equal(scores, expect_scores)
     
     os.remove('sl.bin')
-
+'''
 # ==============================================================================
 # Main
 # ==============================================================================
 if __name__ == '__main__':
     test_read_write_page()
-    test_read_coincidence_set()
-    test_scalar_encoder()
-    test_symbols_encoder()
-    test_persistence_encoder()
-    test_pattern_classifier()
-    test_pattern_pooler()
-    test_sequence_learner_square()
-    test_sequence_learner_triangle()
-    test_sequence_learner_sine()
-    test_sequence_learner_save_load()
+    #test_read_coincidence_set()
+    #test_scalar_encoder()
+    #test_symbols_encoder()
+    #test_persistence_encoder()
+    #test_pattern_classifier()
+    #test_pattern_pooler()
+    #test_sequence_learner_square()
+    #test_sequence_learner_triangle()
+    #test_sequence_learner_sine()
+    #test_sequence_learner_save_load()

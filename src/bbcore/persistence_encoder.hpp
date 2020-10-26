@@ -1,7 +1,7 @@
-#ifndef PERSISTENCE_ENCODER_H
-#define PERSISTENCE_ENCODER_H
+#ifndef PERSISTENCE_ENCODER_HPP
+#define PERSISTENCE_ENCODER_HPP
 
-#include "page.h"
+#include "page.hpp"
 #include <stdint.h>
 
 struct PersistenceEncoder {

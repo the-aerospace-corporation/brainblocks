@@ -1,6 +1,5 @@
-#include "coincidence_set.h"
-
-#include "utils.h"
+#include "coincidence_set.hpp"
+#include "utils.hpp"
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
@@ -17,8 +16,8 @@ void coincidence_set_construct(
     cs->state = 0;
     cs->overlap = 0;
     cs->templap = 0;
-    cs->addrs = calloc(cs->num_r, sizeof(*cs->addrs));
-    cs->perms = calloc(cs->num_r, sizeof(*cs->perms));
+    cs->addrs = (uint32_t*)calloc(cs->num_r, sizeof(*cs->addrs));
+    cs->perms = (int8_t*)calloc(cs->num_r, sizeof(*cs->perms));
     cs->connections_ba = NULL;
     cs->activeconns_ba = NULL;
 }
@@ -49,17 +48,17 @@ void coincidence_set_construct_pooled(
     cs->state = 0;
     cs->overlap = 0;
     cs->templap = 0;
-    cs->addrs = calloc(cs->num_r, sizeof(*cs->addrs));
-    cs->perms = calloc(cs->num_r, sizeof(*cs->perms));
-    cs->connections_ba = malloc(sizeof(*cs->connections_ba));
-    cs->activeconns_ba = malloc(sizeof(*cs->activeconns_ba));
+    cs->addrs = (uint32_t*)calloc(cs->num_r, sizeof(*cs->addrs));
+    cs->perms = (int8_t*)calloc(cs->num_r, sizeof(*cs->perms));
+    cs->connections_ba = (BitArray*)malloc(sizeof(*cs->connections_ba));
+    cs->activeconns_ba = (BitArray*)malloc(sizeof(*cs->activeconns_ba));
 
     // construct bitarrays
     bitarray_construct(cs->connections_ba, num_i);
     bitarray_construct(cs->activeconns_ba, num_i);
 
     // shuffle temporary random address array
-    uint32_t* rand_addrs = malloc(num_i * sizeof(*rand_addrs));
+    uint32_t* rand_addrs = (uint32_t*)malloc(num_i * sizeof(*rand_addrs));
 
     for (uint32_t i = 0; i < num_i; i++) {
         rand_addrs[i] = i;

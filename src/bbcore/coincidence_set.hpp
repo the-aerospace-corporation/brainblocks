@@ -1,7 +1,7 @@
-#ifndef COINCIDENCE_SET_H
-#define COINCIDENCE_SET_H
+#ifndef COINCIDENCE_SET_HPP
+#define COINCIDENCE_SET_HPP
 
-#include "bitarray.h"
+#include "bitarray.hpp"
 #include <stdint.h>
 
 #define PERM_MIN 0

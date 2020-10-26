@@ -1,14 +1,14 @@
-extern "C" {
-    #include "utils.h"
-    #include "page.h"
-    #include "blank_block.h"
-    #include "scalar_encoder.h"
-    #include "symbols_encoder.h"
-    #include "persistence_encoder.h"
-    #include "pattern_classifier.h"
-    #include "pattern_pooler.h"
-    #include "sequence_learner.h"
-}
+//extern "C" {
+//#include "utils.hpp"
+//#include "page.hpp"
+//#include "blank_block.hpp"
+//#include "scalar_encoder.hpp"
+//#include "symbols_encoder.hpp"
+//#include "persistence_encoder.hpp"
+//#include "pattern_classifier.hpp"
+//#include "pattern_pooler.hpp"
+//#include "sequence_learner.hpp"
+//}
 
 // TODO: convert pointers to smart pointers
 #include <string>
@@ -16,11 +16,11 @@ extern "C" {
 #include <stdexcept>
 
 
-void seed(const uint32_t seed) {
-    utils_seed(seed);
-}
+//void seed(const uint32_t seed) {
+    //utils_seed(seed);
+//}
 
-
+/*
 // =============================================================================
 // PageClass
 // =============================================================================
@@ -119,8 +119,8 @@ class PageClass {
         Page* get_ptr() { return page; };
         struct Page* page;
 };
-
-
+*/
+/*
 // =============================================================================
 // CoincidenceSetClass
 // =============================================================================
@@ -206,8 +206,8 @@ class CoincidenceSetClass {
     private:
         struct CoincidenceSet* d;
 };
-
-
+*/
+/*
 // =============================================================================
 // BlankBlockClass
 // =============================================================================
@@ -236,8 +236,8 @@ class BlankBlockClass {
     private:
         struct BlankBlock b;
 };
-
-
+*/
+/*
 // =============================================================================
 // ScalarEncoderClass
 // =============================================================================
@@ -275,8 +275,8 @@ class ScalarEncoderClass {
     private:
         struct ScalarEncoder e;
 };
-
-
+*/
+/*
 // =============================================================================
 // SymbolsEncoderClass
 // =============================================================================
@@ -327,8 +327,8 @@ class SymbolsEncoderClass {
     private:
         struct SymbolsEncoder e;
 };
-
-
+*/
+/*
 // =============================================================================
 // PersistenceEncoderClass
 // =============================================================================
@@ -372,8 +372,8 @@ class PersistenceEncoderClass {
     private:
         struct PersistenceEncoder e;
 };
-
-
+*/
+/*
 // =============================================================================
 // PatternClassifierClass
 // =============================================================================
@@ -500,8 +500,8 @@ class PatternClassifierClass {
     private:
         struct PatternClassifier pc;
 };
-
-
+*/
+/*
 // =============================================================================
 // PatternPoolerClass
 // =============================================================================
@@ -585,8 +585,8 @@ class PatternPoolerClass {
     private:
         struct PatternPooler pp;
 };
-
-
+*/
+/*
 // =============================================================================
 // SequenceLearnerClass
 // =============================================================================
@@ -727,3 +727,4 @@ class SequenceLearnerClass {
     private:
         struct SequenceLearner sl;
 };
+*/

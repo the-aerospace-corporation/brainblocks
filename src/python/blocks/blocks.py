@@ -44,7 +44,7 @@ class Page():
     bits = property(get_bits, set_bits, None, "Read/Write Bits")
     acts = property(get_acts, set_acts, None, "Read/Write Acts")
 
-
+'''
 # ==============================================================================
 # CoincidenceSet
 # ==============================================================================
@@ -72,7 +72,7 @@ class CoincidenceSet():
 
     bits = property(get_bits, None, None, "Read Bits")
     acts = property(get_acts, None, None, "Read Acts")
-
+'''
 # ==============================================================================
 # BlankBlock
 # ==============================================================================
@@ -90,7 +90,7 @@ class BlankBlock():
     def output(self):
         return Page(self.obj.output)
 
-
+'''
 # ==============================================================================
 # ScalarEncoder
 # ==============================================================================
@@ -362,3 +362,4 @@ class SequenceLearner():
     @property
     def output(self):
         return Page(self.obj.output)
+'''

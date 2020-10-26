@@ -1,5 +1,4 @@
-#include "persistence_encoder.h"
-
+#include "persistence_encoder.hpp"
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
@@ -53,7 +52,7 @@ void persistence_encoder_construct(
     e->step = 0;
     e->pct_val_prev = 0.0;
     e->init_flag = 0;
-    e->output = malloc(sizeof(*e->output));
+    e->output = (Page*)malloc(sizeof(*e->output));
 
     // construct pages
     page_construct(e->output, 2, e->num_s);

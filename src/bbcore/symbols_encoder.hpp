@@ -1,7 +1,7 @@
-#ifndef SYMBOLS_ENCODER_H
-#define SYMBOLS_ENCODER_H
+#ifndef SYMBOLS_ENCODER_HPP
+#define SYMBOLS_ENCODER_HPP
 
-#include "page.h"
+#include "page.hpp"
 #include <stdint.h>
 
 struct SymbolsEncoder {

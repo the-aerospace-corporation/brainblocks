@@ -1,6 +1,5 @@
-#include "pattern_classifier.h"
-
-#include "utils.h"
+#include "pattern_classifier.hpp"
+#include "utils.hpp"
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
@@ -8,8 +7,7 @@
 // =============================================================================
 // Constructor
 // =============================================================================
-void pattern_classifier_construct(
-        struct PatternClassifier* pc,
+PatternClassifier::PatternClassifier(
         const uint32_t* labels,
         const uint32_t num_l,
         const uint32_t num_s,
@@ -73,106 +71,106 @@ void pattern_classifier_construct(
     }
 
     // initialize variables
-    pc->num_l = num_l;
-    pc->num_s = num_s;
-    pc->num_as = num_as;
-    pc->num_spl = (uint32_t)(pc->num_s / pc->num_l);
-    pc->perm_thr = perm_thr;
-    pc->perm_inc = perm_inc;
-    pc->perm_dec = perm_dec;
-    pc->pct_pool = pct_pool;
-    pc->pct_conn = pct_conn;
-    pc->pct_learn = pct_learn;
-    pc->init_flag = 0;
-    pc->s_labels = NULL;
-    pc->learn_mask = NULL;
-    pc->labels = malloc(pc->num_l * sizeof(*pc->labels));
-    pc->probs = calloc(pc->num_l, sizeof(*pc->probs));    
-    pc->input  = malloc(sizeof(*pc->input));
-    pc->output = malloc(sizeof(*pc->output));
-    pc->coincidence_sets = NULL;
+    this->num_l = num_l;
+    this->num_s = num_s;
+    this->num_as = num_as;
+    this->num_spl = (uint32_t)(this->num_s / this->num_l);
+    this->perm_thr = perm_thr;
+    this->perm_inc = perm_inc;
+    this->perm_dec = perm_dec;
+    this->pct_pool = pct_pool;
+    this->pct_conn = pct_conn;
+    this->pct_learn = pct_learn;
+    this->init_flag = 0;
+    this->s_labels = NULL;
+    this->learn_mask = NULL;
+    this->labels = (uint32_t*)malloc(this->num_l * sizeof(*this->labels));
+    this->probs = (double*)calloc(this->num_l, sizeof(*this->probs));    
+    this->input  = (Page*)malloc(sizeof(*this->input));
+    this->output = (Page*)malloc(sizeof(*this->output));
+    this->coincidence_sets = NULL;
 
     // construct pages
-    page_construct(pc->input, 2, 0);
-    page_construct(pc->output, 2, pc->num_s);
+    page_construct(this->input, 2, 0);
+    page_construct(this->output, 2, this->num_s);
 
     // initialize labels
-    for (uint32_t l = 0; l < pc->num_l; l++) {
-        pc->labels[l] = labels[l];
+    for (uint32_t l = 0; l < this->num_l; l++) {
+        this->labels[l] = labels[l];
     }
 }
 
 // =============================================================================
 // Destructor
 // =============================================================================
-void pattern_classifier_destruct(struct PatternClassifier* pc) {
+PatternClassifier::~PatternClassifier() {
 
     // cleanup initialized pointers if applicable
-    if (pc->init_flag == 1) {
+    if (this->init_flag == 1) {
         
         // destruct each element in coincidence_sets
-        for (uint32_t s = 0; s < pc->num_s; s++) {
-            coincidence_set_destruct(&pc->coincidence_sets[s]);
+        for (uint32_t s = 0; s < this->num_s; s++) {
+            coincidence_set_destruct(&this->coincidence_sets[s]);
         }
     }
 
     // destruct input and output pages
-    page_destruct(pc->input);
-    page_destruct(pc->output);
+    page_destruct(this->input);
+    page_destruct(this->output);
 
     // free pointers
-    free(pc->input);
-    free(pc->output);
-    free(pc->coincidence_sets);
-    free(pc->s_labels);
-    free(pc->learn_mask);
-    free(pc->labels);
-    free(pc->probs);
+    free(this->input);
+    free(this->output);
+    free(this->coincidence_sets);
+    free(this->s_labels);
+    free(this->learn_mask);
+    free(this->labels);
+    free(this->probs);
 }
 
 // =============================================================================
 // Initialize
 // =============================================================================
-void pattern_classifier_initialize(struct PatternClassifier* pc) {
+void PatternClassifier::initialize() {
 
     // initialize Pages
-    page_initialize(pc->input);
-    page_initialize(pc->output);
+    page_initialize(this->input);
+    page_initialize(this->output);
 
     // construct coincidence_sets
-    uint32_t num_i = pc->input->bitarrays[0]->num_bits;
-    uint32_t num_spd = (uint32_t)((double)num_i * pc->pct_pool);
-    uint32_t num_learns = (uint32_t)((double)num_spd * pc->pct_learn);
-    uint32_t num_conn = (uint32_t)((double)num_spd * pc->pct_conn);
+    uint32_t num_i = this->input->bitarrays[0]->num_bits;
+    uint32_t num_spd = (uint32_t)((double)num_i * this->pct_pool);
+    uint32_t num_learns = (uint32_t)((double)num_spd * this->pct_learn);
+    uint32_t num_conn = (uint32_t)((double)num_spd * this->pct_conn);
 
-    pc->coincidence_sets = malloc(pc->num_s * sizeof(*pc->coincidence_sets));
+    this->coincidence_sets = (CoincidenceSet*)malloc(this->num_s * sizeof(*this->coincidence_sets));
 
-    for (uint32_t s = 0; s < pc->num_s; s++) {
+    for (uint32_t s = 0; s < this->num_s; s++) {
         coincidence_set_construct_pooled(
-            &pc->coincidence_sets[s], num_i, num_spd, num_conn, pc->perm_thr);
+            &this->coincidence_sets[s], num_i, num_spd, num_conn, this->perm_thr);
     }
 
     // initialize neuron labels
-    pc->s_labels = malloc(pc->num_s * sizeof(*pc->coincidence_sets));
+    this->s_labels = (uint32_t*)malloc(this->num_s * sizeof(*this->coincidence_sets));
 
-    for (uint32_t s = 0; s < pc->num_s; s++) {
-        pc->s_labels[s] = (uint32_t)(s / pc->num_spl);
+    for (uint32_t s = 0; s < this->num_s; s++) {
+        this->s_labels[s] = (uint32_t)(s / this->num_spl);
     }
 
     // initialize learning mask
-    pc->learn_mask = calloc(num_spd, sizeof(*pc->learn_mask));
+    this->learn_mask = (uint32_t*)calloc(num_spd, sizeof(*this->learn_mask));
     for (uint32_t l = 0; l < num_learns; l++) {
-        pc->learn_mask[l] = 1;
+        this->learn_mask[l] = 1;
     }
 
     // set init_flag to true
-    pc->init_flag = 1;
+    this->init_flag = 1;
 }
 
 // =============================================================================
 // Save
 // =============================================================================
-void pattern_classifier_save(struct PatternClassifier* pc, const char* file) {
+void PatternClassifier::save(const char* file) {
     FILE *fptr;
 
     if ((fptr = fopen(file,"wb")) == NULL) {
@@ -180,8 +178,8 @@ void pattern_classifier_save(struct PatternClassifier* pc, const char* file) {
        exit(1);
     }
 
-    for (uint32_t s = 0; s < pc->num_s; s++) {
-        struct CoincidenceSet* cs = &pc->coincidence_sets[s];
+    for (uint32_t s = 0; s < this->num_s; s++) {
+        struct CoincidenceSet* cs = &this->coincidence_sets[s];
         fwrite(cs->addrs, cs->num_r * sizeof(uint32_t), 1, fptr);
         fwrite(cs->perms, cs->num_r * sizeof(int32_t), 1, fptr);
     }
@@ -192,7 +190,7 @@ void pattern_classifier_save(struct PatternClassifier* pc, const char* file) {
 // =============================================================================
 // Load
 // =============================================================================
-void pattern_classifier_load(struct PatternClassifier* pc, const char* file) {
+void PatternClassifier::load(const char* file) {
     FILE *fptr;
 
     if ((fptr = fopen(file,"rb")) == NULL) {
@@ -200,8 +198,8 @@ void pattern_classifier_load(struct PatternClassifier* pc, const char* file) {
        exit(1);
     }
 
-    for (uint32_t s = 0; s < pc->num_s; s++) {
-        struct CoincidenceSet* cs = &pc->coincidence_sets[s];
+    for (uint32_t s = 0; s < this->num_s; s++) {
+        struct CoincidenceSet* cs = &this->coincidence_sets[s];
 
         if (fread(cs->addrs, cs->num_r * sizeof(uint32_t), 1, fptr) == 0) {
             printf("Error:\n"); // TODO
@@ -212,7 +210,7 @@ void pattern_classifier_load(struct PatternClassifier* pc, const char* file) {
         }
 
         coincidence_set_update_connections(
-            &pc->coincidence_sets[s], pc->perm_thr);
+            &this->coincidence_sets[s], this->perm_thr);
     }
 
     fclose(fptr); 
@@ -221,57 +219,55 @@ void pattern_classifier_load(struct PatternClassifier* pc, const char* file) {
 // =============================================================================
 // Clear
 // =============================================================================
-void pattern_classifier_clear(struct PatternClassifier* pc) {
-    page_clear_bits(pc->input, 0); // current
-    page_clear_bits(pc->input, 1); // previous
-    page_clear_bits(pc->output, 0); // current
-    page_clear_bits(pc->output, 1); // previous
+// TODO: make clear_states()
+void PatternClassifier::clear() {
+    page_clear_bits(this->input, 0); // current
+    page_clear_bits(this->input, 1); // previous
+    page_clear_bits(this->output, 0); // current
+    page_clear_bits(this->output, 1); // previous
 }
 
 // =============================================================================
 // Compute
 // =============================================================================
-void pattern_classifier_compute(
-        struct PatternClassifier* pc,
-        const uint32_t in_label,
-        const uint32_t learn_flag) {
+void PatternClassifier::compute(const uint32_t in_label, const uint32_t learn_flag) {
 
-    if (pc->init_flag == 0) {
-        pattern_classifier_initialize(pc);
+    if (this->init_flag == 0) {
+        this->initialize();
     }
 
-    page_step(pc->input);
-    page_step(pc->output);
-    page_fetch(pc->input);
+    page_step(this->input);
+    page_step(this->output);
+    page_fetch(this->input);
 
-    pattern_classifier_overlap_(pc);
-    pattern_classifier_activate_(pc);
+    this->overlap();
+    this->activate();
 
     if (learn_flag) {
-        pattern_classifier_learn_(pc, in_label);
+        this->learn(in_label);
     }
 }
 
 // =============================================================================
 // Update Probabilities
 // =============================================================================
-void pattern_classifier_update_probabilities(struct PatternClassifier* pc) {
+void PatternClassifier::update_probabilities() {
     uint32_t acts = 0;
 
-    for (uint32_t l = 0; l < pc->num_l; l++) {
-        pc->probs[l] = 0.0;
+    for (uint32_t l = 0; l < this->num_l; l++) {
+        this->probs[l] = 0.0;
     }
 
-    for (uint32_t s = 0; s < pc->num_s; s++) {
-        if(page_get_bit(pc->output, 0, s)) {
-            pc->probs[pc->s_labels[s]]++;
+    for (uint32_t s = 0; s < this->num_s; s++) {
+        if(page_get_bit(this->output, 0, s)) {
+            this->probs[this->s_labels[s]]++;
             acts++;
         }
     }        
 
     if (acts > 0) {
-        for (uint32_t l = 0; l < pc->num_l; l++) {
-            pc->probs[l] = pc->probs[l] / acts;
+        for (uint32_t l = 0; l < this->num_l; l++) {
+            this->probs[l] = this->probs[l] / acts;
         }
     }
 }
@@ -279,50 +275,48 @@ void pattern_classifier_update_probabilities(struct PatternClassifier* pc) {
 // =============================================================================
 // Overlap
 // =============================================================================
-void pattern_classifier_overlap_(struct PatternClassifier* pc) {
-    struct BitArray* input_ba = page_get_bitarray(pc->input, CURR);
-    for (uint32_t s = 0; s < pc->num_s; s++) {
-        coincidence_set_overlap(&pc->coincidence_sets[s], input_ba);
+void PatternClassifier::overlap() {
+    struct BitArray* input_ba = page_get_bitarray(this->input, CURR);
+    for (uint32_t s = 0; s < this->num_s; s++) {
+        coincidence_set_overlap(&this->coincidence_sets[s], input_ba);
     }
 }
 
 // =============================================================================
 // Activate
 // =============================================================================
-void pattern_classifier_activate_(struct PatternClassifier* pc) {
-    for (uint32_t k = 0; k < pc->num_as; k++) {
-        //uint32_t beg_idx = utils_rand_uint(0, pc->num_s); //TODO: figure out random start
+void PatternClassifier::activate() {
+    for (uint32_t k = 0; k < this->num_as; k++) {
+        //uint32_t beg_idx = utils_rand_uint(0, this->num_s); //TODO: figure out random start
         uint32_t beg_idx = 0;
         uint32_t max_val = 0;
         uint32_t max_idx = beg_idx;
 
-        for (uint32_t s = 0; s < pc->num_s; s++) {
+        for (uint32_t s = 0; s < this->num_s; s++) {
             uint32_t j = s + beg_idx;
-            uint32_t d = (j < pc->num_s) ? j : (j - pc->num_s);
+            uint32_t d = (j < this->num_s) ? j : (j - this->num_s);
             
-            if (pc->coincidence_sets[d].templap > max_val) {
-                max_val = pc->coincidence_sets[d].templap;
+            if (this->coincidence_sets[d].templap > max_val) {
+                max_val = this->coincidence_sets[d].templap;
                 max_idx = d;
             }
         }
 
-        page_set_bit(pc->output, 0, max_idx);
-        pc->coincidence_sets[max_idx].templap = 0;
+        page_set_bit(this->output, 0, max_idx);
+        this->coincidence_sets[max_idx].templap = 0;
     }
 }
 
 // =============================================================================
 // Learn
 // =============================================================================
-void pattern_classifier_learn_(
-        struct PatternClassifier* pc,
-        const uint32_t in_label) {
+void PatternClassifier::learn(const uint32_t in_label) {
 
     uint32_t has_label = 0;
     uint32_t label_idx = 0;
 
-    for (uint32_t l = 0; l < pc->num_l; l++) {
-        if (pc->labels[l] == in_label) {
+    for (uint32_t l = 0; l < this->num_l; l++) {
+        if (this->labels[l] == in_label) {
             has_label = 1;
             label_idx = l;
             break;
@@ -330,46 +324,46 @@ void pattern_classifier_learn_(
     }
 
     if(has_label) {
-        struct BitArray* input_ba = page_get_bitarray(pc->input, CURR);
-        struct ActArray* output_aa = page_get_actarray(pc->output, CURR);
+        struct BitArray* input_ba = page_get_bitarray(this->input, CURR);
+        struct ActArray* output_aa = page_get_actarray(this->output, CURR);
 
         for (uint32_t k = 0; k < output_aa->num_acts; k++) {
             uint32_t d = output_aa->acts[k];
-            utils_shuffle(pc->learn_mask, pc->coincidence_sets[d].num_r);
+            utils_shuffle(this->learn_mask, this->coincidence_sets[d].num_r);
 
-            if (pc->s_labels[d] == in_label) {
+            if (this->s_labels[d] == in_label) {
                 coincidence_set_learn(
-                    &pc->coincidence_sets[d],
+                    &this->coincidence_sets[d],
                     input_ba,
-                    pc->learn_mask,
-                    pc->perm_inc,
-                    pc->perm_dec);
+                    this->learn_mask,
+                    this->perm_inc,
+                    this->perm_dec);
             }
             else {
                 coincidence_set_punish(
-                    &pc->coincidence_sets[d],
+                    &this->coincidence_sets[d],
                     input_ba,
-                    pc->learn_mask,
-                    pc->perm_inc);
+                    this->learn_mask,
+                    this->perm_inc);
             }
 
             coincidence_set_update_connections(
-                &pc->coincidence_sets[d],
-                pc->perm_thr);
+                &this->coincidence_sets[d],
+                this->perm_thr);
         }
     }
 }
 
-struct BitArray* pattern_classifier_decode(struct PatternClassifier* pc) {
-    struct ActArray* output_aa = page_get_actarray(pc->output, CURR);
-    struct BitArray* backtrace_ba = malloc(sizeof(*backtrace_ba)); // TODO: how do I clean this up?
-    uint32_t num_bits = pc->coincidence_sets[0].connections_ba->num_bits;
+struct BitArray* PatternClassifier::decode() {
+    struct ActArray* output_aa = page_get_actarray(this->output, CURR);
+    struct BitArray* backtrace_ba = (BitArray*)malloc(sizeof(*backtrace_ba)); // TODO: how do I clean this up? put in parameters instead of return
+    uint32_t num_bits = this->coincidence_sets[0].connections_ba->num_bits;
     
     bitarray_construct(backtrace_ba, num_bits);
 
-    for (uint32_t k = 0; k < pc->num_as; k++) {
+    for (uint32_t k = 0; k < this->num_as; k++) {
         uint32_t s = output_aa->acts[k];
-        struct BitArray* conn_ba = coincidence_set_get_connections(&pc->coincidence_sets[s]);
+        struct BitArray* conn_ba = coincidence_set_get_connections(&this->coincidence_sets[s]);
         bitarray_or(conn_ba, backtrace_ba, backtrace_ba);
     }
     

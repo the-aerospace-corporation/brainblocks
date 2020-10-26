@@ -1,7 +1,7 @@
-#ifndef SCALAR_ENCODER_H
-#define SCALAR_ENCODER_H
+#ifndef SCALAR_ENCODER_HPP
+#define SCALAR_ENCODER_HPP
 
-#include "page.h"
+#include "page.hpp"
 #include <stdint.h>
 
 struct ScalarEncoder {

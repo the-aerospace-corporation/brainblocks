@@ -1,5 +1,4 @@
-#include "symbols_encoder.h"
-
+#include "symbols_encoder.hpp"
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
@@ -35,8 +34,8 @@ void symbols_encoder_construct(
     e->num_as = (uint32_t)((double)(e->num_s) / (double)(max_symbols));
     e->range_bits = e->num_s;
     e->init_flag = 0;
-    e->symbols = malloc(e->max_symbols * sizeof(*e->symbols));    
-    e->output = malloc(sizeof(*e->output));
+    e->symbols = (uint32_t*)malloc(e->max_symbols * sizeof(*e->symbols));    
+    e->output = (Page*)malloc(sizeof(*e->output));
 
     // construct pages
     page_construct(e->output, 2, e->num_s);

@@ -1,6 +1,5 @@
-#include "sequence_learner.h"
-
-#include "utils.h"
+#include "sequence_learner.hpp"
+#include "utils.hpp"
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
@@ -69,11 +68,11 @@ void sequence_learner_construct(
     sl->pct_score = 0.0;
     sl->init_flag = 0;
     sl->s_next_d = NULL;
-    sl->input = malloc(sizeof(*sl->input));
-    sl->hidden = malloc(sizeof(*sl->hidden));
-    sl->output = malloc(sizeof(*sl->output));
-    sl->connections_ba = malloc(sizeof(*sl->connections_ba));
-    sl->activeconns_ba = malloc(sizeof(*sl->activeconns_ba));
+    sl->input = (Page*)malloc(sizeof(*sl->input));
+    sl->hidden = (Page*)malloc(sizeof(*sl->hidden));
+    sl->output = (Page*)malloc(sizeof(*sl->output));
+    sl->connections_ba = (BitArray*)malloc(sizeof(*sl->connections_ba));
+    sl->activeconns_ba = (BitArray*)malloc(sizeof(*sl->activeconns_ba));
     sl->d_hidden = NULL;
     sl->d_output = NULL;
     sl->count_hs = 0;
@@ -142,16 +141,16 @@ void sequence_learner_initialize(struct SequenceLearner* sl) {
     bitarray_construct(sl->activeconns_ba, sl->num_s);
 
     // initialize array of statelets' next coincidence set
-    sl->s_next_d = calloc(sl->num_s, sizeof(*sl->s_next_d));
+    sl->s_next_d = (uint32_t*)calloc(sl->num_s, sizeof(*sl->s_next_d));
 
     // construct hidden coincidence detectors
-    sl->d_hidden = malloc(sl->num_d * sizeof(*sl->d_hidden));
+    sl->d_hidden = (CoincidenceSet*)malloc(sl->num_d * sizeof(*sl->d_hidden));
     for (uint32_t d = 0; d < sl->num_d; d++) {
         coincidence_set_construct(&sl->d_hidden[d], sl->num_rpd);
     }
 
     // construct output coincidence detectors
-    sl->d_output = malloc(sl->num_d * sizeof(*sl->d_output));
+    sl->d_output = (CoincidenceSet*)malloc(sl->num_d * sizeof(*sl->d_output));
     for (uint32_t d = 0; d < sl->num_d; d++) {
         coincidence_set_construct(&sl->d_output[d], sl->num_rpd);
     }
@@ -299,7 +298,7 @@ double sequence_learner_get_score(struct SequenceLearner* sl) {
 // Get Historical Statelets
 // =============================================================================
 struct BitArray* sequence_learner_get_historical_statelets(struct SequenceLearner* sl) {
-    struct BitArray* hist_ba = malloc(sizeof(*hist_ba)); // TODO: how do I free this?
+    struct BitArray* hist_ba = (BitArray*)malloc(sizeof(*hist_ba)); // TODO: how do I free this?
     bitarray_construct(hist_ba, sl->num_s);
     
     for (uint32_t s = 0; s < sl->num_s; s++) {
@@ -332,7 +331,7 @@ void sequence_learner_overlap(
             // update the connections bitarray with hidden coincidence detector information
             bitarray_clear(sl->connections_ba);
             for (uint32_t r = 0; r < sl->num_rpd; r++) {
-                if (sl->d_hidden[d].perms[r] >= sl->perm_thr) {
+                if (sl->d_hidden[d].perms[r] >= (int8_t)sl->perm_thr) {
                     bitarray_set_bit(sl->connections_ba, sl->d_hidden[d].addrs[r]);
                 }
             }
@@ -344,7 +343,7 @@ void sequence_learner_overlap(
             // update the connections bitarray with output coincidence detector information
             bitarray_clear(sl->connections_ba);
             for (uint32_t r = 0; r < sl->num_rpd; r++) {
-                if (sl->d_output[d].perms[r] >= sl->perm_thr) {
+                if (sl->d_output[d].perms[r] >= (int8_t)sl->perm_thr) {
                     bitarray_set_bit(sl->connections_ba, sl->d_output[d].addrs[r]);
                 }
             }
