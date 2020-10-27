@@ -2,7 +2,7 @@
 #include "test_page.hpp"
 #include "test_blank_block.hpp"
 
-void main() {
+int main() {
     test_bitarray();
     test_page();
     //test_coincidence_set();

@@ -54,7 +54,7 @@ else()
 
     # set compiler options
     ##set(CMAKE_C_STANDARD 11)
-    #set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD 11)
     #set(CMAKE_POSITION_INDEPENDENT_CODE ON)
     #set(CMAKE_SHARED_LIBRARY_PREFIX "")
 
