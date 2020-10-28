@@ -4,22 +4,13 @@
 // =============================================================================
 // Constructor
 // =============================================================================
-Page::Page(const uint32_t num_history, const uint32_t num_bits) {
-    this->num_bits = num_bits;
+Page::Page() {
+    num_bits = 0;
+    num_history = 2;
     curr = 0;
     prev = 1;
     changed_flag = true;
     init_flag = false;
-    bitarrays.resize(num_history);
-}
-
-// =============================================================================
-// Destructor
-// =============================================================================
-Page::~Page() {
-    for (uint32_t i = 0; i < bitarrays.size(); i++) {
-        delete bitarrays[i];
-    }
 }
 
 // =============================================================================
@@ -42,19 +33,19 @@ void Page::initialize() {
     // to attach blocks to this block and it's left hanging and alone
     // Page num_bits must be greater than 0
     if (num_bits == 0) {
-        printf("Error in page_initialize: num_bits must be greater than 0.  Make sure your block input page has children.");
+        std::cout << "Error in Page::initialize(): num_bits must be greater than 0.  Make sure your block input page has children or you set num_bits." << std::endl;
         exit(1);
     }
 
     // BitArrays num_bits must be divisible 32.  If not then round up.
-    //uint32_t ba_num_bits = num_bits;
     if (num_bits % 32 != 0) {
         num_bits = (num_bits + 31) & -32;
     }
 
     // initialize bitarrays
+    bitarrays.resize(num_history);
     for (uint32_t i = 0; i < bitarrays.size(); i++) {
-        bitarrays[i] = new BitArray(num_bits);
+        bitarrays[i].resize(num_bits);
     }
 
     // set initialized flag to true
@@ -66,138 +57,6 @@ void Page::initialize() {
 // =============================================================================
 void Page::add_child(Page& child) {
     children.push_back(&child);
-}
-
-// =============================================================================
-// Get Child
-// =============================================================================
-Page* Page::get_child(const uint32_t child_idx) {
-    if (child_idx > children.size()) {
-        std::cout << "Error in Page::get_child(): child_index out of range." << std::endl;
-        exit(1);
-    }
-
-    return children[child_idx];
-}
-
-// =============================================================================
-// Clear Bit
-// =============================================================================
-void Page::clear_bit(const uint32_t t, const uint32_t idx) {
-    if (init_flag == false) {
-        std::cout << "Error in Page::clear_bit(): page has not been initialized." << std::endl;
-        exit(1);
-    }
-    uint32_t i = get_index(t);
-    bitarrays[i]->clear_bit(idx);
-}
-
-// =============================================================================
-// Set Bit
-// =============================================================================
-void Page::set_bit(const uint32_t t, const uint32_t idx) {
-    if (init_flag == false) {
-        std::cout << "Error in Page::set_bit(): page has not been initialized." << std::endl;
-        exit(1);
-    }
-    uint32_t i = get_index(t);
-    bitarrays[i]->set_bit(idx);
-}
-
-// =============================================================================
-// Get Bit
-// =============================================================================
-uint32_t Page::get_bit(const uint32_t t, const uint32_t idx) {
-    if (init_flag == false) {
-        std::cout << "Error in Page::get_bit(): page has not been initialized." << std::endl;
-        exit(1);
-    }
-    uint32_t i = get_index(t);
-    return bitarrays[i]->get_bit(idx);
-}
-
-// =============================================================================
-// Clear Bits
-// =============================================================================
-void Page::clear_bits(const uint32_t t) {
-    if (init_flag == false) {
-        std::cout << "Error in Page::clear_bits(): page has not been initialized." << std::endl;
-        exit(1);
-    }
-    uint32_t i = get_index(t);
-    bitarrays[i]->clear_bits();
-}
-
-// =============================================================================
-// Set Bits
-// =============================================================================
-void Page::set_bits(const uint32_t t, std::vector<uint8_t>& bits) {
-    if (init_flag == false) {
-        std::cout << "Error in Page::set_bits(): page has not been initialized." << std::endl;
-        exit(1);
-    }
-    uint32_t i = get_index(t);
-    bitarrays[i]->set_bits(bits);
-}
-
-// =============================================================================
-// Set Acts
-// =============================================================================
-void Page::set_acts(const uint32_t t, std::vector<uint32_t>& acts) {
-    if (init_flag == false) {
-        std::cout << "Error in Page::set_acts(): page has not been initialized." << std::endl;
-        exit(1);
-    }
-    uint32_t i = get_index(t);
-    bitarrays[i]->set_acts(acts);
-}
-
-// =============================================================================
-// Get Bits
-// =============================================================================
-std::vector<uint8_t> Page::get_bits(const uint32_t t) {
-    if (init_flag == false) {
-        std::cout << "Error in Page::get_bits(): page has not been initialized." << std::endl;
-        exit(1);
-    }
-    uint32_t i = get_index(t);
-    return bitarrays[i]->get_bits();
-}
-
-// =============================================================================
-// Get Acts
-// =============================================================================
-std::vector<uint32_t> Page::get_acts(const uint32_t t) {
-    if (init_flag == false) {
-        std::cout << "Error in Page::get_acts(): page has not been initialized." << std::endl;
-        exit(1);
-    }
-    uint32_t i = get_index(t);
-    return bitarrays[i]->get_acts();
-}
-
-// =============================================================================
-// Print Bits
-// =============================================================================
-void Page::print_bits(const uint32_t t) {
-    if (init_flag == false) {
-        std::cout << "Error in Page::print_bits(): page has not been initialized." << std::endl;
-        exit(1);
-    }
-    uint32_t i = get_index(t);
-    bitarrays[i]->print_bits();
-}
-
-// =============================================================================
-// Print Acts
-// =============================================================================
-void Page::print_acts(const uint32_t t) {
-    if (init_flag == false) {
-        std::cout << "Error in Page::print_acts(): page has not been initialized." << std::endl;
-        exit(1);
-    }    
-    uint32_t i = get_index(t);
-    bitarrays[i]->print_acts();
 }
 
 // =============================================================================
@@ -215,7 +74,7 @@ void Page::step() {
         curr = 0;
     }
 
-    clear_bits(0);
+    bitarrays[curr].clear_bits();
 };
 
 // =============================================================================
@@ -229,18 +88,18 @@ void Page::fetch() {
 
     changed_flag = false;
     uint32_t parent_word_offset = 0;
-    BitArray* parent_ba = bitarrays[curr];
+    BitArray* parent_ba = &bitarrays[curr];
 
     for (uint32_t c = 0; c < children.size(); c++) {
         uint32_t i = children[c]->curr;
-        BitArray* child_ba  = children[c]->bitarrays[i];
+        BitArray* child_ba  = &children[c]->bitarrays[i];
 
         if (children[c]->changed_flag == true) {
             changed_flag = true;
         }
 
         uint32_t child_num_words = child_ba->get_num_words();
-        bitarray_copy(parent_ba, child_ba, parent_word_offset, 0, child_num_words);
+        bitarray_copy(*parent_ba, *child_ba, parent_word_offset, 0, child_num_words);
         parent_word_offset += child_num_words;
     }
 }
@@ -250,7 +109,7 @@ void Page::fetch() {
 // =============================================================================
 void Page::compute_changed() {
     changed_flag = false;
-    BitArray delta_ba = *bitarrays[curr] ^ *bitarrays[prev];
+    BitArray delta_ba = bitarrays[curr] ^ bitarrays[prev];
     if (delta_ba.count() > 0) {
         changed_flag = true;
     }
@@ -260,7 +119,32 @@ void Page::compute_changed() {
 // Copy Previous BitArray to Current BitArray
 // =============================================================================
 void Page::copy_previous_to_current() {
-    bitarray_copy(bitarrays[curr], bitarrays[prev], 0, 0, bitarrays[prev]->num_words);
+    bitarray_copy(bitarrays[curr], bitarrays[prev], 0, 0, bitarrays[prev].get_num_words());
+}
+
+// =============================================================================
+// Get Child
+// =============================================================================
+Page* Page::get_child(const uint32_t child_idx) {
+    if (child_idx > children.size()) {
+        std::cout << "Error in Page::get_child(): child_index out of range." << std::endl;
+        exit(1);
+    }
+
+    return children[child_idx];
+}
+
+// =============================================================================
+// Get BitArray
+// =============================================================================
+BitArray& Page::operator[](const uint32_t t) {
+    if (init_flag == false) {
+        std::cout << "Error in Page::operator(): This Page has not been initialized" << std::endl;
+        exit(1);
+    }
+
+    uint32_t i = get_index(t);
+    return bitarrays[i];
 }
 
 // =============================================================================

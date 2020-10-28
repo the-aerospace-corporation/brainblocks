@@ -1,14 +1,10 @@
 #include "persistence_encoder.hpp"
-#include <stdlib.h>
-#include <math.h>
-#include <stdio.h>
-#include <errno.h>
+#include <iostream>
 
 // =============================================================================
 // Constructor
 // =============================================================================
-void persistence_encoder_construct(
-    struct PersistenceEncoder* e,
+PersistenceEncoder::PersistenceEncoder(
     const double min_val,
     const double max_val,
     const uint32_t num_s,
@@ -17,120 +13,113 @@ void persistence_encoder_construct(
 
     // error check
     if (min_val > max_val) {
-        perror("Error: PersistenceEncoder min_val > max_val");
+        std::cout << "Error in PersistenceEncoder::PersistenceEncoder: min_val > max_val" << std::endl;
         exit(1);
     }   
 
     if (num_s == 0) {
-        perror("Error: PersistenceEncoder num_s == 0");
+        std::cout << "Error in PersistenceEncoder::PersistenceEncoder: num_s == 0" << std::endl;
         exit(1);
     }
 
     if (num_as == 0) {
-        perror("Error: PersistenceEncoder num_as == 0");
+        std::cout << "Error in PersistenceEncoder::PersistenceEncoder: num_as == 0" << std::endl;
         exit(1);
     }
 
     if (num_as > num_s) {
-        perror("Error: PersistenceEncoder num_as > num_s");
+        std::cout << "Error in PersistenceEncoder::PersistenceEncoder: num_as > num_s" << std::endl;
         exit(1);
     }
 
     if (max_steps == 0) {
-        perror("Error: PersistenceEncoder max_steps == 0");
+        std::cout << "Error in PersistenceEncoder::PersistenceEncoder: max_steps == 0" << std::endl;
         exit(1);
     }
 
-    // initialize variables
-    e->min_val = min_val;
-    e->max_val = max_val;
-    e->range_val = e->max_val - e->min_val;
-    e->num_s = num_s;
-    e->num_as = num_as;
-    e->range_bits = e->num_s - e->num_as;
-    e->max_steps = max_steps;
-    e->step = 0;
-    e->pct_val_prev = 0.0;
-    e->init_flag = 0;
-    e->output = (Page*)malloc(sizeof(*e->output));
+    // setup variables
+    this->min_val = min_val;
+    this->max_val = max_val;
+    this->range_val = max_val - min_val;
+    this->num_s = num_s;
+    this->num_as = num_as;
+    this->range_bits = num_s - num_as;
+    this->max_steps = max_steps;
+    this->step = 0;
+    this->pct_val_prev = 0.0;
+    this->init_flag = false;
 
-    // construct pages
-    page_construct(e->output, 2, e->num_s);
-}
-
-// =============================================================================
-// Destruct
-// =============================================================================
-void persistence_encoder_destruct(struct PersistenceEncoder* e) {
-    page_destruct(e->output);
-    free(e->output);
+    // setup pages
+    output.set_num_history(2);
+    output.set_num_bits(num_s);
 }
 
 // =============================================================================
 // Initialize
 // =============================================================================
-void persistence_encoder_initialize(struct PersistenceEncoder* e) {
-    page_initialize(e->output);
-    e->init_flag = 1;
+void PersistenceEncoder::initialize() {
+    output.initialize();
+    init_flag = true;
 }
 
 // =============================================================================
 // Clear
 // =============================================================================
-void persistence_encoder_clear(struct PersistenceEncoder* e) {
-    page_clear_bits(e->output, 0); // current
-    page_clear_bits(e->output, 1); // previous
+void PersistenceEncoder::clear() {
+    output[CURR].clear_bits();
+    output[PREV].clear_bits();
+}
+
+
+// =============================================================================
+// Reset
+// =============================================================================
+void PersistenceEncoder::reset() {
+    step = 0;
+    pct_val_prev = 0.0;
 }
 
 // =============================================================================
 // Compute
 // =============================================================================
-void persistence_encoder_compute(struct PersistenceEncoder* e, double value) {
-    if (e->init_flag == 0) {
-        persistence_encoder_initialize(e);
+void PersistenceEncoder::compute(double value) {
+    if (init_flag == false) {
+        initialize();
     }
 
-    page_step(e->output);
+    output.step();
 
-    if (value < e->min_val) value = e->min_val;
-    if (value > e->max_val) value = e->max_val;
+    if (value < min_val) value = min_val;
+    if (value > max_val) value = max_val;
 
-    double percent_time = (double)e->step / (double)e->max_steps;
-    double pct_value = (value - e->min_val) / e->range_val;
-    double pct_delta = pct_value - e->pct_val_prev;
+    double percent_time = (double)step / (double)max_steps;
+    double pct_value = (value - min_val) / range_val;
+    double pct_delta = pct_value - pct_val_prev;
     uint32_t reset_timer_flag = 0;
 
     // TODO: may not work if value change is too small over a long period of time
     if (fabs(pct_delta) <= 0.1) { // TODO: percent_reset = 0.1
-        e->step += 1;
+        step += 1;
     }
     else {
         reset_timer_flag = 1;
     }
     
-    if (e->step >= e->max_steps) {
-        e->step = e->max_steps;
+    if (step >= max_steps) {
+        step = max_steps;
     }
     
     if (reset_timer_flag) {
-        e->step = 0;
-        e->pct_val_prev = pct_value;
+        step = 0;
+        pct_val_prev = pct_value;
     }
 
-    uint32_t beg = (uint32_t)((double)e->range_bits * percent_time);
-    uint32_t end = beg + e->num_as - 1;
+    uint32_t beg = (uint32_t)((double)range_bits * percent_time);
+    uint32_t end = beg + num_as - 1;
     
     for (uint32_t i = beg; i <= end; i++) {
-        page_set_bit(e->output, 0, i);
+        output[CURR].set_bit(i, 1);
     }
     
-    page_compute_changed(e->output);
-}
-
-// =============================================================================
-// Reset
-// =============================================================================
-void persistence_encoder_reset(struct PersistenceEncoder* e) {
-    e->step = 0;
-    e->pct_val_prev = 0.0;
+    output.compute_changed();
 }

@@ -1,64 +1,46 @@
 #include "coincidence_set.hpp"
 #include "utils.hpp"
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
+#include <iostream>
 
 // =============================================================================
-// Constructor
+// Resize
 // =============================================================================
-void coincidence_set_construct(
-        struct CoincidenceSet* cs,
-        const uint32_t num_r) {
-
-    // initialize variables
-    cs->num_r = num_r;
-    cs->state = 0;
-    cs->overlap = 0;
-    cs->templap = 0;
-    cs->addrs = (uint32_t*)calloc(cs->num_r, sizeof(*cs->addrs));
-    cs->perms = (int8_t*)calloc(cs->num_r, sizeof(*cs->perms));
-    cs->connections_ba = NULL;
-    cs->activeconns_ba = NULL;
+void CoincidenceSet::resize(const uint32_t num_r) {
+    addrs.resize(num_r);
+    perms.resize(num_r);
+    
+    for (uint32_t r = 0; r < addrs.size(); r++) {
+        addrs[r] = 0;
+        perms[r] = 0;
+    }
 }
 
 // =============================================================================
-// Constructor (Pooled)
+// Initialize Pool
 // =============================================================================
-void coincidence_set_construct_pooled(
-        struct CoincidenceSet* cs,
-        const uint32_t num_i,      // number of input bits
-        const uint32_t num_r,      // number of receptors
-        const uint32_t num_conn,   // number of initially connected receptors
-        const uint32_t perm_thr) { // permanence threshold
+void CoincidenceSet::initialize_pool(
+        const uint32_t num_r,     // number of receptors
+        const uint32_t num_i,     // number of input bits
+        const uint32_t num_conn,  // number of initially connected receptors
+        const uint8_t perm_thr) { // permanence threshold
 
     // error check
     if (num_conn > num_r) {
-        perror("Error: CoincidenceSet num_conn > num_r");
+        std::cout << "Error in CoincidenceSet(): num_conn > num_r" << std::endl;
         exit(1);
     }
 
     if (perm_thr > PERM_MAX) {
-        perror("Error: CoincidenceSet perm_thr > 99");
+        std::cout << "Error in CoincidenceSet(): perm_thr > PERM_MAX" << std::endl;
         exit(1);
     }
 
     // initialize variables
-    cs->num_r = num_r;
-    cs->state = 0;
-    cs->overlap = 0;
-    cs->templap = 0;
-    cs->addrs = (uint32_t*)calloc(cs->num_r, sizeof(*cs->addrs));
-    cs->perms = (int8_t*)calloc(cs->num_r, sizeof(*cs->perms));
-    cs->connections_ba = (BitArray*)malloc(sizeof(*cs->connections_ba));
-    cs->activeconns_ba = (BitArray*)malloc(sizeof(*cs->activeconns_ba));
-
-    // construct bitarrays
-    bitarray_construct(cs->connections_ba, num_i);
-    bitarray_construct(cs->activeconns_ba, num_i);
+    addrs.resize(num_r);
+    perms.resize(num_r);
 
     // shuffle temporary random address array
-    uint32_t* rand_addrs = (uint32_t*)malloc(num_i * sizeof(*rand_addrs));
+    std::vector<uint32_t> rand_addrs(num_i);
 
     for (uint32_t i = 0; i < num_i; i++) {
         rand_addrs[i] = i;
@@ -69,81 +51,60 @@ void coincidence_set_construct_pooled(
     // randomize address and permanence arrays
     uint32_t j = 0;
 
-    for (uint32_t r = 0; r < cs->num_r; r++) {
-        cs->addrs[r] = rand_addrs[r];
+    for (uint32_t r = 0; r < addrs.size(); r++) {
+        addrs[r] = rand_addrs[r];
         
-        if (j++ <= num_conn) {
-            cs->perms[r] = perm_thr;
-            bitarray_set_bit(cs->connections_ba, cs->addrs[r]);
+        if (j++ < num_conn) {
+            perms[r] = perm_thr;
         }
         else {
-            cs->perms[r] = perm_thr - 1;
+            perms[r] = perm_thr - 1;
         }
     }
-
-    free(rand_addrs);
-}
-
-// =============================================================================
-// Destructor
-// =============================================================================
-void coincidence_set_destruct(struct CoincidenceSet* cs) {
-    // destruct connections bitarray
-    if (cs->connections_ba != NULL) {
-        bitarray_destruct(cs->connections_ba);
-    }
-
-    // destruct activeconns bitarray
-    if (cs->activeconns_ba != NULL) {
-        bitarray_destruct(cs->activeconns_ba);
-    }
-
-    // free pointers
-    free(cs->connections_ba);
-    free(cs->activeconns_ba);
-    free(cs->addrs);
-    free(cs->perms);
 }
 
 // =============================================================================
 // Overlap
 // =============================================================================
-void coincidence_set_overlap(
-        struct CoincidenceSet* cs,
-        const struct BitArray* input_ba) {
+uint32_t CoincidenceSet::overlap(BitArray& input_ba, const uint8_t perm_thr) {
+    BitArray conns_ba(input_ba.get_num_bits());
+    
+    // loop through each receptor
+    for (uint32_t r = 0; r < addrs.size(); r++) {
 
-    // update overlap BitArray through a bitwise and of connections and input
-    bitarray_clear(cs->activeconns_ba);
-    bitarray_and(cs->connections_ba, input_ba, cs->activeconns_ba);
+        // if receptor permanence is above the threshold then set the connection
+        if (perms[r] >= perm_thr) {
+            conns_ba.set_bit(addrs[r], 1);
+        }
+    }
 
-    // get overlap value by counting the number of active bits
-    uint32_t overlap = bitarray_count(cs->activeconns_ba);
-    cs->overlap = overlap;
-    cs->templap = overlap;
+    BitArray overlap_ba = conns_ba & input_ba;
+    return overlap_ba.count();
 }
 
 // =============================================================================
 // Learn
 // =============================================================================
-// For each receptor:
-//   - update only if the receptor has been chosen to update via the learn_mask
-//   - increment permanence if receptor's input is active
-//   - decrement permanence if receptor's input is inactive
-void coincidence_set_learn(
-        struct CoincidenceSet* cs,
-        const struct BitArray* input_ba,
-        const uint32_t* learn_mask,
-        const uint32_t perm_inc,   // TODO: change to uint8_t
-        const uint32_t perm_dec) { // TODO: change to uint8_t
+void CoincidenceSet::learn(
+        BitArray& input_ba,
+        BitArray& lmask_ba,
+        const uint8_t perm_inc,
+        const uint8_t perm_dec) {
 
     // loop through each receptor
-    for (uint32_t r = 0; r < cs->num_r; r++) {
-        if (learn_mask[r] > 0) {
-            if (bitarray_get_bit(input_ba, cs->addrs[r])) {
-                cs->perms[r] = MIN(cs->perms[r] + (int8_t)perm_inc, PERM_MAX);
+    for (uint32_t r = 0; r < addrs.size(); r++) {
+
+        // if receptor learning mask is set
+        if (lmask_ba.get_bit(r) > 0) {
+
+            // increment permanence if receptor's input is active
+            if (input_ba.get_bit(addrs[r]) == 1) {
+                perms[r] = MIN(perms[r] + perm_inc, PERM_MAX);
             }
+
+            // decrement permanence if receptor's input is inactive
             else {
-                cs->perms[r] = MAX(cs->perms[r] - (int8_t)perm_dec, PERM_MIN);
+                perms[r] = MAX(perms[r] - perm_dec, PERM_MIN);
             }
         }
     }
@@ -152,46 +113,54 @@ void coincidence_set_learn(
 // =============================================================================
 // Learn (Move)
 // =============================================================================
-// For each receptor:
-//   - update only if the receptor has been chosen to update via the learn_mask
-//   - increment permanence if receptor's input is active
-//   - decrement permanence if receptor's input is inactive
-//   - if permanence is zero move the receptor to an unused active input
-void coincidence_set_learn_move(
-        struct CoincidenceSet* cs,
-        const struct BitArray* input_ba,
-        const struct ActArray* input_aa, // TODO: add learn_mask?
-        const uint32_t perm_inc,   // TODO: change to uint8_t
-        const uint32_t perm_dec) { // TODO: change to uint8_t
+void CoincidenceSet::learn_move(
+        BitArray& input_ba,
+        BitArray& lmask_ba,
+        const uint8_t perm_inc,
+        const uint8_t perm_dec) {
+
+    // get active bits
+    std::vector<uint32_t> acts = input_ba.get_acts();
 
     // loop through each receptor
-    for (uint32_t r = 0; r < cs->num_r; r++) {
-        if (cs->perms[r] > 0) {
-            if (bitarray_get_bit(input_ba, cs->addrs[r])) {
-                cs->perms[r] = MIN(cs->perms[r] + (int8_t)perm_inc, PERM_MAX);
-            }
-            else {
-                cs->perms[r] = MAX(cs->perms[r] - (int8_t)perm_dec, PERM_MIN);
-            }
-        }
+    for (uint32_t r = 0; r < addrs.size(); r++) {
 
-        // if permanence is zero then move receptor
-        // TODO: Need to optimize this... maybe use bitarrays?
-        else if (input_aa->num_acts > 0) {
-            for (uint32_t j = 0; j < input_aa->num_acts; j++) {
-                uint32_t is_available = 1;
+        // if receptor learning mask is set
+        if (lmask_ba.get_bit(r) > 0) {
 
-                // check if already used on the dendrite
-                for (uint32_t k = 0; k <= cs->num_r; k++) {
-                    if (input_aa->acts[j] == cs->addrs[k] && cs->perms[k] > 0) {
-                        is_available = 0;
-                        break;
-                    }
+            // if receptor permanence is above zero then perform normal learning
+            if (perms[r] > 0) {
+
+                // increment permanence if receptor's input is active
+                if (input_ba.get_bit(addrs[r]) == 1) {
+                    perms[r] = MIN(perms[r] + perm_inc, PERM_MAX);
                 }
-                
-                if (is_available) {
-                    cs->addrs[r] = input_aa->acts[j];
-                    cs->perms[r] = perm_inc;
+
+                // decrement permanence if receptor's input is inactive
+                else {
+                    perms[r] = MAX(perms[r] - perm_dec, PERM_MIN);
+                }
+            }
+
+            // if permanence is zero then move receptor
+            // TODO: Need to optimize this... maybe use bitarrays?
+            else if (acts.size() > 0) {
+                for (uint32_t j = 0; j < acts.size(); j++) {
+                    bool is_available = true;
+
+                    // check if the input address is already used on the CoincidenceSet
+                    for (uint32_t k = 0; k <= addrs.size(); k++) {
+                        if (acts[j] == addrs[k] && perms[k] > 0) {
+                            is_available = false;
+                            break;
+                        }
+                    }
+
+                    // move the receptor if it is available
+                    if (is_available) {
+                        addrs[r] = acts[j];
+                        perms[r] = perm_inc;
+                    }
                 }
             }
         }
@@ -201,48 +170,49 @@ void coincidence_set_learn_move(
 // =============================================================================
 // Punish
 // =============================================================================
-// For each receptor:
-//   - update only if the receptor has been chosen to update via the learn_mask
-//   - decrement permanence if receptor's input is active
-void coincidence_set_punish(
-        struct CoincidenceSet* cs,
-        const struct BitArray* input_ba,
-        const uint32_t* learn_mask,
-        const uint32_t perm_inc) { // TODO: change to uint8_t
+void CoincidenceSet::punish(
+            BitArray& input_ba,
+            BitArray& lmask_ba,
+            const uint8_t perm_inc) {
 
     // loop through each receptor
-    for (uint32_t r = 0; r < cs->num_r; r++) {
-        if (learn_mask[r] > 0) {
-            if (bitarray_get_bit(input_ba, cs->addrs[r])) {
-                cs->perms[r] = MAX(cs->perms[r] - (int8_t)perm_inc, PERM_MIN);
+    for (uint32_t r = 0; r < addrs.size(); r++) {
+
+        // if receptor learning mask is set
+        if (lmask_ba.get_bit(r) > 0) {
+
+            // decrement permanence if receptor's input is active
+            if (input_ba.get_bit(addrs[r]) == 1) {
+                perms[r] = MAX(perms[r] - perm_inc, PERM_MIN);
             }
         }
     }
 }
 
 // =============================================================================
-// Update Connections BitArray
+// Print Addresses
 // =============================================================================
-// For each receptor set the connections bitarray bit to active if the
-// receptor permanence is above the permanence theshold
-void coincidence_set_update_connections(
-        struct CoincidenceSet* cs,
-        const uint32_t perm_thr) { // TODO: change to uint8_t
-
-    bitarray_clear(cs->connections_ba);
-
-    // loop through each receptor
-    for (uint32_t r = 0; r < cs->num_r; r++) {
-        if (cs->perms[r] >= (int8_t)perm_thr) {
-            bitarray_set_bit(cs->connections_ba, cs->addrs[r]);
+void CoincidenceSet::print_addrs() {
+    std::cout << "{";
+    for (uint32_t r = 0; r < addrs.size(); r++) {
+        std::cout << addrs[r];
+        if (r < addrs.size() - 1) {
+            std::cout << ", ";
         }
     }
+    std::cout << "}" << std::endl;
 }
 
 // =============================================================================
-// Get Connections
+// Print Permanences
 // =============================================================================
-struct BitArray* coincidence_set_get_connections(struct CoincidenceSet* cs) {
-    coincidence_set_update_connections(cs, 20); // TODO: put perm_thr in coincidence_set
-    return cs->connections_ba;
+void CoincidenceSet::print_perms() {
+    std::cout << "{";
+    for (uint32_t r = 0; r < addrs.size(); r++) {
+        std::cout << (uint32_t)perms[r];
+        if (r < addrs.size() - 1) {
+            std::cout << ", ";
+        }
+    }
+    std::cout << "}" << std::endl;
 }

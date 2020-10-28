@@ -1,7 +1,6 @@
 #include "utils.hpp"
 
-#include <stdlib.h>
-#include <time.h>
+//#include <time.h>
 
 // =============================================================================
 // Seed
@@ -20,7 +19,7 @@ uint32_t utils_rand_uint(uint32_t min, uint32_t max) {
 // =============================================================================
 // Shuffle
 // =============================================================================
-void utils_shuffle(uint32_t* A, uint32_t n) {
+void utils_shuffle(std::vector<uint32_t>& A, uint32_t n) {
     for (int i = n - 1; i >= 1; i--) {
         int j = rand() % (i + 1);
         int temp = A[i];

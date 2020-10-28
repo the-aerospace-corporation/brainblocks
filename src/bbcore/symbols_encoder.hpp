@@ -2,27 +2,29 @@
 #define SYMBOLS_ENCODER_HPP
 
 #include "page.hpp"
-#include <stdint.h>
+#include <cstdint>
+#include <vector>
 
-struct SymbolsEncoder {
-    uint32_t max_symbols; // maximum number of symbols
-    uint32_t num_symbols; // number of symbols
-    uint32_t num_s;       // number of statelets
-    uint32_t num_as;      // number of active statelets
-    uint32_t range_bits;  // bit range
-    uint8_t init_flag;    // initialized flag
-    uint32_t* symbols;    // symbols
-    struct Page* output;  // output page object
+class SymbolsEncoder {
+    public:
+        SymbolsEncoder(
+            const uint32_t max_symbols,
+            const uint32_t num_s);
+
+        void initialize();
+        void clear();
+        void compute(uint32_t value);
+
+    public:
+        Page output; // output page object
+
+    private:
+        uint32_t max_symbols; // maximum number of symbols
+        uint32_t num_s;       // number of statelets
+        uint32_t num_as;      // number of active statelets
+        uint32_t range_bits;  // bit range
+        bool init_flag;       // initialized flag
+        std::vector<uint32_t> symbols;
 };
-
-void symbols_encoder_construct(
-    struct SymbolsEncoder* e,
-    const uint32_t max_symbols,
-    const uint32_t num_s);
-
-void symbols_encoder_destruct(struct SymbolsEncoder* e);
-void symbols_encoder_initialize(struct SymbolsEncoder* e);
-void symbols_encoder_clear(struct SymbolsEncoder* e);
-void symbols_encoder_compute(struct SymbolsEncoder* e, const uint32_t value);
 
 #endif

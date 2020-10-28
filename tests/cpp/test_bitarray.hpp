@@ -2,6 +2,7 @@
 #define TEST_BITARRAY_HPP
 
 #include "bitarray.hpp"
+#include "utils.hpp"
 #include <iostream>
 #include <cstdint>
 #include <vector>
@@ -12,7 +13,7 @@ void test_bitarray() {
     std::cout << "================================================================================" << std::endl;
     std::cout << std::endl;
 
-    //utils_seed(0);
+    utils_seed(0);
 
     std::cout << "BitArray Construction" << std::endl;
     std::cout << "---------------------" << std::endl;
@@ -34,15 +35,27 @@ void test_bitarray() {
     ba0.print_bits();
     std::cout << std::endl;
 
+    std::cout << "BitArray Random Shuffle" << std::endl;
+    std::cout << "-----------------------" << std::endl;
+    ba0.random_shuffle();
+    ba0.print_bits();
+    std::cout << std::endl;
+
+    std::cout << "BitArray Fill Bits" << std::endl;
+    std::cout << "------------------" << std::endl;
+    ba0.fill_bits();
+    ba0.print_bits();
+    std::cout << std::endl;
+
     std::cout << "BitArray Clear Bits" << std::endl;
     std::cout << "-------------------" << std::endl;
     ba0.clear_bits();
     ba0.print_bits();
     std::cout << std::endl;
 
-    std::cout << "BitArray Set Bit" << std::endl;
-    std::cout << "----------------" << std::endl;
-    ba0.set_bit(4);
+    std::cout << "BitArray Set Bit to 1" << std::endl;
+    std::cout << "---------------------" << std::endl;
+    ba0.set_bit(4, 1);
     ba0.print_bits();
     std::cout << std::endl;
 
@@ -54,9 +67,9 @@ void test_bitarray() {
     std::cout << "bitarray[5]=" << ba0.get_bit(5) << std::endl;
     std::cout << std::endl;
 
-    std::cout << "BitArray Clear Bit" << std::endl;
-    std::cout << "------------------" << std::endl;
-    ba0.clear_bit(4);
+    std::cout << "BitArray Set Bit to 0" << std::endl;
+    std::cout << "---------------------" << std::endl;
+    ba0.set_bit(4, 0);
     ba0.print_bits();
     std::cout << std::endl;
 
@@ -141,7 +154,7 @@ void test_bitarray() {
     ba0.random_fill(0.5);
     std::cout << "before_src="; ba0.print_bits();
     std::cout << "before_dst="; ba1.print_bits();
-    bitarray_copy(&ba1, &ba0, 0, 0, 2);
+    bitarray_copy(ba1, ba0, 0, 0, 2);
     std::cout << " after_src="; ba0.print_bits();
     std::cout << " after_dst="; ba1.print_bits();
     std::cout << std::endl;
@@ -153,7 +166,7 @@ void test_bitarray() {
     ba0.random_fill(0.5);
     std::cout << "before_src="; ba0.print_bits();
     std::cout << "before_dst="; ba1.print_bits();
-    bitarray_copy(&ba1, &ba0, 1, 0, 1);
+    bitarray_copy(ba1, ba0, 1, 0, 1);
     std::cout << " after_src="; ba0.print_bits();
     std::cout << " after_dst="; ba1.print_bits();
     std::cout << std::endl;

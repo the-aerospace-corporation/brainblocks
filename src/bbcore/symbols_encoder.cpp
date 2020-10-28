@@ -1,117 +1,90 @@
 #include "symbols_encoder.hpp"
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
+#include <iostream>
 
 // =============================================================================
 // Constructor
 // =============================================================================
-void symbols_encoder_construct(
-        struct SymbolsEncoder* e,
+SymbolsEncoder::SymbolsEncoder(
         const uint32_t max_symbols,
         const uint32_t num_s) {
 
     // error check
     if (max_symbols == 0) {
-        perror("Error: SymbolsEncoder max_symbols == 0");
+        std::cout << "Error in SymbolsEncoder::SymbolsEncoder: max_symbols == 0" << std::endl;
         exit(1);
     }   
     
     if (num_s == 0) {
-        perror("Error: SymbolsEncoder num_s == 0");
+        std::cout << "Error in SymbolsEncoder::SymbolsEncoder: num_s == 0" << std::endl;
         exit(1);
     }
 
     if (max_symbols > num_s) {
-        perror("Error: SymbolsEncoder max_symbols > num_s");
+        std::cout << "Error in SymbolsEncoder::SymbolsEncoder: max_symbols > num_s" << std::endl;
         exit(1);
     }
 
-    // initialize variables
-    e->max_symbols = max_symbols;
-    e->num_symbols = 0;
-    e->num_s = num_s;
-    e->num_as = (uint32_t)((double)(e->num_s) / (double)(max_symbols));
-    e->range_bits = e->num_s;
-    e->init_flag = 0;
-    e->symbols = (uint32_t*)malloc(e->max_symbols * sizeof(*e->symbols));    
-    e->output = (Page*)malloc(sizeof(*e->output));
+    // setup variables
+    this->max_symbols = max_symbols;
+    this->num_s = num_s;
+    this->num_as = (uint32_t)((double)(num_s) / (double)(max_symbols));
+    this->range_bits = num_s;
+    this->init_flag = false;
+    
+    symbols.resize(max_symbols);
 
-    // construct pages
-    page_construct(e->output, 2, e->num_s);
-
-    // initialize symbols array
-    for (uint32_t i = 0; i < e->max_symbols; i++) {
-        e->symbols[i] = i;
+    // setup symbols array
+    for (uint32_t i = 0; i < max_symbols; i++) {
+        symbols[i] = i;
     }
-}
 
-// =============================================================================
-// Destruct
-// =============================================================================
-void symbols_encoder_destruct(struct SymbolsEncoder* e) {
-    page_destruct(e->output);
-
-    free(e->output);
-    free(e->symbols);
+    // setup pages
+    output.set_num_history(2);
+    output.set_num_bits(num_s);
 }
 
 // =============================================================================
 // Initialize
 // =============================================================================
-void symbols_encoder_initialize(struct SymbolsEncoder* e) {
-    page_initialize(e->output);
-    e->init_flag = 1;
+void SymbolsEncoder::initialize() {
+    output.initialize();
+    init_flag = true;
 }
 
 // =============================================================================
 // Clear
 // =============================================================================
-void symbols_encoder_clear(struct SymbolsEncoder* e) {
-    page_clear_bits(e->output, 0); // current
-    page_clear_bits(e->output, 1); // previous
+void SymbolsEncoder::clear() {
+    output[CURR].clear_bits();
+    output[PREV].clear_bits();
 }
 
 // =============================================================================
 // Compute
 // =============================================================================
-void symbols_encoder_compute(struct SymbolsEncoder* e, const uint32_t value) {
-    if (e->init_flag == 0) {
-        symbols_encoder_initialize(e);
+void SymbolsEncoder::compute(const uint32_t value) {
+    if (init_flag == false) {
+        initialize();
     }
 
-    page_step(e->output);
+    output.step();
 
-    uint32_t compute_flag = 1;
-    uint32_t new_flag = 1;
+    bool compute_flag = true;
+    bool new_flag = true;
 
-    for (uint32_t i = 0; i < e->num_symbols; i++) {
-        if (e->symbols[i] == value) {
-            new_flag = 0;
-            break;
-        }
+    if (value >= max_symbols) {
+        std::cout << "Warning in SymbolsEncoder::compute(): value not in symbols" << std::endl;
+        output[CURR].clear_bits();
+        return;
     }
 
-    if (new_flag) {
-        if (e->num_symbols == e->max_symbols) {
-            perror("Error: symbols encoder has reached maximum recognized symbols allocation\n");
-            compute_flag = 0;
-        }
-        else {
-            e->symbols[e->num_symbols] = value;
-            e->num_symbols++;
-        }
+    double percent = (double)value / (double)max_symbols;
+    uint32_t beg = (uint32_t)((double)range_bits * percent);
+    uint32_t end = beg + num_as - 1;
+    
+    for (uint32_t i = beg; i <= end; i++) {
+        output[CURR].set_bit(i, 1);
     }
 
-    if (compute_flag) {
-        double percent = (double)value / (double)e->max_symbols;
-        uint32_t beg = (uint32_t)((double)e->range_bits * percent);
-        uint32_t end = beg + e->num_as - 1;
-        
-        for (uint32_t i = beg; i <= end; i++) {
-            page_set_bit(e->output, 0, i);
-        }
-    }
-
-    page_compute_changed(e->output);
+    output.compute_changed();
 }

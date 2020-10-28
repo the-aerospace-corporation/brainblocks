@@ -5,71 +5,122 @@
 // =============================================================================
 // Constructor
 // =============================================================================
+BitArray::BitArray() {
+    num_bits = 0;
+    acts_dirty_flag = true;
+}
+
+// =============================================================================
+// Constructor
+// =============================================================================
 BitArray::BitArray(const uint32_t num_bits) {
+    //if (num_bits % WORD_BITS != 0) {
+    //    printf("Warning: BitArray not divisible by 32");
+    //}
 
-    /// error check
-    if (num_bits % WORD_BITS != 0) {
-        printf("Error: BitArray not divisible by 32");
-        exit(1);
-    }
-
-    // initialize BitArray variables
     this->num_bits = num_bits;
-    num_words = (uint32_t)((num_bits + WORD_BITS - 1) / WORD_BITS);
+    uint32_t num_words = (uint32_t)((num_bits + WORD_BITS - 1) / WORD_BITS);
     words.resize(num_words);
+    acts_dirty_flag = true;
 }
 
 // =============================================================================
 // Resize
 // =============================================================================
 void BitArray::resize(const uint32_t num_bits) {
+    //if (num_bits % WORD_BITS != 0) {
+    //    printf("Warning: BitArray not divisible by 32");
+    //}
 
-    // error check
-    if (num_bits % WORD_BITS != 0) {
-        printf("Error: BitArray not divisible by 32");
-        exit(1);
-    }
-
-    // update BitArray variables
     this->num_bits = num_bits;
-    num_words = (uint32_t)((num_bits + WORD_BITS - 1) / WORD_BITS);
+    uint32_t num_words = (uint32_t)((num_bits + WORD_BITS - 1) / WORD_BITS);
     words.resize(num_words);
     clear_bits();
+    acts_dirty_flag = true;
+}
+
+// =============================================================================
+// Clear
+// =============================================================================
+void BitArray::clear() {
+    words.clear();
+    acts.clear();
+    num_bits = 0;
+    acts_dirty_flag = true;
+}
+
+// =============================================================================
+// Clear ActArray
+// =============================================================================
+void BitArray::clear_actarray() {
+    acts.clear();
+    acts_dirty_flag = true;
+}
+
+
+// =============================================================================
+// Clear Bits
+// =============================================================================
+void BitArray::clear_bits() {
+    for (uint32_t w = (uint32_t)words.size(); w-- > 0; ) {
+        words[w] = 0x00000000;
+    }
+
+    acts_dirty_flag = true;
+}
+
+// =============================================================================
+// Fill Bits
+// =============================================================================
+void BitArray::fill_bits() {
+    for (uint32_t w = (uint32_t)words.size(); w-- > 0; ) {
+        words[w] = 0xFFFFFFFF;
+    }
+
+    acts_dirty_flag = true;
 }
 
 // =============================================================================
 // Random Fill
 // =============================================================================
 void BitArray::random_fill(double percent) {
-    uint32_t* rand_indices = (uint32_t*)malloc(num_bits * sizeof(*rand_indices));
-
-    for (uint32_t i = 0; i < num_bits; i++) {
-        rand_indices[i] = i;
-    }
-
-    utils_shuffle(rand_indices, num_bits);
-
     clear_bits();
-
+    
     for (uint32_t i = 0; i < (uint32_t)(num_bits * percent); i++) {
-        set_bit(rand_indices[i]);
+        set_bit(i, 1);
     }
 
-    free(rand_indices);
+    random_shuffle();
+
+    acts_dirty_flag = true;
 }
 
 // =============================================================================
-// Clear Bit
+// Random Shuffle
 // =============================================================================
-void BitArray::clear_bit(const uint32_t idx) {
-    words[idx / WORD_BITS] &= ~(1 << (idx % WORD_BITS));
+void BitArray::random_shuffle() {
+    for (uint32_t i = num_bits - 1; i >= 1; i--) {
+        uint32_t j = rand() % (i + 1);
+        uint32_t temp = get_bit(i);
+        set_bit(i, get_bit(j));
+        set_bit(j, temp);
+    }
+
+    acts_dirty_flag = true;
 }
 
 // =============================================================================
 // Set Bit
 // =============================================================================
-void BitArray::set_bit(const uint32_t idx) {
-    words[idx / WORD_BITS] |= 1 << (idx % WORD_BITS);
+void BitArray::set_bit(const uint32_t idx, const uint32_t val) {
+    if (val > 0) {
+        words[idx / WORD_BITS] |= 1 << (idx % WORD_BITS);
+    }
+    else {
+        words[idx / WORD_BITS] &= ~(1 << (idx % WORD_BITS));
+    }
+
+    acts_dirty_flag = true;
 }
 
 // =============================================================================
@@ -86,43 +137,43 @@ uint32_t BitArray::get_bit(const uint32_t idx) {
 }
 
 // =============================================================================
-// Clear Bits
-// =============================================================================
-void BitArray::clear_bits() {
-    for (uint32_t w = num_words; w-- > 0; ) {
-        words[w] = 0x00000000;
-    }
-}
-
-// =============================================================================
 // Set Bits
 // =============================================================================
-void BitArray::set_bits(std::vector<uint8_t>& bits) {
-    if (bits.size() > num_bits) {
+void BitArray::set_bits(std::vector<uint8_t>& new_bits) {
+    if (new_bits.size() > num_bits) {
         std::cout << "Warning in BitArray::set_bits(): input vector size > num_bits.  Skipping operation." << std::endl;
         return;
     }
 
     clear_bits();
-    for (uint32_t i = 0; i < bits.size(); i++) {
-        if (bits[i] > 0) {
-            set_bit(i);
+    for (uint32_t i = 0; i < new_bits.size(); i++) {
+        if (new_bits[i] > 0) {
+            set_bit(i, 1);
         }
     }
+
+    acts_dirty_flag = true;
 }
 
 // =============================================================================
 // Set Acts
 // =============================================================================
-void BitArray::set_acts(std::vector<uint32_t>& acts) {
+void BitArray::set_acts(std::vector<uint32_t>& new_acts) {
+    uint32_t num_acts = (uint32_t)new_acts.size();
+    acts.resize(num_acts);
     clear_bits();
-    for (uint32_t i = 0; i < acts.size(); i++) {
-        if (acts[i] > num_bits) {
-            std::cout << "Warning in BitArray::set_acts(): input act value > num_bits.  Skipping this value." << std::endl;
+
+    for (uint32_t i = 0; i < num_acts; i++) {
+        if (new_acts[i] > num_bits) {
+            std::cout << "Warning in BitArray::set_acts(): new_act[i] > num_bits.  Skipping this activation." << std::endl;
             continue;
         }
-        set_bit(acts[i]);
+
+        acts[i] = new_acts[i];
+        set_bit(new_acts[i], 1);
     }
+
+    acts_dirty_flag = false;
 }
 
 // =============================================================================
@@ -140,15 +191,21 @@ std::vector<uint8_t> BitArray::get_bits() {
 // Get Acts
 // =============================================================================
 std::vector<uint32_t> BitArray::get_acts() {
-    uint32_t num_acts = count();
-    std::vector<uint32_t> acts(num_acts);
-    uint32_t j = 0;
-    for (uint32_t i = 0; i < num_bits; i++) {
-        if (get_bit(i)) {
-            acts[j] = i;
-            j++;
+    if (acts_dirty_flag) {
+        uint32_t num_acts = count();
+        acts.resize(num_acts);
+        
+        uint32_t j = 0;
+        for (uint32_t i = 0; i < num_bits; i++) {
+            if (get_bit(i)) {
+                acts[j] = i;
+                j++;
+            }
         }
+
+        acts_dirty_flag = false;
     }
+
     return acts;
 }
 
@@ -156,27 +213,28 @@ std::vector<uint32_t> BitArray::get_acts() {
 // Print Bits
 // =============================================================================
 void BitArray::print_bits() {
-    std::cout << "[";
+    std::cout << "{";
     for (uint32_t i = 0; i < num_bits; i++) {
         std::cout << get_bit(i);
     }
-    std::cout << "]" << std::endl;
+    std::cout << "}" << std::endl;
 }
 
 // =============================================================================
 // Print Acts
 // =============================================================================
 void BitArray::print_acts() {
-    std::cout << "[";
-    for (uint32_t i = 0; i < num_bits; i++) {
-        if (get_bit(i)) {
-            std::cout << i;
-            if (i < num_bits - 1) {
-                std::cout << ", ";
-            }
+    get_acts();
+
+    std::cout << "{";
+    uint32_t num_acts = (uint32_t)acts.size();
+    for (uint32_t i = 0; i < num_acts; i++) {
+        std::cout << acts[i];
+        if (i < num_acts - 1) {
+            std::cout << ", ";
         }
     }
-    std::cout << "]" << std::endl;
+    std::cout << "}" << std::endl;
 }
 
 // =============================================================================
@@ -185,7 +243,7 @@ void BitArray::print_acts() {
 // https://stackoverflow.com/questions/109023/how-to-count-the-number-of-set-bits-in-a-32-bit-integer
 uint32_t BitArray::count() {
     uint32_t count = 0;
-    for (uint32_t w = num_words; w-- > 0; ) {
+    for (uint32_t w = (uint32_t)words.size(); w-- > 0; ) {
         uint32_t i = words[w];
         i = i - ((i >> 1) & 0x55555555);
         i = (i & 0x33333333) + ((i >> 2) & 0x33333333);
@@ -199,9 +257,11 @@ uint32_t BitArray::count() {
 // =============================================================================
 BitArray BitArray::operator~() {
     BitArray out(num_bits);
-    for (uint32_t w = out.num_words; w-- > 0; ) {
+    for (uint32_t w = (uint32_t)out.words.size(); w-- > 0; ) {
         out.words[w] = ~words[w];
     }
+    
+    out.acts_dirty_flag = true;
     return out;
 }
 
@@ -210,9 +270,11 @@ BitArray BitArray::operator~() {
 // =============================================================================
 BitArray BitArray::operator&(const BitArray& in) {
     BitArray out(num_bits);
-    for (uint32_t w = out.num_words; w-- > 0; ) {
+    for (uint32_t w = (uint32_t)out.words.size(); w-- > 0; ) {
         out.words[w] = words[w] & in.words[w];
     }
+
+    out.acts_dirty_flag = true;
     return out;
 }
 
@@ -221,9 +283,11 @@ BitArray BitArray::operator&(const BitArray& in) {
 // =============================================================================
 BitArray BitArray::operator|(const BitArray& in) {
     BitArray out(num_bits);
-    for (uint32_t w = out.num_words; w-- > 0; ) {
+    for (uint32_t w = (uint32_t)out.words.size(); w-- > 0; ) {
         out.words[w] = words[w] | in.words[w];
     }
+
+    out.acts_dirty_flag = true;
     return out;
 }
 
@@ -232,9 +296,11 @@ BitArray BitArray::operator|(const BitArray& in) {
 // =============================================================================
 BitArray BitArray::operator^(const BitArray& in) {
     BitArray out(num_bits);
-    for (uint32_t w = out.num_words; w-- > 0; ) {
+    for (uint32_t w = (uint32_t)out.words.size(); w-- > 0; ) {
         out.words[w] = words[w] ^ in.words[w];
     }
+
+    out.acts_dirty_flag = true;
     return out;
 }
 
@@ -244,8 +310,8 @@ BitArray BitArray::operator^(const BitArray& in) {
 // TODO: figure out how to do a fast copy subset on a per bit offset and size
 // instead of a per word offset and size
 void bitarray_copy(
-    BitArray* dst,
-    const BitArray* src,
+    BitArray& dst,
+    const BitArray& src,
     const uint32_t dst_word_offset,
     const uint32_t src_word_offset,
     const uint32_t src_word_size) {
@@ -254,7 +320,9 @@ void bitarray_copy(
     uint32_t dst_end = dst_word_offset + src_word_size;
 
     for (uint32_t d = dst_word_offset; d < dst_end; d++) {
-        dst->words[d] = src->words[s];
+        dst.words[d] = src.words[s];
         s++;
     }
+    
+    dst.acts_dirty_flag = true;
 }

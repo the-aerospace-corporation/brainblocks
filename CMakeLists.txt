@@ -2,20 +2,19 @@ cmake_minimum_required(VERSION 3.1)
 
 project(BrainBlocks VERSION 0.3.7)
 
-
 # BB Core Source Files
 set(SOURCE_FILES
-    src/bbcore/bitarray.cpp
-    src/bbcore/blank_block.cpp
-    #src/bbcore/coincidence_set.cpp    
-    src/bbcore/page.cpp
-    #src/bbcore/pattern_classifier.cpp
-    #src/bbcore/pattern_pooler.cpp
-    #src/bbcore/persistence_encoder.cpp
-    #src/bbcore/scalar_encoder.cpp
-    #src/bbcore/sequence_learner.cpp
-    #src/bbcore/symbols_encoder.cpp
     src/bbcore/utils.cpp
+    src/bbcore/bitarray.cpp
+    src/bbcore/page.cpp
+    src/bbcore/coincidence_set.cpp
+    src/bbcore/blank_block.cpp
+    src/bbcore/scalar_encoder.cpp
+    src/bbcore/symbols_encoder.cpp
+    src/bbcore/persistence_encoder.cpp
+    src/bbcore/pattern_classifier.cpp
+    src/bbcore/pattern_pooler.cpp
+    src/bbcore/sequence_learner.cpp
 )
 
 # BB Core Header Files
