@@ -3,6 +3,7 @@
 
 #include "page.hpp"
 #include <cstdint>
+#include <cmath>
 
 class PersistenceEncoder {
     public:
