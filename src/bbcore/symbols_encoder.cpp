@@ -39,7 +39,7 @@ SymbolsEncoder::SymbolsEncoder(
     }
 
     // setup pages
-    output.set_num_history(2);
+    output.set_num_bitarrays(2);
     output.set_num_bits(num_s);
 }
 
@@ -52,9 +52,9 @@ void SymbolsEncoder::initialize() {
 }
 
 // =============================================================================
-// Clear
+// Clear States
 // =============================================================================
-void SymbolsEncoder::clear() {
+void SymbolsEncoder::clear_states() {
     output[CURR].clear_bits();
     output[PREV].clear_bits();
 }

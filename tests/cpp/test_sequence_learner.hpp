@@ -46,7 +46,7 @@ void test_sequence_learner() {
     std::cout << "----------------------------" << std::endl;
     ScalarEncoder e(MIN_VAL, MAX_VAL, NUM_S, NUM_AS);
     SequenceLearner sl(NUM_SPC, NUM_DPS, NUM_RPD, D_THRESH, PERM_THR, PERM_INC, PERM_DEC);
-    sl.input.add_child(e.output);
+    sl.get_input().add_child(e.get_output());
     std::cout << "Complete" << std::endl;
     std::cout << std::endl;
 
@@ -55,7 +55,7 @@ void test_sequence_learner() {
     for (uint32_t i = 0; i < 30; i++) {
         e.compute(values[i]);
         sl.compute(true);
-        scores[i] = sl.get_abnormality_score();
+        scores[i] = sl.get_score();
     }
     std::cout << "Complete" << std::endl;
     std::cout << std::endl;

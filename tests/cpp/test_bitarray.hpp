@@ -20,13 +20,16 @@ void test_bitarray() {
     BitArray ba0(32);
     BitArray ba1(64);
     BitArray ba2(64);
-    ba0.print_bits();
+    ba0.print_info();
+    ba1.print_info();
+    ba2.print_info();
     std::cout << std::endl;
 
     std::cout << "BitArray Resize" << std::endl;
     std::cout << "---------------" << std::endl;
+    std::cout << "before="; ba0.print_bits();
     ba0.resize(64);
-    ba0.print_bits();
+    std::cout << " after="; ba0.print_bits();
     std::cout << std::endl;
 
     std::cout << "BitArray Random Fill" << std::endl;
@@ -62,9 +65,9 @@ void test_bitarray() {
     std::cout << "BitArray Get Bit" << std::endl;
     std::cout << "----------------" << std::endl;
     ba0.print_bits();
-    std::cout << "bitarray[3]=" << ba0.get_bit(3) << std::endl;
-    std::cout << "bitarray[4]=" << ba0.get_bit(4) << std::endl;
-    std::cout << "bitarray[5]=" << ba0.get_bit(5) << std::endl;
+    std::cout << "bitarray[3]=" << (uint32_t)ba0.get_bit(3) << std::endl;
+    std::cout << "bitarray[4]=" << (uint32_t)ba0.get_bit(4) << std::endl;
+    std::cout << "bitarray[5]=" << (uint32_t)ba0.get_bit(5) << std::endl;
     std::cout << std::endl;
 
     std::cout << "BitArray Set Bit to 0" << std::endl;

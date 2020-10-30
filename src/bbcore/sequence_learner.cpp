@@ -1,6 +1,7 @@
 #include "sequence_learner.hpp"
 #include "utils.hpp"
 #include <iostream>
+#include <cstdio>
 
 // =============================================================================
 // Constructor
@@ -68,7 +69,7 @@ SequenceLearner::SequenceLearner(
     this->init_flag = false;
 
     // setup input page (output and hidden constructed in initialize())
-    input.set_num_history(2);
+    input.set_num_bitarrays(2);
     input.set_num_bits(0);
 }
 
@@ -86,8 +87,8 @@ void SequenceLearner::initialize() {
     num_d = num_s * num_dps;
 
     // setup and initialize output and hidden pages
-    hidden.set_num_history(2);
-    output.set_num_history(2);
+    hidden.set_num_bitarrays(2);
+    output.set_num_bitarrays(2);
     hidden.set_num_bits(num_s);
     output.set_num_bits(num_s);
     hidden.initialize();
@@ -139,15 +140,15 @@ void SequenceLearner::save(const char* file) {
     // save hidden coincidence detector receptor addresses and permanences
     for (uint32_t d = 0; d < num_d; d++) {
         cs = &d_hidden[d];
-        fwrite(cs->addrs.data(), cs->get_num_r() * sizeof(cs->addrs[0]), 1, fptr);
-        fwrite(cs->perms.data(), cs->get_num_r() * sizeof(cs->perms[0]), 1, fptr);
+        fwrite(cs->get_addrs().data(), cs->get_num_r() * sizeof(cs->get_addrs()[0]), 1, fptr);
+        fwrite(cs->get_perms().data(), cs->get_num_r() * sizeof(cs->get_perms()[0]), 1, fptr);
     }
     
     // save output coincidence detector receptor addresses and permanences
     for (uint32_t d = 0; d < num_d; d++) {
         cs = &d_output[d];
-        fwrite(cs->addrs.data(), cs->get_num_r() * sizeof(cs->addrs[0]), 1, fptr);
-        fwrite(cs->perms.data(), cs->get_num_r() * sizeof(cs->perms[0]), 1, fptr);        
+        fwrite(cs->get_addrs().data(), cs->get_num_r() * sizeof(cs->get_addrs()[0]), 1, fptr);
+        fwrite(cs->get_perms().data(), cs->get_num_r() * sizeof(cs->get_perms()[0]), 1, fptr);        
     }
 
     // save next available coincidence detector on each statelet
@@ -178,15 +179,15 @@ void SequenceLearner::load(const char* file) {
     // load hidden coincidence detector receptor addresses and permanences
     for (uint32_t d = 0; d < num_d; d++) {
         cs = &d_hidden[d];
-        fread(cs->addrs.data(), cs->get_num_r() * sizeof(cs->addrs[0]), 1, fptr);
-        fread(cs->perms.data(), cs->get_num_r() * sizeof(cs->perms[0]), 1, fptr);
+        fread(cs->get_addrs().data(), cs->get_num_r() * sizeof(cs->get_addrs()[0]), 1, fptr);
+        fread(cs->get_perms().data(), cs->get_num_r() * sizeof(cs->get_perms()[0]), 1, fptr);
     }
 
     // load output coincidence detector receptor addresses and permanences
     for (uint32_t d = 0; d < num_d; d++) {
         cs = &d_output[d];
-        fread(cs->addrs.data(), cs->get_num_r() * sizeof(cs->addrs[0]), 1, fptr);
-        fread(cs->perms.data(), cs->get_num_r() * sizeof(cs->perms[0]), 1, fptr);        
+        fread(cs->get_addrs().data(), cs->get_num_r() * sizeof(cs->get_addrs()[0]), 1, fptr);
+        fread(cs->get_perms().data(), cs->get_num_r() * sizeof(cs->get_perms()[0]), 1, fptr);        
     }
 
     // load next available coincidence detector on each statelet
@@ -198,7 +199,7 @@ void SequenceLearner::load(const char* file) {
 // =============================================================================
 // Clear
 // =============================================================================
-void SequenceLearner::clear() {
+void SequenceLearner::clear_states() {
     input[CURR].clear_bits();
     input[PREV].clear_bits();
     hidden[CURR].clear_bits();

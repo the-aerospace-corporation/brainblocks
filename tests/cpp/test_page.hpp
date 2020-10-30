@@ -22,14 +22,16 @@ void test_page() {
     Page p2;
     p0.set_num_bits(32);
     p1.set_num_bits(32);
-    std::cout << "passed" << std::endl;
+    p0.print_info();
+    p1.print_info();
+    p2.print_info();
     std::cout << std::endl;
 
     std::cout << "Page Add Child" << std::endl;
     std::cout << "--------------" << std::endl;
     p2.add_child(p0);
     p2.add_child(p1);
-    std::cout << "passed" << std::endl;
+    p2.print_info();
     std::cout << std::endl;
 
     std::cout << "Page Initialize" << std::endl;
@@ -37,18 +39,9 @@ void test_page() {
     p0.initialize();
     p1.initialize();
     p2.initialize();
-    std::cout << "p0[CURR].bits="; p0[CURR].print_bits();
-    std::cout << "p0[CURR].acts="; p0[CURR].print_acts();
-    std::cout << "p0[PREV].bits="; p0[PREV].print_bits();
-    std::cout << "p0[PREV].acts="; p0[PREV].print_acts();
-    std::cout << "p1[CURR].bits="; p1[CURR].print_bits();
-    std::cout << "p1[CURR].acts="; p1[CURR].print_acts();
-    std::cout << "p1[PREV].bits="; p1[PREV].print_bits();
-    std::cout << "p1[PREV].acts="; p1[PREV].print_acts();
-    std::cout << "p2[CURR].bits="; p2[CURR].print_bits();
-    std::cout << "p2[CURR].acts="; p2[CURR].print_acts();
-    std::cout << "p2[PREV].bits="; p2[PREV].print_bits();
-    std::cout << "p2[PREV].acts="; p2[PREV].print_acts();
+    p0.print_info();
+    p1.print_info();
+    p2.print_info();
     std::cout << std::endl;
 
     std::cout << "Page Set Bit to 1" << std::endl;

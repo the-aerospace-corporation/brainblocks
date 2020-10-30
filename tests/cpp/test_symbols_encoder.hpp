@@ -27,7 +27,7 @@ void test_symbols_encoder() {
     std::cout << "SymbolsEncoder Initialize" << std::endl;
     std::cout << "-------------------------" << std::endl;
     e.initialize();
-    std::cout << "output="; e.output[CURR].print_bits();
+    std::cout << "output="; e.get_output()[CURR].print_bits();
     std::cout << std::endl;
 
     std::cout << "SymbolsEncoder Compute" << std::endl;
@@ -35,27 +35,27 @@ void test_symbols_encoder() {
 
     e.compute(0);
     std::cout << "value=0" << std::endl;
-    std::cout << "output="; e.output[CURR].print_bits();
+    std::cout << "output="; e.get_output()[CURR].print_bits();
     std::cout << std::endl;
 
     e.compute(1);
     std::cout << "value=1" << std::endl;
-    std::cout << "output="; e.output[CURR].print_bits();
+    std::cout << "output="; e.get_output()[CURR].print_bits();
     std::cout << std::endl;
 
     e.compute(2);
     std::cout << "value=2" << std::endl;
-    std::cout << "output="; e.output[CURR].print_bits();
+    std::cout << "output="; e.get_output()[CURR].print_bits();
     std::cout << std::endl;
 
     e.compute(3);
     std::cout << "value=3" << std::endl;
-    std::cout << "output="; e.output[CURR].print_bits();
+    std::cout << "output="; e.get_output()[CURR].print_bits();
     std::cout << std::endl;
 
     e.compute(4);
     std::cout << "value=4" << std::endl;
-    std::cout << "output="; e.output[CURR].print_bits();
+    std::cout << "output="; e.get_output()[CURR].print_bits();
     std::cout << std::endl;
 }
 

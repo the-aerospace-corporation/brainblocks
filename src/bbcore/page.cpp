@@ -6,7 +6,7 @@
 // =============================================================================
 Page::Page() {
     num_bits = 0;
-    num_history = 2;
+    num_bitarrays = 2;
     curr = 0;
     prev = 1;
     changed_flag = true;
@@ -20,13 +20,13 @@ void Page::initialize() {
 
     // update num_bits from children
     for (uint32_t c = 0; c < children.size(); c++) {
-        Page* child = children[c];
-        
-        if (!child->is_initialized()) {
-            child->initialize();
+
+        // initialize child if necessary
+        if (!children[c]->is_initialized()) {
+            children[c]->initialize();
         }
         
-        num_bits += child->get_num_bits();
+        num_bits += children[c]->get_num_bits();
     }
 
     // TODO: might need better way of handling this.  User probably forgot
@@ -43,7 +43,7 @@ void Page::initialize() {
     }
 
     // initialize bitarrays
-    bitarrays.resize(num_history);
+    bitarrays.resize(num_bitarrays);
     for (uint32_t i = 0; i < bitarrays.size(); i++) {
         bitarrays[i].resize(num_bits);
     }
@@ -122,6 +122,7 @@ void Page::copy_previous_to_current() {
     bitarray_copy(bitarrays[curr], bitarrays[prev], 0, 0, bitarrays[prev].get_num_words());
 }
 
+/*
 // =============================================================================
 // Get Child
 // =============================================================================
@@ -133,9 +134,10 @@ Page* Page::get_child(const uint32_t child_idx) {
 
     return children[child_idx];
 }
+*/
 
 // =============================================================================
-// Get BitArray
+// Get BitArray (Operator)
 // =============================================================================
 BitArray& Page::operator[](const uint32_t t) {
     if (init_flag == false) {
@@ -145,6 +147,40 @@ BitArray& Page::operator[](const uint32_t t) {
 
     uint32_t i = get_index(t);
     return bitarrays[i];
+}
+
+// =============================================================================
+// Print Information
+// =============================================================================
+void Page::print_info() {
+    std::cout << "{"<< std::endl;
+    std::cout << "    \"object\": Page," << std::endl;
+    std::cout << "    \"address\": 0x" << this << "," << std::endl;
+    std::cout << "    \"init_flag\": " << init_flag << "," << std::endl;
+
+    size_t num_children = children.size();
+    std::cout << "    \"children:\": [";
+    if (num_children > 0) {
+        std::cout << std::endl;
+        for (uint32_t i = 0; i < children.size(); i++) {
+            std::cout << "        0x" << children[i] << "," << std::endl;
+        }
+        std::cout << "    ";
+    }
+    std::cout << "]," << std::endl;
+
+    size_t num_bitarrays = bitarrays.size();
+    std::cout << "    \"bitarrays:\": [";
+    if (num_bitarrays > 0) {
+        std::cout << std::endl;
+        for (uint32_t i = 0; i < bitarrays.size(); i++) {
+            std::cout << "        0x" << &bitarrays[i] << "," << std::endl;
+        }
+        std::cout << "    ";
+    }
+    std::cout << "]," << std::endl;
+
+    std::cout << "}," << std::endl;
 }
 
 // =============================================================================

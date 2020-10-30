@@ -98,7 +98,7 @@ void CoincidenceSet::learn(
         if (lmask_ba.get_bit(r) > 0) {
 
             // increment permanence if receptor's input is active
-            if (input_ba.get_bit(addrs[r]) == 1) {
+            if (input_ba.get_bit(addrs[r]) > 0) {
                 perms[r] = MIN(perms[r] + perm_inc, PERM_MAX);
             }
 
@@ -132,7 +132,7 @@ void CoincidenceSet::learn_move(
             if (perms[r] > 0) {
 
                 // increment permanence if receptor's input is active
-                if (input_ba.get_bit(addrs[r]) == 1) {
+                if (input_ba.get_bit(addrs[r]) > 0) {
                     perms[r] = MIN(perms[r] + perm_inc, PERM_MAX);
                 }
 
@@ -182,7 +182,7 @@ void CoincidenceSet::punish(
         if (lmask_ba.get_bit(r) > 0) {
 
             // decrement permanence if receptor's input is active
-            if (input_ba.get_bit(addrs[r]) == 1) {
+            if (input_ba.get_bit(addrs[r]) > 0) {
                 perms[r] = MAX(perms[r] - perm_inc, PERM_MIN);
             }
         }

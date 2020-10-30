@@ -41,7 +41,7 @@ ScalarEncoder::ScalarEncoder(
     this->init_flag = false;
 
     // setup pages
-    output.set_num_history(2);
+    output.set_num_bitarrays(2);
     output.set_num_bits(num_s);
 }
 
@@ -54,9 +54,9 @@ void ScalarEncoder::initialize() {
 }
 
 // =============================================================================
-// Clear
+// Clear States
 // =============================================================================
-void ScalarEncoder::clear() {
+void ScalarEncoder::clear_states() {
     output[CURR].clear_bits();
     output[PREV].clear_bits();
 }

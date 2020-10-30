@@ -17,29 +17,34 @@ class Page {
         void fetch();
         void compute_changed();
         void copy_previous_to_current();
-        Page* get_child(const uint32_t child_idx);
-        BitArray& operator[](const uint32_t t);
 
-        void set_num_bits(const uint32_t num_bits) { this->num_bits = num_bits; };
-        void set_num_history(const uint32_t num_history) { this->num_history = num_history; };
+        // setters and getters
         void set_changed_flag(const bool flag) { changed_flag = flag; };
+        void set_num_bits(const uint32_t num_bits) { this->num_bits = num_bits; };
+        void set_num_bitarrays(const uint32_t num_bitarrays) { this->num_bitarrays = num_bitarrays; };
         uint32_t get_num_bits() { return num_bits; };        
-        uint32_t get_num_history() { return (uint32_t)bitarrays.size(); }; // TODO: rename?
+        uint32_t get_num_bitarrays() { return (uint32_t)bitarrays.size(); };
         uint32_t get_num_children() { return (uint32_t)children.size(); };
         bool has_changed() { return changed_flag; };
         bool is_initialized() { return init_flag; };
+        //Page* get_child(const uint32_t child_idx);
+        BitArray& operator[](const uint32_t t);
+
+        // printing
+        void print_info();
 
     private:
         int get_index(const int t);
 
-        uint32_t num_bits; // number of bits per bitarray
-        uint32_t num_history; // number of time steps of bitarray information
+    private:
+        uint32_t num_bits; // number of bits per bitarray // TODO: needed? can get this from bitarrays
+        uint32_t num_bitarrays; // number of time steps of bitarray information // TODO: not necessary anymore
         uint32_t curr; // current bitarrays index
         uint32_t prev; // previous bitarrays index
         bool changed_flag; // changed flag
         bool init_flag; // initialized flag
-        std::vector<Page*> children; // child page object array
-        std::vector<BitArray> bitarrays; // bitarray history
+        std::vector<Page*> children; // child page object array //TODO: make smart pointer
+        std::vector<BitArray> bitarrays; // a vector containing a time series of bitarrays
 };
 
 #endif

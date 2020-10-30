@@ -3,7 +3,6 @@
 
 #include "page.hpp"
 #include <cstdint>
-#include <cmath>
 
 class PersistenceEncoder {
     public:
@@ -15,12 +14,9 @@ class PersistenceEncoder {
             const uint32_t max_steps);
 
         void initialize();
-        void clear();
-        void reset();
+        void clear_states();
         void compute(double value);
-
-    public:
-        Page output; // output page object
+        Page& get_output() { return output; };
 
     private:
         double min_val;      // minimum input value
@@ -33,6 +29,7 @@ class PersistenceEncoder {
         uint32_t step;       // step counter
         double pct_val_prev; // value previous percentage
         bool init_flag;      // initialized flag
+        Page output; // output page object
 };
 
 #endif

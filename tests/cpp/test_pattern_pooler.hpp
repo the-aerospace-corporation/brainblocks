@@ -32,7 +32,7 @@ void test_pattern_pooler() {
     std::cout << "--------------------------" << std::endl;
     ScalarEncoder e(MIN_VAL, MAX_VAL, NUM_I, NUM_AI);
     PatternPooler pp(NUM_S, NUM_AS, PERM_THR, PERM_INC, PERM_DEC, PCT_POOL, PCT_CONN, PCT_LEARN);
-    pp.input.add_child(e.output);
+    pp.get_input().add_child(e.get_output());
     std::cout << "Complete" << std::endl;
     std::cout << std::endl;
 
@@ -45,17 +45,17 @@ void test_pattern_pooler() {
     e.compute(0.0);
     pp.compute();
     std::cout << "input_value=0.0" << std::endl;
-    std::cout << "pp input ="; pp.input[CURR].print_bits();
-    std::cout << "pp output="; pp.output[CURR].print_bits();
-    std::cout << "pp output="; pp.output[CURR].print_acts();
+    std::cout << "pp input ="; pp.get_input()[CURR].print_bits();
+    std::cout << "pp output="; pp.get_output()[CURR].print_bits();
+    std::cout << "pp output="; pp.get_output()[CURR].print_acts();
     std::cout << std::endl;
 
     e.compute(1.0);
     pp.compute();
     std::cout << "input_value=1.0" << std::endl;
-    std::cout << "pp input ="; pp.input[CURR].print_bits();
-    std::cout << "pp output="; pp.output[CURR].print_bits();
-    std::cout << "pp output="; pp.output[CURR].print_acts();
+    std::cout << "pp input ="; pp.get_input()[CURR].print_bits();
+    std::cout << "pp output="; pp.get_output()[CURR].print_bits();
+    std::cout << "pp output="; pp.get_output()[CURR].print_acts();
     std::cout << std::endl;
 
     for (uint32_t i = 0; i < 5; i++) {
@@ -70,17 +70,17 @@ void test_pattern_pooler() {
     e.compute(0.0);
     pp.compute();
     std::cout << "input_value=0.0" << std::endl;
-    std::cout << "pp input ="; pp.input[CURR].print_bits();
-    std::cout << "pp output="; pp.output[CURR].print_bits();
-    std::cout << "pp output="; pp.output[CURR].print_acts();
+    std::cout << "pp input ="; pp.get_input()[CURR].print_bits();
+    std::cout << "pp output="; pp.get_output()[CURR].print_bits();
+    std::cout << "pp output="; pp.get_output()[CURR].print_acts();
     std::cout << std::endl;
 
     e.compute(1.0);
     pp.compute();
     std::cout << "input_value=1.0" << std::endl;
-    std::cout << "pp input ="; pp.input[CURR].print_bits();
-    std::cout << "pp output="; pp.output[CURR].print_bits();
-    std::cout << "pp output="; pp.output[CURR].print_acts();
+    std::cout << "pp input ="; pp.get_input()[CURR].print_bits();
+    std::cout << "pp output="; pp.get_output()[CURR].print_bits();
+    std::cout << "pp output="; pp.get_output()[CURR].print_acts();
     std::cout << std::endl;
 }
 

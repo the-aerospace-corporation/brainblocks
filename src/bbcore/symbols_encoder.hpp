@@ -12,11 +12,9 @@ class SymbolsEncoder {
             const uint32_t num_s);
 
         void initialize();
-        void clear();
+        void clear_states();
         void compute(uint32_t value);
-
-    public:
-        Page output; // output page object
+        Page& get_output() { return output; };
 
     private:
         uint32_t max_symbols; // maximum number of symbols
@@ -25,6 +23,7 @@ class SymbolsEncoder {
         uint32_t range_bits;  // bit range
         bool init_flag;       // initialized flag
         std::vector<uint32_t> symbols;
+        Page output; // output page object
 };
 
 #endif

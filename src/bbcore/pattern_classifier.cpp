@@ -1,6 +1,7 @@
 #include "pattern_classifier.hpp"
 #include "utils.hpp"
 #include <iostream>
+#include <cstdio>
 
 // =============================================================================
 // Constructor
@@ -89,7 +90,7 @@ PatternClassifier::PatternClassifier(
     }
 
     // setup input page (output and hidden constructed in initialize())
-    input.set_num_history(2);
+    input.set_num_bitarrays(2);
     input.set_num_bits(0);
 }
 
@@ -100,7 +101,7 @@ void PatternClassifier::initialize() {
 
     // setup and initialize pages
     input.initialize();
-    output.set_num_history(2);
+    output.set_num_bitarrays(2);
     output.set_num_bits(num_s);
     output.initialize();
 
@@ -153,8 +154,8 @@ void PatternClassifier::save(const char* file) {
 
     for (uint32_t s = 0; s < this->num_s; s++) {
         cs = &d_output[s];
-        fwrite(cs->addrs.data(), cs->get_num_r() * sizeof(cs->addrs[0]), 1, fptr);
-        fwrite(cs->perms.data(), cs->get_num_r() * sizeof(cs->perms[0]), 1, fptr);
+        fwrite(cs->get_addrs().data(), cs->get_num_r() * sizeof(cs->get_addrs()[0]), 1, fptr);
+        fwrite(cs->get_perms().data(), cs->get_num_r() * sizeof(cs->get_perms()[0]), 1, fptr);
     }
 
     fclose(fptr); 
@@ -180,8 +181,8 @@ void PatternClassifier::load(const char* file) {
 
     for (uint32_t s = 0; s < this->num_s; s++) {
         cs = &d_output[s];
-        fread(cs->addrs.data(), cs->get_num_r() * sizeof(cs->addrs[0]), 1, fptr);
-        fread(cs->perms.data(), cs->get_num_r() * sizeof(cs->perms[0]), 1, fptr);
+        fread(cs->get_addrs().data(), cs->get_num_r() * sizeof(cs->get_addrs()[0]), 1, fptr);
+        fread(cs->get_perms().data(), cs->get_num_r() * sizeof(cs->get_perms()[0]), 1, fptr);
     }
 
     fclose(fptr); 
@@ -189,9 +190,9 @@ void PatternClassifier::load(const char* file) {
 
 
 // =============================================================================
-// Clear
+// Clear States
 // =============================================================================
-void PatternClassifier::clear() {
+void PatternClassifier::clear_states() {
     input[CURR].clear_bits();
     input[PREV].clear_bits();
     output[CURR].clear_bits();

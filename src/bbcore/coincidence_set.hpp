@@ -40,10 +40,14 @@ class CoincidenceSet {
 
         void print_addrs();
         void print_perms();
-        
+
+        uint32_t get_addr(const uint32_t r) { return addrs[r]; };
+        uint8_t get_perm(const uint32_t r) { return perms[r]; };
+        std::vector<uint32_t> get_addrs() { return addrs; };
+        std::vector<uint8_t> get_perms() { return perms; };
         uint32_t get_num_r() { return (uint32_t)addrs.size(); };
 
-    public: //TODO: make private?
+    private:
         std::vector<uint32_t> addrs; // receptor addresses
         std::vector<uint8_t> perms;  // receptor permanences
 };

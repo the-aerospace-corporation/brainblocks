@@ -18,7 +18,7 @@ void test_blank_block() {
     std::cout << "Blank Block Construction" << std::endl;
     std::cout << "------------------------" << std::endl;
     BlankBlock bb(32);
-    std::cout << "bb output="; bb.output[CURR].print_bits();
+    std::cout << "bb output="; bb.get_output()[CURR].print_bits();
     std::cout << std::endl;
 }
 

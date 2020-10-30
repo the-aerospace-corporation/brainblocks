@@ -34,7 +34,7 @@ void test_pattern_classifier() {
     std::cout << "------------------------------" << std::endl;
     ScalarEncoder e(MIN_VAL, MAX_VAL, NUM_I, NUM_AI);
     PatternClassifier pc(set_labels, NUM_S, NUM_AS, PERM_THR, PERM_INC, PERM_DEC, PCT_POOL, PCT_CONN, PCT_LEARN);
-    pc.input.add_child(e.output);
+    pc.get_input().add_child(e.get_output());
     std::cout << "Complete" << std::endl;
     std::cout << std::endl;
 
@@ -54,8 +54,8 @@ void test_pattern_classifier() {
     std::cout << "input_value=0.0" << std::endl;
     std::cout << "input_label=0" << std::endl;
     std::cout << "learn_flag=false" << std::endl;
-    std::cout << "pc input ="; pc.input[CURR].print_bits();
-    std::cout << "pc output="; pc.output[CURR].print_bits();
+    std::cout << "pc input ="; pc.get_input()[CURR].print_bits();
+    std::cout << "pc output="; pc.get_output()[CURR].print_bits();
     std::cout << "P(label=" << labels[0] << ")=" << probs[0] << std::endl;
     std::cout << "P(label=" << labels[1] << ")=" << probs[1] << std::endl;
     std::cout << std::endl;
@@ -67,8 +67,8 @@ void test_pattern_classifier() {
     std::cout << "input_value=1.0" << std::endl;
     std::cout << "input_label=1" << std::endl;
     std::cout << "learn_flag=false" << std::endl;
-    std::cout << "pc input ="; pc.input[CURR].print_bits();
-    std::cout << "pc output="; pc.output[CURR].print_bits();
+    std::cout << "pc input ="; pc.get_input()[CURR].print_bits();
+    std::cout << "pc output="; pc.get_output()[CURR].print_bits();
     std::cout << "P(label=" << labels[0] << ")=" << probs[0] << std::endl;
     std::cout << "P(label=" << labels[1] << ")=" << probs[1] << std::endl;
     std::cout << std::endl;
@@ -89,8 +89,8 @@ void test_pattern_classifier() {
     std::cout << "input_value=0.0" << std::endl;
     std::cout << "input_label=N/A" << std::endl;
     std::cout << "learn_flag=false" << std::endl;
-    std::cout << "pc input ="; pc.input[CURR].print_bits();
-    std::cout << "pc output="; pc.output[CURR].print_bits();
+    std::cout << "pc input ="; pc.get_input()[CURR].print_bits();
+    std::cout << "pc output="; pc.get_output()[CURR].print_bits();
     std::cout << "P(label=" << labels[0] << ")=" << probs[0] << std::endl;
     std::cout << "P(label=" << labels[1] << ")=" << probs[1] << std::endl;
     std::cout << std::endl;
@@ -102,8 +102,8 @@ void test_pattern_classifier() {
     std::cout << "input_value=1.0" << std::endl;
     std::cout << "input_label=N/A" << std::endl;
     std::cout << "learn_flag=false" << std::endl;
-    std::cout << "pc input ="; pc.input[CURR].print_bits();
-    std::cout << "pc output="; pc.output[CURR].print_bits();
+    std::cout << "pc input ="; pc.get_input()[CURR].print_bits();
+    std::cout << "pc output="; pc.get_output()[CURR].print_bits();
     std::cout << "P(label=" << labels[0] << ")=" << probs[0] << std::endl;
     std::cout << "P(label=" << labels[1] << ")=" << probs[1] << std::endl;
     std::cout << std::endl;

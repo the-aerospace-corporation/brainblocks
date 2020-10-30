@@ -24,17 +24,16 @@ class PatternPooler {
         void initialize();
         void save(const char* file);
         void load(const char* file);
-        void clear();
+        void clear_states();
         void compute(const uint32_t learn_flag = false);
+        Page& get_input() { return input; };
+        Page& get_output() { return output; };
+        CoincidenceSet& get_output_coincidence_set(const uint32_t d) { return d_output[d]; };
 
     private:
         void overlap();
         void activate();
         void learn();
-
-    public:
-        Page input;   // input page object
-        Page output;  // output page object
 
     private:
         uint32_t num_s;       // number of statelets
@@ -50,6 +49,8 @@ class PatternPooler {
         std::vector<uint32_t> d_output_overlaps; // output coincidence detector overlap scores
         std::vector<uint32_t> d_output_templaps; // output coincidence detector temporary overlap scores
         std::vector<CoincidenceSet> d_output; // output coincidence detectors
+        Page input;  // input page object
+        Page output; // output page object
 };
 
 #endif

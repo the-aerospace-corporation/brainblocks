@@ -23,20 +23,19 @@ class SequenceLearner {
         void initialize();
         void save(const char* file);
         void load(const char* file);
-        void clear();
+        void clear_states();
         void compute(const bool learn_flag = true);
-
-        double get_abnormality_score() { return pct_score; };
+        double get_score() { return pct_score; };
+        Page& get_input() { return input; };
+        Page& get_hidden() { return hidden; };
+        Page& get_output() { return output; };
+        CoincidenceSet& get_hidden_coincidence_set(const uint32_t d) { return d_hidden[d]; };
+        CoincidenceSet& get_output_coincidence_set(const uint32_t d) { return d_output[d]; };
 
     private:
         void overlap();
         void activate(const uint32_t learn_flag);
         void learn();
-
-    public:
-        Page input;  // input page object
-        Page hidden; // hidden page object
-        Page output; // output page object
 
     private:
         uint32_t num_c;    // number of columns
@@ -62,6 +61,9 @@ class SequenceLearner {
         BitArray d_hidden_states; // hidden coincidence detector states bitarray
         BitArray d_output_states; // output coincidence detector states bitarray
         BitArray lmask_ba; // learning mask bitarray
+        Page input;  // input page object
+        Page hidden; // hidden page object
+        Page output; // output page object
 };
 
 //struct BitArray* sequence_learner_get_historical_statelets(struct SequenceLearner* sl);

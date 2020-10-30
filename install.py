@@ -43,7 +43,6 @@ if subprocess.call(cmd) != 0:
     print("ERROR while cmake build")
     sys.exit(-1)
 
-'''
 print("")
 print("================================================================================")
 print("Installing BrainBlocks Python Bindings")
@@ -67,4 +66,3 @@ shutil.rmtree('brainblocks.egg-info')
 wheel_path = next(Path("dist").glob("*.whl"))
 
 subprocess.check_call([sys.executable, "-m", "pip", "install", str(wheel_path)])
-'''

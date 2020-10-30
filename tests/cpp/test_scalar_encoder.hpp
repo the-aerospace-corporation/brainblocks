@@ -29,7 +29,7 @@ void test_scalar_encoder() {
     std::cout << "ScalarEncoder Initialize" << std::endl;
     std::cout << "------------------------" << std::endl;
     e.initialize();
-    std::cout << "output="; e.output[CURR].print_bits();
+    std::cout << "output="; e.get_output()[CURR].print_bits();
     std::cout << std::endl;
 
     std::cout << "ScalarEncoder Compute" << std::endl;
@@ -37,37 +37,37 @@ void test_scalar_encoder() {
 
     e.compute(-1.5);
     std::cout << "value=-1.5" << std::endl;
-    std::cout << "output="; e.output[CURR].print_bits();
+    std::cout << "output="; e.get_output()[CURR].print_bits();
     std::cout << std::endl;
 
     e.compute(-1.0);
     std::cout << "value=-1.0" << std::endl;
-    std::cout << "output="; e.output[CURR].print_bits();
+    std::cout << "output="; e.get_output()[CURR].print_bits();
     std::cout << std::endl;
 
     e.compute(-0.5);
     std::cout << "value=-0.5" << std::endl;
-    std::cout << "output="; e.output[CURR].print_bits();
+    std::cout << "output="; e.get_output()[CURR].print_bits();
     std::cout << std::endl;
 
     e.compute(0.0);
     std::cout << "value=0.0" << std::endl;
-    std::cout << "output="; e.output[CURR].print_bits();
+    std::cout << "output="; e.get_output()[CURR].print_bits();
     std::cout << std::endl;
 
     e.compute(0.5);
     std::cout << "value=0.5" << std::endl;
-    std::cout << "output="; e.output[CURR].print_bits();
+    std::cout << "output="; e.get_output()[CURR].print_bits();
     std::cout << std::endl;
 
     e.compute(1.0);
     std::cout << "value=1.0" << std::endl;
-    std::cout << "output="; e.output[CURR].print_bits();
+    std::cout << "output="; e.get_output()[CURR].print_bits();
     std::cout << std::endl;
 
     e.compute(1.5);
     std::cout << "value=1.5" << std::endl;
-    std::cout << "output="; e.output[CURR].print_bits();
+    std::cout << "output="; e.get_output()[CURR].print_bits();
     std::cout << std::endl;
 }
 

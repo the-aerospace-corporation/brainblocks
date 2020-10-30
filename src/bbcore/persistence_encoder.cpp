@@ -1,5 +1,6 @@
 #include "persistence_encoder.hpp"
 #include <iostream>
+#include <cmath>
 
 // =============================================================================
 // Constructor
@@ -50,7 +51,7 @@ PersistenceEncoder::PersistenceEncoder(
     this->init_flag = false;
 
     // setup pages
-    output.set_num_history(2);
+    output.set_num_bitarrays(2);
     output.set_num_bits(num_s);
 }
 
@@ -63,18 +64,12 @@ void PersistenceEncoder::initialize() {
 }
 
 // =============================================================================
-// Clear
+// Clear States
 // =============================================================================
-void PersistenceEncoder::clear() {
+void PersistenceEncoder::clear_states() {
     output[CURR].clear_bits();
     output[PREV].clear_bits();
-}
 
-
-// =============================================================================
-// Reset
-// =============================================================================
-void PersistenceEncoder::reset() {
     step = 0;
     pct_val_prev = 0.0;
 }

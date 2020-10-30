@@ -110,134 +110,6 @@ void BitArray::random_shuffle() {
 }
 
 // =============================================================================
-// Set Bit
-// =============================================================================
-void BitArray::set_bit(const uint32_t idx, const uint32_t val) {
-    if (val > 0) {
-        words[idx / WORD_BITS] |= 1 << (idx % WORD_BITS);
-    }
-    else {
-        words[idx / WORD_BITS] &= ~(1 << (idx % WORD_BITS));
-    }
-
-    acts_dirty_flag = true;
-}
-
-// =============================================================================
-// Get Bit
-// =============================================================================
-uint32_t BitArray::get_bit(const uint32_t idx) {
-    uint32_t word_index = idx / WORD_BITS;
-    word_t curr_word = words[word_index];
-
-    uint32_t bit_index = idx % WORD_BITS;
-    word_t bit_mask = 1 << bit_index;
-
-    return (curr_word & bit_mask) != 0;
-}
-
-// =============================================================================
-// Set Bits
-// =============================================================================
-void BitArray::set_bits(std::vector<uint8_t>& new_bits) {
-    if (new_bits.size() > num_bits) {
-        std::cout << "Warning in BitArray::set_bits(): input vector size > num_bits.  Skipping operation." << std::endl;
-        return;
-    }
-
-    clear_bits();
-    for (uint32_t i = 0; i < new_bits.size(); i++) {
-        if (new_bits[i] > 0) {
-            set_bit(i, 1);
-        }
-    }
-
-    acts_dirty_flag = true;
-}
-
-// =============================================================================
-// Set Acts
-// =============================================================================
-void BitArray::set_acts(std::vector<uint32_t>& new_acts) {
-    uint32_t num_acts = (uint32_t)new_acts.size();
-    acts.resize(num_acts);
-    clear_bits();
-
-    for (uint32_t i = 0; i < num_acts; i++) {
-        if (new_acts[i] > num_bits) {
-            std::cout << "Warning in BitArray::set_acts(): new_act[i] > num_bits.  Skipping this activation." << std::endl;
-            continue;
-        }
-
-        acts[i] = new_acts[i];
-        set_bit(new_acts[i], 1);
-    }
-
-    acts_dirty_flag = false;
-}
-
-// =============================================================================
-// Get Bits
-// =============================================================================
-std::vector<uint8_t> BitArray::get_bits() {
-    std::vector<uint8_t> bits(num_bits);
-    for (uint32_t i = 0; i < num_bits; i++) {
-        bits[i] = get_bit(i);
-    }
-    return bits;
-}
-
-// =============================================================================
-// Get Acts
-// =============================================================================
-std::vector<uint32_t> BitArray::get_acts() {
-    if (acts_dirty_flag) {
-        uint32_t num_acts = count();
-        acts.resize(num_acts);
-        
-        uint32_t j = 0;
-        for (uint32_t i = 0; i < num_bits; i++) {
-            if (get_bit(i)) {
-                acts[j] = i;
-                j++;
-            }
-        }
-
-        acts_dirty_flag = false;
-    }
-
-    return acts;
-}
-
-// =============================================================================
-// Print Bits
-// =============================================================================
-void BitArray::print_bits() {
-    std::cout << "{";
-    for (uint32_t i = 0; i < num_bits; i++) {
-        std::cout << get_bit(i);
-    }
-    std::cout << "}" << std::endl;
-}
-
-// =============================================================================
-// Print Acts
-// =============================================================================
-void BitArray::print_acts() {
-    get_acts();
-
-    std::cout << "{";
-    uint32_t num_acts = (uint32_t)acts.size();
-    for (uint32_t i = 0; i < num_acts; i++) {
-        std::cout << acts[i];
-        if (i < num_acts - 1) {
-            std::cout << ", ";
-        }
-    }
-    std::cout << "}" << std::endl;
-}
-
-// =============================================================================
 // Count
 // =============================================================================
 // https://stackoverflow.com/questions/109023/how-to-count-the-number-of-set-bits-in-a-32-bit-integer
@@ -302,6 +174,148 @@ BitArray BitArray::operator^(const BitArray& in) {
 
     out.acts_dirty_flag = true;
     return out;
+}
+
+
+// =============================================================================
+// Set Bit
+// =============================================================================
+void BitArray::set_bit(const uint32_t idx, const uint8_t val) {
+    if (val > 0) {
+        words[idx / WORD_BITS] |= 1 << (idx % WORD_BITS);
+    }
+    else {
+        words[idx / WORD_BITS] &= ~(1 << (idx % WORD_BITS));
+    }
+
+    acts_dirty_flag = true;
+}
+
+// =============================================================================
+// Get Bit
+// =============================================================================
+uint8_t BitArray::get_bit(const uint32_t idx) {
+    uint32_t word_index = idx / WORD_BITS;
+    word_t curr_word = words[word_index];
+
+    uint32_t bit_index = idx % WORD_BITS;
+    word_t bit_mask = 1 << bit_index;
+
+    return (curr_word & bit_mask) != 0;
+}
+
+// =============================================================================
+// Set Bits
+// =============================================================================
+void BitArray::set_bits(std::vector<uint8_t>& new_bits) {
+    if (new_bits.size() > num_bits) {
+        std::cout << "Warning in BitArray::set_bits(): input vector size > num_bits.  Skipping operation." << std::endl;
+        return;
+    }
+
+    clear_bits();
+    for (uint32_t i = 0; i < new_bits.size(); i++) {
+        if (new_bits[i] > 0) {
+            set_bit(i, 1);
+        }
+    }
+
+    acts_dirty_flag = true;
+}
+
+// =============================================================================
+// Set Acts
+// =============================================================================
+void BitArray::set_acts(std::vector<uint32_t>& new_acts) {
+    uint32_t num_acts = (uint32_t)new_acts.size();
+    acts.resize(num_acts);
+    clear_bits();
+
+    for (uint32_t i = 0; i < num_acts; i++) {
+        if (new_acts[i] > num_bits) {
+            std::cout << "Warning in BitArray::set_acts(): new_act[i] > num_bits.  Skipping this activation." << std::endl;
+            continue;
+        }
+
+        acts[i] = new_acts[i];
+        set_bit(new_acts[i], 1);
+    }
+
+    acts_dirty_flag = false;
+}
+
+// =============================================================================
+// Get Bits
+// =============================================================================
+std::vector<uint8_t> BitArray::get_bits() {
+    std::vector<uint8_t> out_bits(num_bits);
+    for (uint32_t i = 0; i < num_bits; i++) {
+        out_bits[i] = get_bit(i);
+    }
+
+    return out_bits;
+}
+
+// =============================================================================
+// Get Acts
+// =============================================================================
+std::vector<uint32_t> BitArray::get_acts() {
+    if (acts_dirty_flag) {
+        uint32_t num_acts = count();
+        acts.resize(num_acts);
+        
+        uint32_t j = 0;
+        for (uint32_t i = 0; i < num_bits; i++) {
+            if (get_bit(i)) {
+                acts[j] = i;
+                j++;
+            }
+        }
+
+        acts_dirty_flag = false;
+    }
+
+    return acts;
+}
+
+// =============================================================================
+// Print Information
+// =============================================================================
+void BitArray::print_info() {
+    std::cout << "{"<< std::endl;
+    std::cout << "    \"object\": BitArray," << std::endl;
+    std::cout << "    \"address\": 0x" << this << "," << std::endl;
+    std::cout << "    \"num_bits\": " << num_bits << "," << std::endl;
+    std::cout << "    \"num_words\": " << words.size() << "," << std::endl;
+    std::cout << "}," << std::endl;
+}
+
+// =============================================================================
+// Print Bits
+// =============================================================================
+void BitArray::print_bits() {
+    std::cout << "{";
+    for (uint32_t i = 0; i < num_bits; i++) {
+        std::cout << (uint32_t)get_bit(i);
+    }
+    std::cout << "}" << std::endl;
+}
+
+// =============================================================================
+// Print Acts
+// =============================================================================
+void BitArray::print_acts() {
+    get_acts();
+
+    std::cout << "{";
+    uint32_t num_acts = (uint32_t)acts.size();
+    for (uint32_t i = 0; i < num_acts; i++) {
+        std::cout << acts[i];
+        if (i < num_acts - 1) {
+            std::cout << ", ";
+        }
+    }
+    std::cout << "}" << std::endl;
 }
 
 // =============================================================================
