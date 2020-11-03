@@ -260,6 +260,76 @@ class PatternClassifier():
         return Page(self.obj.output)
 
 # ==============================================================================
+# PatternClassifierDynamic
+# ==============================================================================
+class PatternClassifierDynamic():
+    def __init__(
+            self,
+            num_s=512,       # number of statelets
+            num_as=8,        # number of active statelets
+            num_spl=32,      # number of statelets per label
+            perm_thr=20,     # receptor permanence threshold
+            perm_inc=2,      # receptor permanence increment
+            perm_dec=1,      # receptor permanence decrement
+            pct_pool=0.8,    # pooling percentage
+            pct_conn=0.5,    # initially connected percentage
+            pct_learn=0.25,  # learn percentage
+            random_state=0): # random state integer
+
+        #if isinstance(random_state,int): # TODO: fix seeding
+            #bb.seed(random_state)
+
+        self.obj = bb.PatternClassifierDynamic(
+            num_s, num_as, num_spl,
+            perm_thr, perm_inc, perm_dec,
+            pct_pool, pct_conn, pct_learn)
+
+    def initialize(self):
+        self.obj.initialize()
+
+    def save(self, file_str='./pc.bin'):
+        self.obj.save(file_str.encode('utf-8'))
+
+    def load(self, file_str='./pc.bin'):
+        self.obj.load(file_str.encode('utf-8'))
+
+    def clear_states(self):
+        self.obj.clear_states()
+
+    def compute(self, label=None, learn=False):
+        if learn:
+            if label is None:
+                raise ("Label required for PatternClassifier when learn=True")
+
+            if not np.issubdtype(type(label), np.integer):
+                raise ("Label must be of type integer for PatternClassifier")
+
+            self.obj.compute(label, 1)
+
+        else:
+            self.obj.compute(0, 0)
+
+    def get_labels(self):
+        return self.obj.get_labels()
+
+    def get_probabilities(self):
+        return self.obj.get_probabilities()
+
+    def get_score(self):
+        return self.obj.get_score()
+
+    def output_coincidence_set(self, d):
+        return CoincidenceSet(self.obj.output_coincidence_set(d))
+
+    @property
+    def input(self):
+        return Page(self.obj.input)
+
+    @property
+    def output(self):
+        return Page(self.obj.output)
+
+# ==============================================================================
 # PatternPooler
 # ==============================================================================
 class PatternPooler():
@@ -377,6 +447,61 @@ class SequenceLearner():
     @property
     def hidden(self):
         return Page(self.obj.hidden)
+
+    @property
+    def output(self):
+        return Page(self.obj.output)
+
+# ==============================================================================
+# ContextLearner
+# ==============================================================================
+class ContextLearner():
+    def __init__(
+            self,
+            num_spc=10,      # number of statelets per column
+            num_dps=10,      # number of coincidence detectors per statelet
+            num_rpd=12,      # number of receptors per coincidence detector
+            d_thresh=6,      # coincidence detector threshold
+            perm_thr=20,     # receptor permanence threshold
+            perm_inc=2,      # receptor permanence increment
+            perm_dec=1,      # receptor permanence decrement
+            random_state=0): # random state integer
+
+        #if isinstance(random_state,int): # TODO: fix seeding
+        #    bb.seed(random_state)
+
+        self.obj = bb.ContextLearner(
+            num_spc, num_dps, num_rpd, d_thresh,
+            perm_thr, perm_inc, perm_dec)
+
+    def initialize(self):
+        self.obj.initialize()
+
+    def save(self, file_str='./obj.bin'):
+        self.obj.save(file_str.encode('utf-8'))
+
+    def load(self, file_str='./obj.bin'):
+        self.obj.load(file_str.encode('utf-8'))
+
+    def clear_states(self):
+        self.obj.clear_states()
+
+    def compute(self, learn=True):
+        self.obj.compute(learn)
+
+    def get_score(self):
+        return self.obj.get_score()
+
+    def output_coincidence_set(self, d):
+        return CoincidenceSet(self.obj.output_coincidence_set(d))
+
+    @property
+    def input(self):
+        return Page(self.obj.input)
+
+    @property
+    def context(self):
+        return Page(self.obj.context)
 
     @property
     def output(self):

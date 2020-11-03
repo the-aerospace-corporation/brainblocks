@@ -18,7 +18,7 @@ class Classifier():
             pct_learn=0.25): # PatternClassifier learn percentage
 
         # seed the random number generator
-        bb.seed(0)
+        # bb.seed(0) # TODO: fix seeding
 
         # build blocks from config descriptions if given
         blocks = get_blocks(configs)

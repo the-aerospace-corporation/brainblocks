@@ -13,8 +13,10 @@ set(SOURCE_FILES
     src/bbcore/symbols_encoder.cpp
     src/bbcore/persistence_encoder.cpp
     src/bbcore/pattern_classifier.cpp
+    src/bbcore/pattern_classifier_dynamic.cpp
     src/bbcore/pattern_pooler.cpp
     src/bbcore/sequence_learner.cpp
+    src/bbcore/context_learner.cpp
 )
 
 # BB Core Header Files

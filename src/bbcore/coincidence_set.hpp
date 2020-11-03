@@ -31,7 +31,8 @@ class CoincidenceSet {
             BitArray& input_ba,
             BitArray& lmask_ba,
             const uint8_t perm_inc,
-            const uint8_t perm_dec);
+            const uint8_t perm_dec,
+            const uint8_t perm_thr);
 
         void punish(
             BitArray& input_ba,

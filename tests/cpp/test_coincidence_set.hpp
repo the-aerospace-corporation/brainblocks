@@ -96,7 +96,7 @@ void test_coincidence_set() {
 
     std::cout << "CoincidenceSet Learn (Move)" << std::endl;
     std::cout << "---------------------------" << std::endl;
-    cs.learn_move(input_ba, lmask_ba, PERM_INC, PERM_DEC);
+    cs.learn_move(input_ba, lmask_ba, PERM_INC, PERM_DEC, PERM_THR);
     std::cout << "input="; input_ba.print_bits();
     std::cout << "lmask="; lmask_ba.print_bits();
     std::cout << "addrs="; cs.print_addrs();

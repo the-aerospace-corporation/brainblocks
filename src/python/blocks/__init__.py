@@ -3,5 +3,7 @@ from .blocks import ScalarEncoder
 from .blocks import SymbolsEncoder
 from .blocks import PersistenceEncoder
 from .blocks import PatternClassifier
+from .blocks import PatternClassifierDynamic
 from .blocks import PatternPooler
 from .blocks import SequenceLearner
+from .blocks import ContextLearner

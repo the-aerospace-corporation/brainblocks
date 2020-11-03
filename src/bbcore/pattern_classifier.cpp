@@ -265,7 +265,8 @@ void PatternClassifier::activate() {
 
     // activate the statelets with the k-highest overlap score
     for (uint32_t k = 0; k < num_as; k++) {
-        uint32_t beg_idx = utils_rand_uint(0, num_s); // random start location
+        //uint32_t beg_idx = utils_rand_uint(0, num_s - 1); // random start location
+        uint32_t beg_idx = 0;
         uint32_t max_val = 0;
         uint32_t max_idx = beg_idx;
 
@@ -318,6 +319,7 @@ void PatternClassifier::learn(const uint32_t label) {
         for (uint32_t k = 0; k < output_acts.size(); k++) {
             uint32_t s = output_acts[k];
 
+            // shuffle learning mask
             lmask_ba.random_shuffle();
 
             // if input label matches statelet label then learn

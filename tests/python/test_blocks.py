@@ -265,15 +265,62 @@ def test_pattern_classifier():
 
     e.compute(value=0)
     pc.compute(learn=False)
-    actual_probs = np.array(pc.get_probabilities())
-    expect_probs = np.array([1.0, 0.0])
-    np.testing.assert_array_equal(actual_probs, expect_probs)
+    probs = pc.get_probabilities()
+    labels = pc.get_labels()
+    actual_label = np.array(labels[np.argmax(probs)])
+    expect_label = 0
+    np.testing.assert_equal(actual_label, expect_label)
 
     e.compute(value=1)
     pc.compute(learn=False)
-    actual_probs = np.array(pc.get_probabilities())
-    expect_probs = np.array([0.0, 1.0])
-    np.testing.assert_array_equal(actual_probs, expect_probs)
+    probs = pc.get_probabilities()
+    labels = pc.get_labels()
+    actual_label = np.array(labels[np.argmax(probs)])
+    expect_label = 1
+    np.testing.assert_equal(actual_label, expect_label)
+
+# ==============================================================================
+# PatternClassifierDynamic
+# ==============================================================================
+def test_pattern_classifier_dynamic():
+    e = SymbolsEncoder(
+        max_symbols=8, # maximum number of symbols
+        num_s=1024)    # number of statelets
+
+    pc = PatternClassifierDynamic(
+        num_s=512,      # number of statelets
+        num_as=8,       # number of active statelets
+        num_spl=32,      # number of statelets per label
+        perm_thr=20,    # receptor permanence threshold
+        perm_inc=2,     # receptor permanence increment
+        perm_dec=1,     # receptor permanence decrement
+        pct_pool=0.8,   # pooling percentage
+        pct_conn=0.5,   # initially connected percentage
+        pct_learn=0.25) # learn percentage
+
+    pc.input.add_child(e.output)
+
+    for _ in range(10):
+        e.compute(value=0)
+        pc.compute(label=0, learn=True)
+        e.compute(value=1)
+        pc.compute(label=1, learn=True)
+
+    e.compute(value=0)
+    pc.compute(learn=False)
+    probs = pc.get_probabilities()
+    labels = pc.get_labels()
+    actual_label = np.array(labels[np.argmax(probs)])
+    expect_label = 0
+    np.testing.assert_equal(actual_label, expect_label)
+
+    e.compute(value=1)
+    pc.compute(learn=False)
+    probs = pc.get_probabilities()
+    labels = pc.get_labels()
+    actual_label = np.array(labels[np.argmax(probs)])
+    expect_label = 1
+    np.testing.assert_equal(actual_label, expect_label)
 
 # ==============================================================================
 # PatternPooler
@@ -496,6 +543,7 @@ if __name__ == '__main__':
     test_symbols_encoder()
     test_persistence_encoder()
     test_pattern_classifier()
+    test_pattern_classifier_dynamic()
     test_pattern_pooler()
     test_sequence_learner_square()
     test_sequence_learner_triangle()

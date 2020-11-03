@@ -239,6 +239,7 @@ class BBClassifier:
         # Train Network
         probs = self._fit(X_new, self._y)
         #print("data:", X_new)
+        #print("labels:", self._y)
         #print("training:", probs)
 
         return self
@@ -370,7 +371,7 @@ class BBClassifier:
                 input = X[k, :]
                 target = y[k]
 
-                self.blankBlock.output.bits = input
+                self.blankBlock.output[0].bits = input # set current output bits
                 self.dpc.compute(target, learn=True)
 
                 curr_prob = self.dpc.get_probabilities()
@@ -393,7 +394,7 @@ class BBClassifier:
         for k in range(X.shape[0]):
             input = X[k, :]
 
-            self.blankBlock.output.bits = input
+            self.blankBlock.output[0].bits = input # set current output bits
             self.dpc.compute(None, learn=False)
 
             curr_prob = self.dpc.get_probabilities()

@@ -117,7 +117,8 @@ void CoincidenceSet::learn_move(
         BitArray& input_ba,
         BitArray& lmask_ba,
         const uint8_t perm_inc,
-        const uint8_t perm_dec) {
+        const uint8_t perm_dec,
+        const uint8_t perm_thr) {
 
     // get active bits
     std::vector<uint32_t> acts = input_ba.get_acts();
@@ -159,7 +160,7 @@ void CoincidenceSet::learn_move(
                     // move the receptor if it is available
                     if (is_available) {
                         addrs[r] = acts[j];
-                        perms[r] = perm_inc;
+                        perms[r] = perm_thr;
                     }
                 }
             }
