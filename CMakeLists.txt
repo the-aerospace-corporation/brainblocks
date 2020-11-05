@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.1)
 
 project(BrainBlocks VERSION 0.3.7)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # BB Core Source Files
 set(SOURCE_FILES
     src/bbcore/utils.cpp
@@ -24,6 +27,7 @@ include_directories(src/bbcore/ src/)
 
 # bbcore C++ source files
 add_library(bbcore ${SOURCE_FILES})
+
 
 # if called to build a python extension with pybind11
 if (PYTHON_EXTENSION)
@@ -54,8 +58,6 @@ else()
     endforeach(OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES)
 
     # set compiler options
-    ##set(CMAKE_C_STANDARD 11)
-    set(CMAKE_CXX_STANDARD 11)
     #set(CMAKE_POSITION_INDEPENDENT_CODE ON)
     #set(CMAKE_SHARED_LIBRARY_PREFIX "")
 
