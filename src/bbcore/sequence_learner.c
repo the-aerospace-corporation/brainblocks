@@ -464,7 +464,7 @@ void sequence_learner_activate(
                 sl->d_output[d_next].state = 1;
 
                 // if next available coincidence detector is less than the number of coincidence detectors per statelet
-                if (sl->s_next_d[s_rand] < sl->num_dps) {
+                if (sl->s_next_d[s_rand] < sl->num_dps-1) {
 
                     // update historical coincidence detector and statelet counters
                     // remember: both hidden and output were activated in this case
@@ -497,7 +497,7 @@ void sequence_learner_activate(
                         // activate next available hidden coincidence detector
                         sl->d_hidden[d_next].state = 1;
 
-                        if (sl->s_next_d[s] < sl->num_dps) {
+                        if (sl->s_next_d[s] < sl->num_dps-1) {
                             sl->count_hd++;
                             if (sl->s_next_d[s] == 0) {
                                 sl->count_hs++;
