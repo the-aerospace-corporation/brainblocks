@@ -64,6 +64,23 @@ class Page():
     def num_children(self):
         return self.obj.num_children
 
+    # alias bits/acts access to the 0'th history index
+    @property
+    def bits(self):
+        return BitArray(self.obj[0]).bits
+
+    @bits.setter
+    def bits(self, new_bits):
+        BitArray(self.obj[0]).bits = new_bits
+
+    @property
+    def acts(self):
+        return BitArray(self.obj[0]).acts
+
+    @acts.setter
+    def acts(self, new_acts):
+        BitArray(self.obj[0]).acts = new_acts
+
 # ==============================================================================
 # CoincidenceSet
 # ==============================================================================
