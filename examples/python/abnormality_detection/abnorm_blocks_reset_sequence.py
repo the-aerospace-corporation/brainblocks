@@ -63,5 +63,5 @@ for iteration_i in range(3):
     scores = []
 
     # reset sequence by clearing the blocks
-    e.clear()
-    sl.clear()
+    e.clear_states()
+    sl.clear_states()

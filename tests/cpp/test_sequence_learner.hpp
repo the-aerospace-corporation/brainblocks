@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <cstdint>
 #include <vector>
+#include <chrono>
 
 void test_sequence_learner() {
     std::cout << "================================================================================" << std::endl;
@@ -49,15 +50,19 @@ void test_sequence_learner() {
     sl.get_input().add_child(e.get_output());
     std::cout << "Complete" << std::endl;
     std::cout << std::endl;
-
+    
     std::cout << "SequenceLearner Running Scenario" << std::endl;
     std::cout << "--------------------------------" << std::endl;
+    auto t0 = std::chrono::high_resolution_clock::now();
     for (uint32_t i = 0; i < 30; i++) {
         e.compute(values[i]);
         sl.compute(true);
         scores[i] = sl.get_score();
     }
-    std::cout << "Complete" << std::endl;
+    auto t1 = std::chrono::high_resolution_clock::now();
+    double t = std::chrono::duration_cast<std::chrono::nanoseconds >(t1 - t0).count() / 1000000000.0;
+    std::cout << "Compute time: " << t << std::endl;
+    std::cout << "Compute time per step: " << (t / 30) << std::endl;
     std::cout << std::endl;
 
     std::cout << "values, scores" << std::endl;

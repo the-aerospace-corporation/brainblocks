@@ -389,7 +389,7 @@ void SequenceLearner::activate(const uint32_t learn_flag) {
                 d_output_states.set_bit(d_next, 1);
 
                 // if next available coincidence detector is less than the number of coincidence detectors per statelet
-                if (s_next_d[s_rand] < num_dps-1) {
+                if (s_next_d[s_rand] < num_dps - 1) {
 
                     // update historical coincidence detector and statelet counters
                     // remember: both hidden and output were activated in this case
