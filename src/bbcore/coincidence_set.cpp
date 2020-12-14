@@ -67,19 +67,15 @@ void CoincidenceSet::initialize_pool(
 // Overlap
 // =============================================================================
 uint32_t CoincidenceSet::overlap(BitArray& input_ba, const uint8_t perm_thr) {
-    BitArray conns_ba(input_ba.get_num_bits());
-    
-    // loop through each receptor
-    for (uint32_t r = 0; r < addrs.size(); r++) {
+    uint32_t overlap = 0;
 
-        // if receptor permanence is above the threshold then set the connection
-        if (perms[r] >= perm_thr) {
-            conns_ba.set_bit(addrs[r], 1);
+    for (uint32_t r = 0; r < addrs.size(); r++) {
+        if (perms[r] >= perm_thr && input_ba.get_bit(addrs[r])) {
+            overlap++;
         }
     }
 
-    BitArray overlap_ba = conns_ba & input_ba;
-    return overlap_ba.count();
+    return overlap;
 }
 
 // =============================================================================
