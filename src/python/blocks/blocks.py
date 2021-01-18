@@ -1,18 +1,13 @@
 import brainblocks.bb_backend as bb
 import numpy as np
 
-# seed for deterministic random generator
-#bb.seed(0)
-
 # ==============================================================================
 # BitArray
 # ==============================================================================
 class BitArray():
+
     def __init__(self, bitarray_obj):
         self.obj = bitarray_obj
-
-    def print_info(self):
-        self.obj.print_info()
 
     def set_bits(self, new_bits=[]):
         self.obj.set_bits(new_bits)
@@ -38,488 +33,495 @@ class BitArray():
     acts = property(get_acts, set_acts, None, "Read/Write Acts")
 
 # ==============================================================================
-# Page
+# BlockInput
 # ==============================================================================
-class Page():
-    def __init__(self, page_obj):
-        self.obj = page_obj
+class BlockInput():
 
-    def __getitem__(self, t):
-        return BitArray(self.obj[t])
+    def __init__(self, block_input_obj):
+        self.obj = block_input_obj
 
-    def print_info(self):
-        self.obj.print_info()
-
-    def add_child(self, child_page):
-        self.obj.add_child(child_page.obj)
-
-    #def get_child(self, child_index):
-    #    return Page(self.obj.get_child(child_index))
-
-    @property
-    def num_bitarrays(self):
-        return self.obj.num_bitarrays
+    def add_child(self, src, t=0):
+        self.obj.add_child(src.obj, t)
 
     @property
     def num_children(self):
         return self.obj.num_children
 
-    # alias bits/acts access to the 0'th history index
+    @property
+    def state(self):
+        return BitArray(self.obj.state)
+
     @property
     def bits(self):
-        return BitArray(self.obj[0]).bits
+        return BitArray(self.obj.state).bits
 
     @bits.setter
-    def bits(self, new_bits):
-        BitArray(self.obj[0]).bits = new_bits
+    def bits(self, new_bits=[]):
+        BitArray(self.obj.state).bits = new_bits
 
     @property
     def acts(self):
-        return BitArray(self.obj[0]).acts
+        return BitArray(self.obj.state).acts
 
     @acts.setter
-    def acts(self, new_acts):
-        BitArray(self.obj[0]).acts = new_acts
+    def acts(self, new_acts=[]):
+        BitArray(self.obj.state).acts = new_acts
+
+    @property
+    def num_bits(self):
+        return BitArray(self.obj.state).num_bits
+
+    @property
+    def num_words(self):
+        return BitArray(self.obj.state).num_words
 
 # ==============================================================================
-# CoincidenceSet
+# BlockMemory
 # ==============================================================================
-class CoincidenceSet():
-    def __init__(self, coincidence_set_obj):
-        self.obj = coincidence_set_obj
+class BlockMemory():
 
-    def get_addr(self, r):
-        return self.obj.get_addr(r)
+    def __init__(self, block_memory_obj):
+        self.obj = block_memory_obj
 
-    def get_perm(self, r):
-        return self.obj.get_perm(r)
+    def addrs(self, d):
+        return self.obj.addrs(d)
 
-    def get_addrs(self):
-        return self.obj.get_addrs()
+    def perms(self, d):
+        return self.obj.perms(d)
 
-    def get_perms(self):
-        return self.obj.get_perms()
+    def conns(self, d):
+        return self.obj.conns(d)
 
-    #def get_bits(self):
-    #    return self.obj.get_bits()
+# ==============================================================================
+# BlockOutput
+# ==============================================================================
+class BlockOutput():
 
-    #def get_acts(self):
-    #    return self.obj.get_acts()
+    def __init__(self, block_output_obj):
+        self.obj = block_output_obj
 
-    #bits = property(get_bits, None, None, "Read Bits")
-    #acts = property(get_acts, None, None, "Read Acts")
+    def __getitem__(self, t):
+        return BitArray(self.obj.get_bitarray(t))
+
+    @property
+    def num_t(self):
+        return self.obj.num_t
+
+    @property
+    def state(self):
+        return BitArray(self.obj.state)
+
+    @property
+    def bits(self):
+        return BitArray(self.obj.state).bits
+
+    @bits.setter
+    def bits(self, new_bits=[]):
+        BitArray(self.obj.state).bits = new_bits
+
+    @property
+    def acts(self):
+        return BitArray(self.obj.state).acts
+
+    @acts.setter
+    def acts(self, new_acts=[]):
+        BitArray(self.obj.state).acts = new_acts
+
+    @property
+    def num_bits(self):
+        return BitArray(self.obj.state).num_bits
+
+    @property
+    def num_words(self):
+        return BitArray(self.obj.state).num_words
 
 # ==============================================================================
 # BlankBlock
 # ==============================================================================
 class BlankBlock():
+
     def __init__(
             self,
-            num_s=1024): # number of statelets
+            num_s=512, # number of statelets
+            num_t=2):  # number of BlockOutput time steps (optional)
 
-        self.obj = bb.BlankBlock(num_s)
+        self.obj = bb.BlankBlock(num_s, num_t)
 
-    def clear_states(self):
-        self.obj.clear_states()
+    def feedforward(self, learn_flag=False):
+        self.obj.feedforward(learn_flag)
 
     @property
     def output(self):
-        return Page(self.obj.output)
-
-# ==============================================================================
-# ScalarEncoder
-# ==============================================================================
-class ScalarEncoder():
-    def __init__(
-            self,
-            min_val=-1.0, # minimum input value
-            max_val=1.0,  # maximum input value
-            num_s=1024,   # number of statelets
-            num_as=128):  # number of active statelets
-
-        self.obj = bb.ScalarEncoder(min_val, max_val, num_s, num_as)
-
-    def initialize(self):
-        self.obj.initialize()
-
-    def clear_states(self):
-        self.obj.clear_states()
-
-    def compute(self, value):
-        if value != None:
-            self.obj.compute(value)
-
-    @property
-    def output(self):
-        return Page(self.obj.output)
-
-# ==============================================================================
-# SymbolsEncoder
-# ==============================================================================
-class SymbolsEncoder():
-    def __init__(
-            self,
-            max_symbols=8, # maximum number of symbols
-            num_s=1024):   # number of statelets
-
-        self.obj = bb.SymbolsEncoder(max_symbols, num_s)
-
-    def initialize(self):
-        self.obj.initialize()
-
-    def clear_states(self):
-        self.obj.clear_states()
-
-    def compute(self, value):
-        if value != None:
-            self.obj.compute(value)
-
-    def get_symbols(self):
-        return self.obj.get_symbols()
-
-    @property
-    def output(self):
-        return Page(self.obj.output)
-
-# ==============================================================================
-# PersistenceEncoder
-# ==============================================================================
-class PersistenceEncoder():
-    def __init__(
-            self,
-            min_val=-1.0,   # minimum input value
-            max_val=1.0,    # maximum input value
-            num_s=1024,     # number of statelets
-            num_as=128,     # number of active statelets
-            max_steps=100): # maximum number of persistence steps
-
-        self.obj = bb.PersistenceEncoder(min_val, max_val, num_s, num_as, max_steps)
-
-    def initialize(self):
-        self.obj.initialize()
-
-    def clear_states(self):
-        self.obj.clear()
-
-    def compute(self, value):
-        if value != None:
-            self.obj.compute(value)
-
-    @property
-    def output(self):
-        return Page(self.obj.output)
-
-# ==============================================================================
-# PatternClassifier
-# ==============================================================================
-class PatternClassifier():
-    def __init__(
-            self,
-            labels=(0,1),    # user-defined labels
-            num_s=512,       # number of statelets
-            num_as=8,        # number of active statelets
-            perm_thr=20,     # receptor permanence threshold
-            perm_inc=2,      # receptor permanence increment
-            perm_dec=1,      # receptor permanence decrement
-            pct_pool=0.8,    # pooling percentage
-            pct_conn=0.5,    # initially connected percentage
-            pct_learn=0.25,  # learn percentage
-            random_state=0): # random state integer
-
-        #if isinstance(random_state,int): # TODO: fix seeding
-            #bb.seed(random_state)
-
-        self.obj = bb.PatternClassifier(
-            labels, num_s, num_as,
-            perm_thr, perm_inc, perm_dec,
-            pct_pool, pct_conn, pct_learn)
-
-    def initialize(self):
-        self.obj.initialize()
-
-    def save(self, file_str='./pc.bin'):
-        self.obj.save(file_str.encode('utf-8'))
-
-    def load(self, file_str='./pc.bin'):
-        self.obj.load(file_str.encode('utf-8'))
-
-    def clear_states(self):
-        self.obj.clear_states()
-
-    def compute(self, label=None, learn=False):
-        if learn:
-            if label is None:
-                raise ("Label required for PatternClassifier when learn=True")
-
-            if not np.issubdtype(type(label), np.integer):
-                raise ("Label must be of type integer for PatternClassifier")
-
-            self.obj.compute(label, 1)
-
-        else:
-            self.obj.compute(0, 0)
-
-    def get_labels(self):
-        return self.obj.get_labels()
-
-    def get_probabilities(self):
-        return self.obj.get_probabilities()
-
-    def output_coincidence_set(self, d):
-        return CoincidenceSet(self.obj.output_coincidence_set(d))
-
-    @property
-    def input(self):
-        return Page(self.obj.input)
-
-    @property
-    def output(self):
-        return Page(self.obj.output)
-
-# ==============================================================================
-# PatternClassifierDynamic
-# ==============================================================================
-class PatternClassifierDynamic():
-    def __init__(
-            self,
-            num_s=512,       # number of statelets
-            num_as=8,        # number of active statelets
-            num_spl=32,      # number of statelets per label
-            perm_thr=20,     # receptor permanence threshold
-            perm_inc=2,      # receptor permanence increment
-            perm_dec=1,      # receptor permanence decrement
-            pct_pool=0.8,    # pooling percentage
-            pct_conn=0.5,    # initially connected percentage
-            pct_learn=0.25,  # learn percentage
-            random_state=0): # random state integer
-
-        #if isinstance(random_state,int): # TODO: fix seeding
-            #bb.seed(random_state)
-
-        self.obj = bb.PatternClassifierDynamic(
-            num_s, num_as, num_spl,
-            perm_thr, perm_inc, perm_dec,
-            pct_pool, pct_conn, pct_learn)
-
-    def initialize(self):
-        self.obj.initialize()
-
-    def save(self, file_str='./pc.bin'):
-        self.obj.save(file_str.encode('utf-8'))
-
-    def load(self, file_str='./pc.bin'):
-        self.obj.load(file_str.encode('utf-8'))
-
-    def clear_states(self):
-        self.obj.clear_states()
-
-    def compute(self, label=None, learn=False):
-        if learn:
-            if label is None:
-                raise ("Label required for PatternClassifier when learn=True")
-
-            if not np.issubdtype(type(label), np.integer):
-                raise ("Label must be of type integer for PatternClassifier")
-
-            self.obj.compute(label, 1)
-
-        else:
-            self.obj.compute(0, 0)
-
-    def get_labels(self):
-        return self.obj.get_labels()
-
-    def get_probabilities(self):
-        return self.obj.get_probabilities()
-
-    def get_score(self):
-        return self.obj.get_score()
-
-    def output_coincidence_set(self, d):
-        return CoincidenceSet(self.obj.output_coincidence_set(d))
-
-    @property
-    def input(self):
-        return Page(self.obj.input)
-
-    @property
-    def output(self):
-        return Page(self.obj.output)
-
-# ==============================================================================
-# PatternPooler
-# ==============================================================================
-class PatternPooler():
-    def __init__(
-            self,
-            num_s=512,       # number of statelets
-            num_as=8,        # number of active statelets
-            perm_thr=20,     # receptor permanence threshold
-            perm_inc=2,      # receptor permanence increment
-            perm_dec=1,      # receptor permanence decrement
-            pct_pool=0.8,    # pooling percentage
-            pct_conn=0.5,    # initially connected percentage
-            pct_learn=0.25,  # learn percentage
-            random_state=0): # random state integer
-
-        #if isinstance(random_state,int): # TODO: fix seeding
-        #    bb.seed(random_state)
-
-        self.obj = bb.PatternPooler(
-            num_s, num_as, 
-            perm_thr, perm_inc, perm_dec,
-            pct_pool, pct_conn, pct_learn)
-
-    def initialize(self):
-        self.obj.initialize()
-
-    def save(self, file_str='./pl.bin'):
-        self.obj.save(file_str.encode('utf-8'))
-
-    def load(self, file_str='./pl.bin'):
-        self.obj.load(file_str.encode('utf-8'))
-
-    def clear_states(self):
-        self.obj.clear()
-
-    def compute(self, learn=True):
-        self.obj.compute(learn)
-
-    def output_coincidence_set(self, d):
-        return CoincidenceSet(self.obj.output_coincidence_set(d))
-
-    @property
-    def input(self):
-        return Page(self.obj.input)
-
-    @property
-    def output(self):
-        return Page(self.obj.output)
-
-# ==============================================================================
-# SequenceLearner
-# ==============================================================================
-class SequenceLearner():
-    def __init__(
-            self,
-            num_spc=10,      # number of statelets per column
-            num_dps=10,      # number of coincidence detectors per statelet
-            num_rpd=12,      # number of receptors per coincidence detector
-            d_thresh=6,      # coincidence detector threshold
-            perm_thr=20,     # receptor permanence threshold
-            perm_inc=2,      # receptor permanence increment
-            perm_dec=1,      # receptor permanence decrement
-            random_state=0): # random state integer
-
-        #if isinstance(random_state,int): # TODO: fix seeding
-        #    bb.seed(random_state)
-
-        self.obj = bb.SequenceLearner(
-            num_spc, num_dps, num_rpd, d_thresh,
-            perm_thr, perm_inc, perm_dec)
-
-    def initialize(self):
-        self.obj.initialize()
-
-    def save(self, file_str='./obj.bin'):
-        self.obj.save(file_str.encode('utf-8'))
-
-    def load(self, file_str='./obj.bin'):
-        self.obj.load(file_str.encode('utf-8'))
-
-    def clear_states(self):
-        self.obj.clear_states()
-
-    def compute(self, learn=True):
-        self.obj.compute(learn)
-
-    def get_score(self):
-        return self.obj.get_score()
-
-    #def get_historical_count(self):
-    #    return self.obj.get_historical_count()
-
-    #def get_coincidence_set_count(self):
-    #    return self.obj.get_coincidence_set_count()
-
-    #def get_historical_statelets(self):
-    #    return self.obj.get_historical_statelets()
-
-    #def get_num_coincidence_sets_per_statelet(self):
-    #    return self.obj.get_num_coincidence_sets_per_statelet()
-
-    #def print_column(self, c):
-    #    self.obj.print_column(c)
-
-    def hidden_coincidence_set(self, d):
-        return CoincidenceSet(self.obj.hidden_coincidence_set(d))
-
-    def output_coincidence_set(self, d):
-        return CoincidenceSet(self.obj.output_coincidence_set(d))
-
-    @property
-    def input(self):
-        return Page(self.obj.input)
-
-    @property
-    def hidden(self):
-        return Page(self.obj.hidden)
-
-    @property
-    def output(self):
-        return Page(self.obj.output)
+        return BlockOutput(self.obj.output)
 
 # ==============================================================================
 # ContextLearner
 # ==============================================================================
 class ContextLearner():
+
     def __init__(
             self,
-            num_spc=10,      # number of statelets per column
-            num_dps=10,      # number of coincidence detectors per statelet
-            num_rpd=12,      # number of receptors per coincidence detector
-            d_thresh=6,      # coincidence detector threshold
-            perm_thr=20,     # receptor permanence threshold
-            perm_inc=2,      # receptor permanence increment
-            perm_dec=1,      # receptor permanence decrement
-            random_state=0): # random state integer
-
-        #if isinstance(random_state,int): # TODO: fix seeding
-        #    bb.seed(random_state)
+            num_c=512,   # number of columns
+            num_spc=10,  # number of statelets per column
+            num_dps=10,  # number of coincidence detectors per statelet
+            num_rpd=12,  # number of receptors per coincidence detector
+            d_thresh=6,  # coincidence detector threshold
+            perm_thr=20, # receptor permanence threshold
+            perm_inc=2,  # receptor permanence increment
+            perm_dec=1,  # receptor permanence decrement
+            num_t=2,     # number of BlockOutput time steps (optional)
+            seed=0):     # seed for random number generator
 
         self.obj = bb.ContextLearner(
-            num_spc, num_dps, num_rpd, d_thresh,
-            perm_thr, perm_inc, perm_dec)
+            num_c, num_spc, num_dps, num_rpd, d_thresh, perm_thr, perm_inc,
+            perm_dec, num_t, seed)
 
-    def initialize(self):
-        self.obj.initialize()
+    def init(self):
+        self.obj.init()
 
-    def save(self, file_str='./obj.bin'):
-        self.obj.save(file_str.encode('utf-8'))
+    def save(self, file='./file.bin'):
+        self.obj.save(file.encode('utf-8'))
 
-    def load(self, file_str='./obj.bin'):
-        self.obj.load(file_str.encode('utf-8'))
+    def load(self, file='./file.bin'):
+        self.obj.load(file.encode('utf-8'))
 
-    def clear_states(self):
-        self.obj.clear_states()
+    def clear(self):
+        self.obj.clear()
 
-    def compute(self, learn=True):
-        self.obj.compute(learn)
+    def feedforward(self, learn=False):
+        self.obj.feedforward(learn)
 
-    def get_score(self):
-        return self.obj.get_score()
-
-    def output_coincidence_set(self, d):
-        return CoincidenceSet(self.obj.output_coincidence_set(d))
+    def get_anomaly_score(self):
+        return self.obj.get_anomaly_score()
 
     @property
     def input(self):
-        return Page(self.obj.input)
+        return BlockInput(self.obj.input)
 
     @property
     def context(self):
-        return Page(self.obj.context)
+        return BlockInput(self.obj.context)
 
     @property
     def output(self):
-        return Page(self.obj.output)
+        return BlockOutput(self.obj.output)
+
+    @property
+    def memory(self):
+        return BlockMemory(self.obj.memory)
+
+# ==============================================================================
+# LabelTransformer
+# ==============================================================================
+class LabelTransformer():
+    def __init__(
+            self,
+            num_l=8,   # number of labels
+            num_s=512, # number of statelets
+            num_t=2):  # number of BlockOutput time states (optional)
+
+        self.obj = bb.LabelTransformer(num_l, num_s, num_t)
+
+    def clear(self):
+        self.obj.clear()
+
+    def feedforward(self):
+        self.obj.feedforward()
+
+    def set_value(self, value):
+        self.obj.set_value(value)
+
+    def get_value(self):
+        return self.obj.get_value()
+
+    @property
+    def output(self):
+        return BlockOutput(self.obj.output)
+
+# ==============================================================================
+# PatternClassifier
+# ==============================================================================
+class PatternClassifier():
+
+    def __init__(
+            self,
+            num_l,         # number of labels
+            num_s=512,     # number of statelets
+            num_as=8,      # number of active statelets
+            perm_thr=20,   # receptor permanence threshold
+            perm_inc=2,    # receptor permanence increment
+            perm_dec=1,    # receptor permanence decrement
+            pct_pool=0.8,  # pooling percentage
+            pct_conn=0.5,  # initially connected percentage
+            pct_learn=0.3, # learn percentage
+            num_t=2,       # number of BlockOutput time steps (optional)
+            seed=0):       # seed for random number generator
+
+        self.obj = bb.PatternClassifier(
+            num_l, num_s, num_as, perm_thr, perm_inc, perm_dec, pct_pool,
+            pct_conn, pct_learn, num_t, seed)
+
+    def init(self):
+        self.obj.init()
+
+    def save(self, file='./file.bin'):
+        self.obj.save(file.encode('utf-8'))
+
+    def load(self, file='./file.bin'):
+        self.obj.load(file.encode('utf-8'))
+
+    def clear(self):
+        self.obj.clear()
+
+    def feedforward(self, learn=False):
+        self.obj.feedforward(learn)
+
+    def set_label(self, label):
+        self.obj.set_label(label)
+
+    def get_labels(self):
+        return self.obj.get_labels()
+
+    def get_probabilities(self):
+        return self.obj.get_probabilities()
+
+    @property
+    def input(self):
+        return BlockInput(self.obj.input)
+
+    @property
+    def output(self):
+        return BlockOutput(self.obj.output)
+
+    @property
+    def memory(self):
+        return BlockMemory(self.obj.memory)
+
+# ==============================================================================
+# PatternClassifierDynamic
+# ==============================================================================
+class PatternClassifierDynamic():
+
+    def __init__(
+            self,
+            num_s=512,     # number of statelets
+            num_as=8,      # number of active statelets
+            num_spl=32,    # number of statelets per label
+            perm_thr=20,   # receptor permanence threshold
+            perm_inc=2,    # receptor permanence increment
+            perm_dec=1,    # receptor permanence decrement
+            pct_pool=0.8,  # pooling percentage
+            pct_conn=0.5,  # initially connected percentage
+            pct_learn=0.3, # learn percentage
+            num_t=2,       # number of BlockOutput time steps (optional)
+            seed=0):       # seed for random number generator
+
+        self.obj = bb.PatternClassifierDynamic(
+            num_s, num_as, num_spl, perm_thr, perm_inc, perm_dec, pct_pool,
+            pct_conn, pct_learn, num_t, seed)
+
+    def init(self):
+        self.obj.init()
+
+    def save(self, file='./file.bin'):
+        self.obj.save(file.encode('utf-8'))
+
+    def load(self, file='./file.bin'):
+        self.obj.load(file.encode('utf-8'))
+
+    def clear(self):
+        self.obj.clear()
+
+    def feedforward(self, learn=False):
+        self.obj.feedforward(learn)
+
+    def set_label(self, label):
+        self.obj.set_label(label)
+
+    def get_labels(self):
+        return self.obj.get_labels()
+
+    def get_probabilities(self):
+        return self.obj.get_probabilities()
+
+    @property
+    def input(self):
+        return BlockInput(self.obj.input)
+
+    @property
+    def output(self):
+        return BlockOutput(self.obj.output)
+
+    @property
+    def memory(self):
+        return BlockMemory(self.obj.memory)
+
+# ==============================================================================
+# PatternPooler
+# ==============================================================================
+class PatternPooler():
+
+    def __init__(
+            self,
+            num_s=512,     # number of statelets
+            num_as=8,      # number of active statelets
+            perm_thr=20,   # receptor permanence threshold
+            perm_inc=2,    # receptor permanence increment
+            perm_dec=1,    # receptor permanence decrement
+            pct_pool=0.8,  # percent pooled
+            pct_conn=0.5,  # percent initially connected
+            pct_learn=0.3, # percent learn
+            num_t=2,       # number of BlockOutput time steps (optional)
+            seed=0):       # seed for random number generator
+
+        self.obj = bb.PatternPooler(
+            num_s, num_as, perm_thr, perm_inc, perm_dec, pct_pool, pct_conn,
+            pct_learn, num_t, seed)
+
+    def init(self):
+        self.obj.init()
+
+    def save(self, file='./file.bin'):
+        self.obj.save(file.encode('utf-8'))
+
+    def load(self, file='./file.bin'):
+        self.obj.load(file.encode('utf-8'))
+
+    def clear(self):
+        self.obj.clear()
+
+    def feedforward(self, learn=False):
+        self.obj.feedforward(learn)
+
+    @property
+    def input(self):
+        return BlockInput(self.obj.input)
+
+    @property
+    def output(self):
+        return BlockOutput(self.obj.output)
+
+    @property
+    def memory(self):
+        return BlockMemory(self.obj.memory)
+
+# ==============================================================================
+# PersistenceTransformer
+# ==============================================================================
+class PersistenceTransformer():
+
+    def __init__(
+            self,
+            min_val=-1.0, # minimum input value
+            max_val=1.0,  # maximum input value
+            num_s=512,    # number of statelets
+            num_as=64,    # number of active statelets
+            max_step=10,  # maximum number of persistence steps
+            num_t=2):     # number of BlockOutput time steps (optional)
+
+        self.obj = bb.PersistenceTransformer(
+            min_val, max_val, num_s, num_as, max_step, num_t)
+
+    def clear(self):
+        self.obj.clear()
+
+    def feedforward(self):
+        self.obj.feedforward()
+
+    def set_value(self, value):
+        self.obj.set_value(value)
+
+    def get_value(self):
+        return self.obj.get_value()
+
+    @property
+    def output(self):
+        return BlockOutput(self.obj.output)
+
+# ==============================================================================
+# ScalarTransformer
+# ==============================================================================
+class ScalarTransformer():
+
+    def __init__(
+            self,
+            min_val=-1.0, # minimum input value
+            max_val=1.0,  # maximum input value
+            num_s=512,    # number of statelets
+            num_as=64,    # number of active statelets
+            num_t=2):     # number of BlockOutput time steps (optional)
+
+        self.obj = bb.ScalarTransformer(
+            min_val, max_val, num_s, num_as, num_t)
+
+    def clear(self):
+        self.obj.clear()
+
+    def feedforward(self):
+        self.obj.feedforward()
+
+    def set_value(self, value):
+        self.obj.set_value(value)
+
+    def get_value(self):
+        return self.obj.get_value()
+
+    @property
+    def output(self):
+        return BlockOutput(self.obj.output)
+
+# ==============================================================================
+# SequenceLearner
+# ==============================================================================
+class SequenceLearner():
+
+    def __init__(
+            self,
+            num_c=512,   # number of columns
+            num_spc=10,  # number of statelets per column
+            num_dps=10,  # number of coincidence detectors per statelet
+            num_rpd=12,  # number of receptors per coincidence detector
+            d_thresh=6,  # coincidence detector threshold
+            perm_thr=20, # receptor permanence threshold
+            perm_inc=2,  # receptor permanence increment
+            perm_dec=1,  # receptor permanence decrement
+            num_t=2,     # number of BlockOutput time steps (optional)
+            seed=0):     # seed for random number generator
+
+        self.obj = bb.SequenceLearner(
+            num_c, num_spc, num_dps, num_rpd, d_thresh, perm_thr, perm_inc,
+            perm_dec, num_t, seed)
+
+    def init(self):
+        self.obj.init()
+
+    def save(self, file='./file.bin'):
+        self.obj.save(file.encode('utf-8'))
+
+    def load(self, file='./file.bin'):
+        self.obj.load(file.encode('utf-8'))
+
+    def clear(self):
+        self.obj.clear()
+
+    def feedforward(self, learn=False):
+        self.obj.feedforward(learn)
+
+    def get_anomaly_score(self):
+        return self.obj.get_anomaly_score()
+
+    @property
+    def input(self):
+        return BlockInput(self.obj.input)
+
+    @property
+    def context(self):
+        return BlockInput(self.obj.context)
+
+    @property
+    def output(self):
+        return BlockOutput(self.obj.output)
+
+    @property
+    def memory(self):
+        return BlockMemory(self.obj.memory)

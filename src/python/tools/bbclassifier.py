@@ -1,3 +1,6 @@
+# ==============================================================================
+# bbclassifier.py
+# ==============================================================================
 import numpy as np
 import time
 import warnings
@@ -9,7 +12,6 @@ from sklearn.exceptions import DataConversionWarning
 from brainblocks.blocks import PatternClassifier, BlankBlock
 from brainblocks.tools import HyperGridTransform
 
-
 class BBClassifier:
     def __init__(self,
                  # Training Arguments
@@ -17,11 +19,13 @@ class BBClassifier:
                  use_undefined_class=False,
 
                  # Distributed Pattern Classifier Arguments
-                 num_s=512,      # number of statelets
-                 num_as=8,       # number of active statelets
-                 pct_pool=0.8,   # pool percentage
-                 pct_conn=0.8,   # initial connection percentage
-                 pct_learn=0.25, # learn percentage
+                 num_l=2,       # number of labels
+                 num_s=512,     # number of statelets
+                 num_as=8,      # number of active statelets
+                 pct_pool=0.8,  # percent pooled
+                 pct_conn=0.8,  # percent initially connected
+                 pct_learn=0.3, # percent learn
+                 seed=0,
 
                  # HyperGrid Transform Arguments
                  num_bins=4,
@@ -120,18 +124,22 @@ class BBClassifier:
         self.classes_ = np.array([])
         self.outputs_2d_ = False
 
-        self.dpc_config = dict(labels=[], num_s=num_s, num_as=num_as,
-                               perm_thr=20, perm_inc=2, perm_dec=1,
-                               pct_pool=pct_pool, pct_conn=pct_conn, pct_learn=pct_learn,
-                               random_state=random_state)
+        self.dpc_config = dict(
+            num_l=num_l, num_s=num_s, num_as=num_as, perm_thr=20, perm_inc=2,
+            perm_dec=1, pct_pool=pct_pool, pct_conn=pct_conn,
+            pct_learn=pct_learn, num_t=2, seed=seed)
 
-        self.hgt_config = dict(num_grids=num_grids, num_bins=num_bins, num_acts=num_acts, num_subspace_dims=num_subspace_dims,
-                               origin=origin, num_input_dims=num_input_dims, max_period=max_period, min_period=min_period,
-                               use_normal_dist_bases=use_normal_dist_bases,
-                               use_standard_bases=use_standard_bases, use_orthogonal_bases=use_orthogonal_bases,
-                               use_evenly_spaced_periods=use_evenly_spaced_periods,
-                               use_random_uniform_periods=use_random_uniform_periods,
-                               set_bases=set_bases, set_periods=set_periods, random_state=random_state, flatten_output=True)
+        self.hgt_config = dict(
+            num_grids=num_grids, num_bins=num_bins, num_acts=num_acts,
+            num_subspace_dims=num_subspace_dims, origin=origin,
+            num_input_dims=num_input_dims, max_period=max_period,
+            min_period=min_period, use_normal_dist_bases=use_normal_dist_bases,
+            use_standard_bases=use_standard_bases,
+            use_orthogonal_bases=use_orthogonal_bases,
+            use_evenly_spaced_periods=use_evenly_spaced_periods,
+            use_random_uniform_periods=use_random_uniform_periods,
+            set_bases=set_bases, set_periods=set_periods,
+            random_state=random_state, flatten_output=True)
 
     def __del__(self):
         pass
@@ -201,7 +209,7 @@ class BBClassifier:
             #print("with undefined class:", self.classes_)
 
         # update labels in DPC config
-        self.dpc_config['labels'] = self.classes_
+        self.dpc_config['num_l'] = len(self.classes_)
 
         #print("classes_:", self.classes_)
         #print("self._y:", self._y)
@@ -234,7 +242,7 @@ class BBClassifier:
         #self.dpc.print_parameters()
 
         # connect blocks together
-        self.dpc.input.add_child(self.blankBlock.output)
+        self.dpc.input.add_child(self.blankBlock.output, 0)
 
         # Train Network
         probs = self._fit(X_new, self._y)
@@ -371,8 +379,10 @@ class BBClassifier:
                 input = X[k, :]
                 target = y[k]
 
-                self.blankBlock.output[0].bits = input # set current output bits
-                self.dpc.compute(target, learn=True)
+                self.blankBlock.output.bits = input
+                self.blankBlock.feedforward()
+                self.dpc.set_label(target)
+                self.dpc.feedforward(learn=True)
 
                 curr_prob = self.dpc.get_probabilities()
                 epoch_probs.append(curr_prob)
@@ -394,8 +404,9 @@ class BBClassifier:
         for k in range(X.shape[0]):
             input = X[k, :]
 
-            self.blankBlock.output[0].bits = input # set current output bits
-            self.dpc.compute(None, learn=False)
+            self.blankBlock.output.bits = input
+            self.blankBlock.feedforward()
+            self.dpc.feedforward(learn=False)
 
             curr_prob = self.dpc.get_probabilities()
             probabilities.append(curr_prob)
@@ -452,4 +463,3 @@ if __name__ == "__main__":
 
     #print("input=%0.1f, prob(a)=%f, prob(b)=%f" % (TESTS[0], probs[0][0], probs[0][1]))
     #print("input=%0.1f, prob(a)=%f, prob(b)=%f" % (TESTS[1], probs[1][0], probs[1][1]))
-

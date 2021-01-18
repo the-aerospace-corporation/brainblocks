@@ -1,8 +1,11 @@
+# Required
 setuptools
 wheel
 numpy
+pytest
+
+# Optional
 scipy
 sklearn
-pytest
 pandas
 matplotlib
