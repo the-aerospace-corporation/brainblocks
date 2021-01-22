@@ -338,6 +338,9 @@ class PatternClassifierDynamic():
     def set_label(self, label):
         self.obj.set_label(label)
 
+    def get_anomaly_score(self):
+        return self.obj.get_anomaly_score()
+
     def get_labels(self):
         return self.obj.get_labels()
 

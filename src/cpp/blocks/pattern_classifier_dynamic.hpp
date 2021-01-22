@@ -49,6 +49,7 @@ public:
     void set_label(const uint32_t label) { this->label = label; };
 
     // Getters
+    double get_anomaly_score() { return pct_anom; };
     std::vector<uint32_t> get_labels() { return labels; };
     std::vector<double> get_probabilities();
 

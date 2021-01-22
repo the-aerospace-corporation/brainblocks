@@ -297,7 +297,8 @@ std::vector<double> PatternClassifierDynamic::get_probabilities() {
     // Update probabilities
     if (total_count > 0)
         for (uint32_t l = 0; l < num_l; l++)
-            probs[l] = (double)counts[l] / (double)total_count;
+            //probs[l] = (double)counts[l] / (double)total_count;
+            probs[l] = (double)counts[l] / (double)num_as;
 
     return probs;
 }

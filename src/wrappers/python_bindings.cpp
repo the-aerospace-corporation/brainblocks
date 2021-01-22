@@ -328,6 +328,9 @@ PYBIND11_MODULE(bb_backend, m) {
         .def("set_label", &PatternClassifierDynamic::set_label, "label"_a,
              "Sets label")
 
+        .def("get_anomaly_score", &PatternClassifierDynamic::get_anomaly_score,
+             "Returns anomaly score")
+
         .def("get_labels", &PatternClassifierDynamic::get_labels,
              "Returns array of stored labels")
 
