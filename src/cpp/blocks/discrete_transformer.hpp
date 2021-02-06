@@ -1,5 +1,5 @@
 // =============================================================================
-// label_transformer.hpp
+// discrete_transformer.hpp
 // =============================================================================
 #ifndef LABEL_TRANSFORMER_HPP
 #define LABEL_TRANSFORMER_HPP
@@ -9,12 +9,12 @@
 
 namespace BrainBlocks {
 
-class LabelTransformer final : public Block {
+class DiscreteTransformer final : public Block {
 
 public:
 
     // Constructor
-    LabelTransformer(
+    DiscreteTransformer(
         const uint32_t num_l,
         const uint32_t num_s,
         const uint32_t num_t=2);

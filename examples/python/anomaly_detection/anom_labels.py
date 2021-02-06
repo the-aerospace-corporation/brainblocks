@@ -1,7 +1,7 @@
 # ==============================================================================
 # anom_labels.py
 # ==============================================================================
-from brainblocks.blocks import LabelTransformer, SequenceLearner
+from brainblocks.blocks import DiscreteTransformer, SequenceLearner
 from sklearn import preprocessing
 
 values = [
@@ -17,7 +17,7 @@ le.fit(values)
 labels = le.transform(values)
 
 # Setup blocks
-lt = LabelTransformer(
+lt = DiscreteTransformer(
     num_l=26,  # number of labels
     num_s=208) # number of statelets
 

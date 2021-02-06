@@ -1,7 +1,7 @@
 # ==============================================================================
 # anom_reset_sequence.py
 # ==============================================================================
-from brainblocks.blocks import LabelTransformer, SequenceLearner
+from brainblocks.blocks import DiscreteTransformer, SequenceLearner
 from sklearn import preprocessing
 
 # Example showing the use of reset function for sequence learning. Useful when
@@ -27,7 +27,7 @@ le.fit(values)
 labels = le.transform(values)
 
 # define blocks
-lt = LabelTransformer(
+lt = DiscreteTransformer(
     num_l=26,  # number of labels
     num_s=208) # number of statelets
 

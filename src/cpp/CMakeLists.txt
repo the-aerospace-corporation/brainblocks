@@ -10,7 +10,7 @@ set(SOURCE_FILES
     block_output.cpp
     blocks/blank_block.cpp
     blocks/context_learner.cpp
-    blocks/label_transformer.cpp
+    blocks/discrete_transformer.cpp
     blocks/pattern_classifier.cpp
     blocks/pattern_classifier_dynamic.cpp
     blocks/pattern_pooler.cpp

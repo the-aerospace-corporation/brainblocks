@@ -145,11 +145,11 @@ def test_read_memories():
 # ==============================================================================
 def test_context_learner():
 
-    lt0 = LabelTransformer(
+    lt0 = DiscreteTransformer(
         num_l=8,  # number of labels
         num_s=64) # number of statelets
 
-    lt1 = LabelTransformer(
+    lt1 = DiscreteTransformer(
         num_l=8,  # number of labels
         num_s=64) # number of statelets
 
@@ -178,11 +178,11 @@ def test_context_learner():
     sl.feedforward(learn=True)
 
 # ==============================================================================
-# LabelTransformer
+# DiscreteTransformer
 # ==============================================================================
 def test_label_encoder():
 
-    lt = LabelTransformer(
+    lt = DiscreteTransformer(
         num_l=8,    # number of labels
         num_s=1024, # number of statelets
         num_t=2)    # number of BlockOutput time steps (optional)
@@ -248,7 +248,7 @@ def test_label_encoder():
 # ==============================================================================
 def test_pattern_classifier():
 
-    lt = LabelTransformer(
+    lt = DiscreteTransformer(
         num_l=8,    # number of labels
         num_s=1024) # number of statelets
 
@@ -300,7 +300,7 @@ def test_pattern_classifier():
 # ==============================================================================
 def test_pattern_classifier_dynamic():
 
-    lt = LabelTransformer(
+    lt = DiscreteTransformer(
         num_l=8,    # number of labels
         num_s=1024) # number of statelets
 
@@ -352,7 +352,7 @@ def test_pattern_classifier_dynamic():
 # ==============================================================================
 def test_pattern_pooler():
 
-    lt = LabelTransformer(
+    lt = DiscreteTransformer(
         num_l=8,    # number of labels
         num_s=1024) # number of statelets
 

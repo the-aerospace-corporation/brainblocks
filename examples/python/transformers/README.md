@@ -3,7 +3,7 @@
 - HyperGrid Transformer
     - `hypergrid_transformer.py`
 - Label Transformer
-    - `label_transformer.py`
+    - `discrete_transformer.py`
 - Persistence Transformer
     - `persistence_transformer.py`
 - Scalar Transformer

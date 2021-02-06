@@ -1,13 +1,13 @@
 // =============================================================================
-// label_transformer.cpp
+// discrete_transformer.cpp
 // =============================================================================
-#include "label_transformer.hpp"
+#include "discrete_transformer.hpp"
 #include <cassert>
 
 using namespace BrainBlocks;
 
 // =============================================================================
-// # LabelTransformer
+// # DiscreteTransformer
 //
 // Converts a discrete scalar value into a single binary representation.
 // =============================================================================
@@ -15,9 +15,9 @@ using namespace BrainBlocks;
 // =============================================================================
 // # Constructor
 //
-// Constructs a LabelTransformer.
+// Constructs a DiscreteTransformer.
 // =============================================================================
-LabelTransformer::LabelTransformer(
+DiscreteTransformer::DiscreteTransformer(
     const uint32_t num_l,  // number of labels
     const uint32_t num_s,  // number of statelets
     const uint32_t num_t)  // number of BlockOutput time steps (optional)
@@ -39,7 +39,7 @@ LabelTransformer::LabelTransformer(
 //
 // Clears BlockInput, BlockMemory, and BlockOutput states.
 // =============================================================================
-void LabelTransformer::clear() {
+void DiscreteTransformer::clear() {
 
     output.clear();
     value = 0;
@@ -51,7 +51,7 @@ void LabelTransformer::clear() {
 //
 // Updates BlockOutput history current index.
 // =============================================================================
-void LabelTransformer::step() {
+void DiscreteTransformer::step() {
 
     output.step();
 }
@@ -61,7 +61,7 @@ void LabelTransformer::step() {
 //
 // Converts BlockInput state(s) into BlockOutput state(s).
 // =============================================================================
-void LabelTransformer::encode() {
+void DiscreteTransformer::encode() {
 
     assert(value < num_l);
 
@@ -82,7 +82,7 @@ void LabelTransformer::encode() {
 //
 // Converts BlockOutput state(s) into BlockInput state(s).
 // =============================================================================
-void LabelTransformer::decode() {
+void DiscreteTransformer::decode() {
 
     // TODO: implement this
 }
@@ -92,7 +92,7 @@ void LabelTransformer::decode() {
 //
 // Copy BlockOutput state into current index of BlockOutput history.
 // =============================================================================
-void LabelTransformer::store() {
+void DiscreteTransformer::store() {
 
     output.store();
 }

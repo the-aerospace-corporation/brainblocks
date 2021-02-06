@@ -1,7 +1,7 @@
 // =============================================================================
-// test_label_transformer.cpp
+// test_discrete_transformer.cpp
 // =============================================================================
-#include "blocks/label_transformer.hpp"
+#include "blocks/discrete_transformer.hpp"
 #include <iostream>
 #include <chrono>
 
@@ -15,10 +15,10 @@ int main() {
 
     const uint32_t NUM_BITS = 1024;
 
-    std::cout << "LabelTransformer lt(...);" << std::endl;
+    std::cout << "DiscreteTransformer lt(...);" << std::endl;
     std::cout << "-------------------------" << std::endl;
     t0 = std::chrono::high_resolution_clock::now();
-    LabelTransformer lt(16, NUM_BITS, 3);
+    DiscreteTransformer lt(16, NUM_BITS, 3);
     t1 = std::chrono::high_resolution_clock::now();
     duration = t1 - t0;
     std::cout << "t=" << duration.count() << "s" << std::endl;

@@ -1,7 +1,7 @@
 # ==============================================================================
-# label_transformer.py
+# discrete_transformer.py
 # ==============================================================================
-from brainblocks.blocks import LabelTransformer
+from brainblocks.blocks import DiscreteTransformer
 from sklearn import preprocessing
 import numpy as np
 
@@ -19,7 +19,7 @@ le.fit(LABELS)
 int_labels = le.transform(LABELS)
 
 # create the transformer
-lt = LabelTransformer(
+lt = DiscreteTransformer(
     num_l=4,   # number of labels
     num_s=256) # number of statelets
 
