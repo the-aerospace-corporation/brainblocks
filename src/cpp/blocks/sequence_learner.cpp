@@ -82,8 +82,10 @@ SequenceLearner::SequenceLearner(
     // Setup output
     output.setup(num_t, num_s);
 
-    // Connect context to previous output
-    context.add_child(&output, PREV);
+    for ( int i = 1 ; i < num_t ; i++ ) {
+        // Connect context to previous output
+        context.add_child(&output, i);
+    }
 }
 
 // =============================================================================
