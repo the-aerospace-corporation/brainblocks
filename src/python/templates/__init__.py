@@ -1,2 +1,3 @@
-from .abnormality_detection import AbnormalityDetector
-from .classification import Classifier
+from .anomaly_detector import AnomalyDetector
+from .anomaly_detector_persist import AnomalyDetectorPersist
+from .classifier import Classifier

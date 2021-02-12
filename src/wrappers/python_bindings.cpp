@@ -1,19 +1,37 @@
+// =============================================================================
+// python_bindings.cpp
+// =============================================================================
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
-#include <vector>
-#include "wrappers/class_interfaces.hpp"
 
-// shorthand the pybind11 namespace
+#include "bitarray.hpp"
+#include "block.hpp"
+#include "block_input.hpp"
+#include "block_memory.hpp"
+#include "block_output.hpp"
+
+#include "blocks/blank_block.hpp"
+#include "blocks/context_learner.hpp"
+#include "blocks/label_transformer.hpp"
+#include "blocks/pattern_classifier.hpp"
+#include "blocks/pattern_classifier_dynamic.hpp"
+#include "blocks/pattern_pooler.hpp"
+#include "blocks/persistence_transformer.hpp"
+#include "blocks/scalar_transformer.hpp"
+#include "blocks/sequence_learner.hpp"
+
+// Shorthand the pybind11 namespace
 namespace py = pybind11;
 
-// allows us to use shorthand for adding keywords to python function definitions
+// Allows use of shorthand for adding keywords to python function definitions
 using namespace py::literals;
+
+using namespace BrainBlocks;
 
 PYBIND11_MODULE(bb_backend, m) {
     m.doc() = R"pbdoc(
         BrainBlocks Python Module
-        -----------------------
         -------------------------
 
         .. currentmodule:: bb_backend
@@ -22,9 +40,9 @@ PYBIND11_MODULE(bb_backend, m) {
            :toctree: _generate
 
            BlankBlock
-           ScalarEncoder
+           ScalarTransformer
            SymbolsEncoder
-           PersistenceEncoder
+           PersistenceTransformer
            PatternPooler
            PatternClassifier
            SequenceLearner
@@ -32,108 +50,439 @@ PYBIND11_MODULE(bb_backend, m) {
     )pbdoc";
 
     // seed
-    m.def("seed", &seed);
+    //m.def("seed", &seed);
 
-    // Page
-    py::class_<PageClass>(m, "Page")
-        .def("add_child", &PageClass::add_child, "Add a child page to this parent page", "child"_a)
-        .def("get_child", &PageClass::get_child, "Get a particular child page by index", "child_index"_a)
-        .def("get_bits", &PageClass::get_bits, "Get a particular array of bits by the time index", "t"_a)
-        .def("set_bits", &PageClass::set_bits, "Set a particular array of bits by the time index", "t"_a, "bits"_a)
-        .def("get_acts", &PageClass::get_acts, "Get a particular array of acts by the time index", "t"_a)
-        .def("set_acts", &PageClass::set_acts, "Set a particular array of acts by the time index", "t"_a, "acts"_a)
-        .def_property_readonly("num_children", &PageClass::num_children, "Get number of children pages")
-        .def_property_readonly("num_history", &PageClass::num_history, "Get number of histories");
+    // =========================================================================
+    // BitArray
+    // =========================================================================
+    py::class_<BitArray>(m, "BitArray")
 
-    // CoincidenceSet
-    py::class_<CoincidenceSetClass>(m, "CoincidenceSet")
-        .def("get_addrs", &CoincidenceSetClass::get_addrs, "Get addresses")
-        .def("get_addr", &CoincidenceSetClass::get_addr, "Get a particular address", "d"_a)
-        .def("get_perms", &CoincidenceSetClass::get_perms, "Get permanences")
-        .def("get_perm", &CoincidenceSetClass::get_perm, "Get a particular permanence", "d"_a)
-        .def("get_bits", &CoincidenceSetClass::get_bits, "Get array of bits representing receptor connections")
-        .def("get_acts", &CoincidenceSetClass::get_acts, "Get array of acts representing receptor connections");
+        .def("set_bits", &BitArray::set_bits,
+             "Set the BitArray from a vector of bits", "bits"_a)
 
-    // Blank Block
-    py::class_<BlankBlockClass>(m, "BlankBlock")
-        .def(py::init<const uint32_t>(), "Blank Block Creation", "num_s"_a)
-        .def_property_readonly("output", &BlankBlockClass::get_output, "Get output Page object")
-        .def("clear", &BlankBlockClass::clear, "Clear block");
+        .def("set_acts", &BitArray::set_acts,
+             "Set the BitArray from a vector of acts", "acts"_a)
 
-    // Scalar Encoder
-    py::class_<ScalarEncoderClass>(m, "ScalarEncoder")
-        .def(py::init<const double, const double, const uint32_t, const uint32_t>(),
-            "Construct ScalarEncoder", "min_val"_a, "max_val"_a, "num_s"_a, "num_as"_a)
-        .def("clear", &ScalarEncoderClass::clear, "Clear block")
-        .def("compute", &ScalarEncoderClass::compute, "Compute block", "value"_a)
-        .def_property_readonly("output", &ScalarEncoderClass::get_output, "Get output Page object");
+        .def("get_bits", &BitArray::get_bits,
+             "Returns a vector of bits from the BitArray")
 
-    // Symbols Encoder
-    py::class_<SymbolsEncoderClass>(m, "SymbolsEncoder")
-        .def(py::init<const uint32_t, const uint32_t>(),
-            "Construct SymbolEncoder", "max_symbols"_a, "num_s"_a)
-        .def("clear", &SymbolsEncoderClass::clear, "Clear block")
-        .def("compute", &SymbolsEncoderClass::compute, "Compute block", "value"_a)
-        .def("get_symbols", &SymbolsEncoderClass::get_symbols, "Get symbols")
-        .def_property_readonly("output", &SymbolsEncoderClass::get_output, "Get output Page object");
+        .def("get_acts", &BitArray::get_acts,
+             "Returns a vector of acts from the BitArray")
 
-    // Persistence Encoder
-    py::class_<PersistenceEncoderClass>(m, "PersistenceEncoder")
-        .def(py::init<const double, const double, const uint32_t, const uint32_t, const uint32_t>(),
-            "Construct PersistenceEncoder", "min_val"_a, "max_val"_a, "num_s"_a, "num_as"_a, "max_steps"_a)
-        .def("reset", &PersistenceEncoderClass::reset, "Reset persistence")
-        .def("clear", &PersistenceEncoderClass::clear, "Clear block")
-        .def("compute", &PersistenceEncoderClass::compute, "Compute block", "value"_a)
-        .def_property_readonly("output", &PersistenceEncoderClass::get_output, "Get output Page object");
+        .def_property_readonly("num_bits", &BitArray::num_bits,
+                               "Returns the number of bits in BitArray")
 
-    // Pattern Classifier
-    py::class_<PatternClassifierClass>(m, "PatternClassifier")
-        .def(py::init<const std::vector<uint32_t>, const uint32_t, const uint32_t, const uint32_t, const uint32_t, const uint32_t, const uint32_t, const double, const double, const double>(),
-            "Construct PatternClassifier", "labels"_a, "num_l"_a, "num_s"_a, "num_as"_a, "perm_thr"_a, "perm_inc"_a, "perm_dec"_a, "pct_pool"_a, "pct_conn"_a, "pct_learn"_a)
-        .def("initialize", &PatternClassifierClass::initialize, "Initialize block")
-        .def("save", &PatternClassifierClass::save, "Save block")
-        .def("load", &PatternClassifierClass::load, "Load block")
-        .def("clear", &PatternClassifierClass::clear, "Clear block")
-        .def("compute", &PatternClassifierClass::compute, "Compute block", "label"_a, "learn"_a)
-        .def("get_statelet_label", &PatternClassifierClass::get_statelet_label, "Get statelet label")
-        .def("get_probabilities", &PatternClassifierClass::get_probabilities, "Get label probabilities")
-        .def("coincidence_set", &PatternClassifierClass::get_coincidence_set, "Get a particular CoincidenceSet object", "d"_a)
-        .def("decode_bits", &PatternClassifierClass::decode_bits, "Get decoding in bits")
-        .def_property_readonly("input", &PatternClassifierClass::get_input, "Get input Page object")
-        .def_property_readonly("output", &PatternClassifierClass::get_output, "Get output Page object");
+        .def_property_readonly("num_words", &BitArray::num_words,
+                               "Returns the number of words in BitArray");
 
-    // Pattern Pooler
-    py::class_<PatternPoolerClass>(m, "PatternPooler")
-        .def(py::init<const uint32_t, const uint32_t, const uint32_t, const uint32_t, const uint32_t, const double, const double, const double>(),
-            "Construct PatternPooler", "num_s"_a, "num_as"_a, "perm_thr"_a, "perm_inc"_a, "perm_dec"_a, "pct_pool"_a, "pct_conn"_a, "pct_learn"_a)
-        .def("initialize", &PatternPoolerClass::initialize, "Initialize block")
-        .def("save", &PatternPoolerClass::save, "Save block")
-        .def("load", &PatternPoolerClass::load, "Load block")
-        .def("clear", &PatternPoolerClass::clear, "Clear block")
-        .def("compute", &PatternPoolerClass::compute, "Compute block", "learn"_a)
-        .def("coincidence_set", &PatternPoolerClass::get_coincidence_set, "Get a particular CoincidenceSet object", "d"_a)
-        .def_property_readonly("input", &PatternPoolerClass::get_input, "Get input Page object")
-        .def_property_readonly("output", &PatternPoolerClass::get_output, "Get output Page object");
+    // =========================================================================
+    // Block
+    // =========================================================================
+    py::class_<Block>(m, "Block")
 
-    // Sequence Learner
-    py::class_<SequenceLearnerClass>(m, "SequenceLearner")
-        .def(py::init<const uint32_t, const uint32_t, const uint32_t, const uint32_t, const uint32_t, const uint32_t, const uint32_t>(), 
-            "Construct SequenceLearner", "num_spc"_a, "num_dps"_a, "num_rpd"_a, "d_thresh"_a, "perm_thr"_a, "perm_inc"_a, "perm_dec"_a)
-        .def("initialize", &SequenceLearnerClass::initialize, "Initialize block")
-        .def("save", &SequenceLearnerClass::save, "Save block")
-        .def("load", &SequenceLearnerClass::load, "Load block")
-        .def("clear", &SequenceLearnerClass::clear, "Clear block")
-        .def("compute", &SequenceLearnerClass::compute, "Compute block")
-        .def("get_score", &SequenceLearnerClass::get_score, "Get abnormality score")
-        .def("get_historical_count", &SequenceLearnerClass::get_historical_count, "Get number of historical statelets")
-		.def("get_coincidence_set_count", &SequenceLearnerClass::get_coincidence_set_count, "Get number of used coincidence sets")
-		.def("get_historical_statelets", &SequenceLearnerClass::get_historical_statelets, "Get historical statelets")
-		.def("get_num_coincidence_sets_per_statelet", &SequenceLearnerClass::get_num_coincidence_sets_per_statelet, "Get number of coincidence sets per statelet")
-        .def("get_hidden_coincidence_set", &SequenceLearnerClass::get_hidden_coincidence_set, "Get a particular hidden CoincidenceSet object", "d"_a)
-        .def("get_output_coincidence_set", &SequenceLearnerClass::get_output_coincidence_set, "Get a particular output CoincidenceSet object", "d"_a)
-        .def_property_readonly("input", &SequenceLearnerClass::get_input, "Get input Page object")
-        .def_property_readonly("hidden", &SequenceLearnerClass::get_hidden, "Get hidden Page object")
-        .def_property_readonly("output", &SequenceLearnerClass::get_output, "Get output Page object");
+        .def("init", &Block::init,
+             "Initializes BlockMemories based on BlockInput parameters")
+
+        .def("save", &Block::save, "file"_a, "Save block memories")
+
+        .def("load", &Block::load, "file"_a, "Load Block memories")
+
+        .def("clear", &Block::clear,
+             "Clears BlockInput, BlockMemory, and BlockOutput states")
+
+        .def("step", &Block::step,
+             "Updates BlockOutput history current index")
+
+        .def("pull", &Block::pull,
+             "Updates BlockInput state(s) from child BlockOutput histories")
+
+        .def("push", &Block::push,
+             "Updates child BlockOutput state(s) from BlockInput state(s)")
+
+        .def("encode", &Block::encode,
+             "Converts BlockInput state(s) into BlockOutput state(s)")
+
+        .def("decode", &Block::decode,
+             "Converts BlockOutput state(s) into BlockInput state(s)")
+
+        .def("learn", &Block::learn, "Updates BlockMemories")
+
+        .def("store", &Block::store,
+             "Copy BlockOutput state into current index of BlockOutput history")
+
+        .def("memory_usage", &Block::memory_usage,
+             "Returns an estimate of the number of bytes used by the block")
+
+        .def("feedforward", &Block::feedforward, "learn_flag"_a=false,
+             "Performs all functions required to produce output from intput")
+
+        .def("feedback", &Block::feedback,
+             "Performs all funtions required to produce input from output");
+
+    // =========================================================================
+    // BlockInput
+    // =========================================================================
+    py::class_<BlockInput>(m, "BlockInput")
+
+        .def("add_child", &BlockInput::add_child,
+             "Connects a BlockOutput at a prior time step to the BlockInput",
+             "src"_a, "src_t"_a)
+
+        .def_property_readonly("num_children", &BlockInput::num_children,
+                               "Returns number of children in BlockInput")
+
+        .def_readonly("state", &BlockInput::state,
+                      "Returns state BitArray object");
+
+    // =========================================================================
+    // BlockMemory
+    // =========================================================================
+    py::class_<BlockMemory>(m, "BlockMemory")
+
+        .def("addrs", &BlockMemory::addrs,
+             "Returns a particular dendrite's receptor addresses", "d"_a)
+
+        .def("perms", &BlockMemory::perms,
+             "Returns a particular dendrite's receptor permanences", "d"_a)
+
+        .def("conns", &BlockMemory::conns,
+             "Returns a particular dendrite's receptor connections", "d"_a)
+
+        .def_property_readonly("num_dendrites", &BlockMemory::num_dendrites,
+                               "Returns number of dendrites");
+
+
+    // =========================================================================
+    // BlockOutput
+    // =========================================================================
+    py::class_<BlockOutput>(m, "BlockOutput")
+
+        .def("get_bitarray", &BlockOutput::get_bitarray,
+             "Returns a bitarray based on the inputted time step", "t"_a)
+
+        .def_property_readonly("num_t", &BlockOutput::num_t,
+                               "Returns number of time steps in BlockOutput")
+
+        .def_readonly("state", &BlockOutput::state,
+                      "Returns state BitArray object");
+
+    // =========================================================================
+    // BlankBlock
+    // =========================================================================
+    py::class_<BlankBlock, Block>(m, "BlankBlock")
+
+        .def(py::init<
+	        const uint32_t,
+	        const uint32_t>(),
+        "num_s"_a,
+	    "num_t"_a,
+	    "Constructs a BlankBlock")
+
+        .def_readonly("output", &BlankBlock::output,
+                      "Returns output BlockOutput object");
+
+    // =========================================================================
+    // ContextLearner
+    // =========================================================================
+    py::class_<ContextLearner, Block>(m, "ContextLearner")
+
+        .def(py::init<
+            const uint32_t,
+            const uint32_t,
+            const uint32_t,
+            const uint32_t,
+            const uint32_t,
+            const uint8_t,
+            const uint8_t,
+            const uint8_t,
+            const uint32_t,
+            const uint32_t>(),
+        "num_c"_a,
+        "num_spc"_a,
+        "num_dps"_a,
+        "num_rpd"_a,
+        "d_thresh"_a,
+        "perm_thr"_a,
+        "perm_inc"_a,
+        "perm_dec"_a,
+        "num_t"_a=2,
+        "seed"_a=0,
+        "Constructs a ContextLearner")
+
+        .def("get_anomaly_score", &ContextLearner::get_anomaly_score,
+             "Returns anomaly score")
+
+        .def_readonly("input", &ContextLearner::input,
+                      "Returns input BlockInput object")
+
+        .def_readonly("context", &ContextLearner::context,
+                      "Returns context BlockInput object")
+
+        .def_readonly("output", &ContextLearner::output,
+                      "Returns output BlockOutput object")
+
+        .def_readonly("memory", &ContextLearner::memory,
+                      "Returns memory BlockMemory object");
+
+    // =========================================================================
+    // LabelTransformer
+    // =========================================================================
+    py::class_<LabelTransformer, Block>(m, "LabelTransformer")
+
+        .def(py::init<
+            const uint32_t,
+            const uint32_t,
+            const uint32_t>(),
+        "num_l"_a,
+        "num_s"_a,
+        "num_t"_a=2,
+        "Constructs a LabelTransformer")
+
+        .def("set_value", &LabelTransformer::set_value, "value"_a,
+             "Sets value")
+
+        .def("get_value", &LabelTransformer::get_value,
+             "Returns value")
+
+        .def_readonly("output", &LabelTransformer::output,
+                      "Returns output BlockOutput object");
+
+    // =========================================================================
+    // PatternClassifier
+    // =========================================================================
+    py::class_<PatternClassifier, Block>(m, "PatternClassifier")
+
+        .def(py::init<
+            const uint32_t,
+            const uint32_t,
+            const uint32_t,
+            const uint8_t,
+            const uint8_t,
+            const uint8_t,
+            const double,
+            const double,
+            const double,
+            const uint32_t,
+            const uint32_t>(),
+        "num_l"_a,
+        "num_s"_a,
+        "num_as"_a,
+        "perm_thr"_a,
+        "perm_inc"_a,
+        "perm_dec"_a,
+        "pct_pool"_a,
+        "pct_conn"_a,
+        "pct_learn"_a,
+        "num_t"_a=2,
+        "seed"_a=0,
+        "Constructs a PatternClassifier")
+
+        .def("set_label", &PatternClassifier::set_label, "label"_a,
+             "Sets label")
+
+        .def("get_labels", &PatternClassifier::get_labels,
+             "Returns array of stored labels")
+
+        .def("get_probabilities", &PatternClassifier::get_probabilities,
+             "Returns array of probability scores for each stored label")
+
+        .def_readonly("input", &PatternClassifier::input,
+                      "Returns input BlockInput object")
+
+        .def_readonly("output", &PatternClassifier::output,
+                      "Returns output BlockOutput object")
+
+        .def_readonly("memory", &PatternClassifier::memory,
+                      "Returns memory BlockMemory object");
+
+    // =========================================================================
+    // PatternClassifierDynamic
+    // =========================================================================
+    py::class_<PatternClassifierDynamic, Block>(m, "PatternClassifierDynamic")
+
+        .def(py::init<
+            const uint32_t,
+            const uint32_t,
+            const uint32_t,
+            const uint8_t,
+            const uint8_t,
+            const uint8_t,
+            const double,
+            const double,
+            const double,
+            const uint32_t,
+            const uint32_t>(),
+        "num_s"_a,
+        "num_as"_a,
+        "num_spl"_a,
+        "perm_thr"_a,
+        "perm_inc"_a,
+        "perm_dec"_a,
+        "pct_pool"_a,
+        "pct_conn"_a,
+        "pct_learn"_a,
+        "num_t"_a=2,
+        "seed"_a=0,
+        "Constructs a PatternClassifierDynamic")
+
+        .def("set_label", &PatternClassifierDynamic::set_label, "label"_a,
+             "Sets label")
+
+        .def("get_anomaly_score", &PatternClassifierDynamic::get_anomaly_score,
+             "Returns anomaly score")
+
+        .def("get_labels", &PatternClassifierDynamic::get_labels,
+             "Returns array of stored labels")
+
+        .def("get_probabilities", &PatternClassifierDynamic::get_probabilities,
+             "Returns array of probability scores for each stored label")
+
+        .def_readonly("input", &PatternClassifierDynamic::input,
+                      "Returns input BlockInput object")
+
+        .def_readonly("output", &PatternClassifierDynamic::output,
+                      "Returns output BlockOutput object")
+
+        .def_readonly("memory", &PatternClassifierDynamic::memory,
+                      "Returns memory BlockMemory object");
+
+    // =========================================================================
+    // PatternPooler
+    // =========================================================================
+    py::class_<PatternPooler, Block>(m, "PatternPooler")
+
+        .def(py::init<
+            const uint32_t,
+            const uint32_t,
+            const uint8_t,
+            const uint8_t,
+            const uint8_t,
+            const double,
+            const double,
+            const double,
+            const uint32_t,
+            const uint32_t>(),
+        "num_s"_a,
+        "num_as"_a,
+        "perm_thr"_a,
+        "perm_inc"_a,
+        "perm_dec"_a,
+        "pct_pool"_a,
+        "pct_conn"_a,
+        "pct_learn"_a,
+        "num_t"_a=2,
+        "seed"_a,
+        "Constructs a PatternPooler")
+
+        .def_readonly("input", &PatternPooler::input,
+                      "Returns input BlockInput object")
+
+        .def_readonly("output", &PatternPooler::output,
+                      "Returns output BlockOutput object")
+
+        .def_readonly("memory", &PatternPooler::memory,
+                      "Returns memory BlockMemory object");
+
+    // =========================================================================
+    // PersistenceTransformer
+    // =========================================================================
+    py::class_<PersistenceTransformer, Block>(m, "PersistenceTransformer")
+
+        .def(py::init<
+            const double,
+            const double,
+            const uint32_t,
+            const uint32_t,
+            const uint32_t,
+            const uint32_t>(),
+        "min_val"_a,
+        "max_val"_a,
+        "num_s"_a,
+        "num_as"_a,
+        "max_step"_a,
+        "num_t"_a=2,
+        "Constructs a PersistenceTransformer")
+
+        .def("set_value", &PersistenceTransformer::set_value, "value"_a,
+             "Sets value")
+
+        .def("get_value", &PersistenceTransformer::get_value,
+             "Returns value")
+
+        .def_readonly("output", &PersistenceTransformer::output,
+                      "Returns output BlockOutput object");
+
+    // =========================================================================
+    // ScalarTransformer
+    // =========================================================================
+    py::class_<ScalarTransformer, Block>(m, "ScalarTransformer")
+
+        .def(py::init<
+            const double,
+            const double,
+            const uint32_t,
+            const uint32_t,
+            const uint32_t>(),
+        "min_val"_a,
+        "max_val"_a,
+        "num_s"_a,
+        "num_as"_a,
+        "num_t"_a=2,
+        "Constructs a ScalarTransformer")
+
+        .def("set_value", &ScalarTransformer::set_value, "value"_a,
+             "Sets value")
+
+        .def("get_value", &ScalarTransformer::get_value,
+             "Returns value")
+
+        .def_readonly("output", &ScalarTransformer::output,
+                      "Returns output BlockOutput object");
+
+    // =========================================================================
+    // SequenceLearner
+    // =========================================================================
+    py::class_<SequenceLearner, Block>(m, "SequenceLearner")
+
+        .def(py::init<
+            const uint32_t,
+            const uint32_t,
+            const uint32_t,
+            const uint32_t,
+            const uint32_t,
+            const uint8_t,
+            const uint8_t,
+            const uint8_t,
+            const uint32_t,
+            const uint32_t>(),
+        "num_c"_a,
+        "num_spc"_a,
+        "num_dps"_a,
+        "num_rpd"_a,
+        "d_thresh"_a,
+        "perm_thr"_a,
+        "perm_inc"_a,
+        "perm_dec"_a,
+        "num_t"_a=2,
+        "seed"_a=0,
+        "Constructs a SequenceLearner")
+
+        .def("get_anomaly_score", &SequenceLearner::get_anomaly_score,
+             "Returns anomaly score")
+
+        .def_readonly("input", &SequenceLearner::input,
+                      "Returns input BlockInput object")
+
+        .def_readonly("context", &SequenceLearner::context,
+                      "Returns context BlockInput object")
+
+        .def_readonly("output", &SequenceLearner::output,
+                      "Returns output BlockOutput object")
+
+        .def_readonly("memory", &SequenceLearner::memory,
+                      "Returns memory BlockMemory object");
+
+
 
 #ifdef VERSION_INFO
     m.attr("__version__") = VERSION_INFO;

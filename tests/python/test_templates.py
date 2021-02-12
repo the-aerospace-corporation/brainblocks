@@ -1,98 +1,134 @@
-from brainblocks.templates import Classifier, AbnormalityDetector
+# ==============================================================================
+# test_templates.py
+# ==============================================================================
+from brainblocks.templates import AnomalyDetector, AnomalyDetectorPersist, Classifier
 
-# printing boolean arrays neatly
+# Printing boolean arrays neatly
 import numpy as np
-np.set_printoptions(precision=3, suppress=True, threshold=1000000, linewidth=100,
-                    formatter={"bool": lambda bin_val: "X" if bin_val else "-"})
-
+np.set_printoptions(
+    precision=3, suppress=True, threshold=1000000, linewidth=100,
+    formatter={"bool": lambda bin_val: "X" if bin_val else "-"})
 
 # ==============================================================================
-# Classifier
+# Test Anomaly Detector
+# ==============================================================================
+def test_anomaly_detector():
+
+    ad = AnomalyDetector(
+        min_val=0.0,   # minimum input value
+        max_val=1.0,   # maximum input value
+        num_i=1024,    # number of input statelets
+        num_ai=128,    # number of active input statelets
+        num_s=512,     # number of statelets
+        num_as=8,      # number of active statelets
+        num_spc=10,    # number of statelets per column
+        num_dps=10,    # number of dendrites per statelet
+        num_rpd=12,    # number of receptors per dendrite
+        d_thresh=6,    # dendrite threshold
+        pct_pool=0.8,  # pooling percentage
+        pct_conn=0.5,  # initially connected percentage
+        pct_learn=0.3) # learn percentage
+
+    values = [
+        0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+
+    actual_scores = [0.0 for _ in range(len(values))]
+
+    expect_scores = np.array([
+        1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0,
+        1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+
+    for i in range(len(values)):
+        actual_scores[i] = ad.feedforward(values[i], learn=True)
+
+    np.testing.assert_array_equal(actual_scores, expect_scores)
+
+# ==============================================================================
+# Test Anomaly Detector Persist
+# ==============================================================================
+def test_anomaly_detector_persist():
+
+    ad = AnomalyDetectorPersist(
+        min_val=0.0,   # minimum input value
+        max_val=1.0,   # maximum input value
+        max_step=8,    # maximum persistence step
+        num_i=1024,    # number of input statelets
+        num_ai=128,    # number of active input statelets
+        num_s=512,     # number of statelets
+        num_as=8,      # number of active statelets
+        num_spc=10,    # number of statelets per column
+        num_dps=10,    # number of dendrites per statelet
+        num_rpd=12,    # number of receptors per dendrite
+        d_thresh=6,    # dendrite threshold
+        pct_pool=0.8,  # pooling percentage
+        pct_conn=0.5,  # initially connected percentage
+        pct_learn=0.3) # learn percentage
+
+    values = [
+        0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+
+    actual_scores = [0.0 for _ in range(len(values))]
+
+    expect_scores = np.array([
+        1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+
+    for i in range(len(values)):
+        actual_scores[i] = ad.feedforward(values[i], learn=True)
+
+    # TODO: verify proper functionality
+    #np.testing.assert_array_equal(actual_scores, expect_scores)
+
+# ==============================================================================
+# Test Classifier
 # ==============================================================================
 def test_classifier():
+
     c = Classifier(
-        labels=(0, 1),  # user-defined labels
-        min_val=0.0,    # minimum input value
-        max_val=1.0,    # maximum input value
-        num_i=1024,     # number of input statelets
-        num_ai=128,     # number of active input statelets
-        num_s=512,      # number of statelets
-        num_as=8,       # number of active statelets
-        pct_pool=0.8,   # pooling percentage
-        pct_conn=0.5,   # initially connected percentage
-        pct_learn=0.25) # learn percentage
+        num_l=2,       # number of labels
+        min_val=0.0,   # minimum input value
+        max_val=1.0,   # maximum input value
+        num_i=1024,    # number of input statelets
+        num_ai=128,    # number of active input statelets
+        num_s=512,     # number of statelets
+        num_as=8,      # number of active statelets
+        pct_pool=0.8,  # pooling percentage
+        pct_conn=0.5,  # initially connected percentage
+        pct_learn=0.3) # learn percentage
 
-    train_values = [
-        0.0, 1.0, 0.0, 1.0, 0.0,
-        1.0, 0.0, 1.0, 0.0, 1.0,
-        0.0, 1.0, 0.0, 1.0, 0.0,
-        1.0, 0.0, 1.0, 0.0, 1.0,
-        0.0, 1.0, 0.0, 1.0, 0.0,
-        1.0, 0.0, 1.0, 0.0, 1.0]
+    x_train = [
+        0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0,
+        0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0,
+        0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0]
 
-    train_labels = [
-        0, 1, 0, 1, 0,
-        1, 0, 1, 0, 1,
-        0, 1, 0, 1, 0,
-        1, 0, 1, 0, 1,
-        0, 1, 0, 1, 0,
-        1, 0, 1, 0, 1]
+    y_train = [
+        0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+        0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
+        0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
 
-    c.fit([train_values], train_labels)
+    for i in range(len(x_train)):
+        c.fit(x_train[i], y_train[i])
 
-    probs = c.predict([[0.0]])[0]
-    actual_probs = np.array(probs)
+    prob = c.predict(0.0)
+    actual_probs = np.array(prob)
     expect_probs = np.array([1.0, 0.0])
     np.testing.assert_array_equal(actual_probs, expect_probs)
 
-    probs = c.predict([[1.0]])[0]
-    actual_probs = np.array(probs)
+    prob = c.predict(1.0)
+    actual_probs = np.array(prob)
     expect_probs = np.array([0.0, 1.0])
     np.testing.assert_array_equal(actual_probs, expect_probs)
-
-# ==============================================================================
-# Classifier
-# ==============================================================================
-def test_abnormality_detector():
-    ad = AbnormalityDetector(
-        min_val=0.0,    # minimum input value
-        max_val=1.0,    # maximum input value
-        num_i=1024,     # number of input statelets
-        num_ai=128,     # number of active input statelets
-        num_s=512,      # number of statelets
-        num_as=8,       # number of active statelets
-        num_spc=10,     # number of statelets per column
-        num_dps=10,     # number of coincidence detectors per statelet
-        num_rpd=12,     # number of receptors per coincidence detector
-        d_thresh=6,     # coincidence detector threshold
-        pct_pool=0.8,   # pooling percentage
-        pct_conn=0.5,   # initially connected percentage
-        pct_learn=0.25) # learn percentage
-
-    values = [
-        0.0, 0.0, 0.0, 0.0, 0.0,
-        1.0, 1.0, 1.0, 1.0, 1.0,
-        0.0, 0.0, 0.0, 0.0, 0.0,
-        1.0, 1.0, 1.0, 1.0, 1.0,
-        0.0, 0.0, 0.0, 0.0, 0.0,
-        1.0, 1.0, 1.0, 1.0, 1.0]
-
-    expect_scores = np.array([
-        1.0, 1.0, 0.0, 0.0, 0.0,
-        1.0, 1.0, 0.0, 0.0, 0.0,
-        1.0, 0.0, 0.0, 0.0, 0.0,
-        0.0, 0.0, 0.0, 0.0, 0.0,
-        0.0, 0.0, 0.0, 0.0, 0.0,
-        0.0, 0.0, 0.0, 0.0, 0.0])
-
-    scores = ad.compute([values])
-    actual_scores = np.array(scores)
-    
-    np.testing.assert_array_equal(actual_scores, expect_scores)
 
 # ==============================================================================
 # Main
 # ==============================================================================
 if __name__ == "__main__":
+
+    test_anomaly_detector()
     test_classifier()
-    test_abnormality_detector()

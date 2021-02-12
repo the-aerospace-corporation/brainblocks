@@ -1,3 +1,6 @@
+# ==============================================================================
+# sklearn_style_classifier.py
+# ==============================================================================
 from brainblocks.tools import BBClassifier
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
@@ -37,4 +40,3 @@ score = clf.score(X_test, y_test)
 t1 = time.time()
 print("Time %fs with size %d" % ((t1 - t0), y_test.shape[0]))
 print("Score:", score)
-
