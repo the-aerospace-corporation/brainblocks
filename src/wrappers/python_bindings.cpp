@@ -13,7 +13,7 @@
 
 #include "blocks/blank_block.hpp"
 #include "blocks/context_learner.hpp"
-#include "blocks/label_transformer.hpp"
+#include "blocks/discrete_transformer.hpp"
 #include "blocks/pattern_classifier.hpp"
 #include "blocks/pattern_classifier_dynamic.hpp"
 #include "blocks/pattern_pooler.hpp"
@@ -225,26 +225,26 @@ PYBIND11_MODULE(bb_backend, m) {
                       "Returns memory BlockMemory object");
 
     // =========================================================================
-    // LabelTransformer
+    // DiscreteTransformer
     // =========================================================================
-    py::class_<LabelTransformer, Block>(m, "LabelTransformer")
+    py::class_<DiscreteTransformer, Block>(m, "DiscreteTransformer")
 
         .def(py::init<
             const uint32_t,
             const uint32_t,
             const uint32_t>(),
-        "num_l"_a,
+        "num_v"_a,
         "num_s"_a,
         "num_t"_a=2,
-        "Constructs a LabelTransformer")
+        "Constructs a DiscreteTransformer")
 
-        .def("set_value", &LabelTransformer::set_value, "value"_a,
+        .def("set_value", &DiscreteTransformer::set_value, "value"_a,
              "Sets value")
 
-        .def("get_value", &LabelTransformer::get_value,
+        .def("get_value", &DiscreteTransformer::get_value,
              "Returns value")
 
-        .def_readonly("output", &LabelTransformer::output,
+        .def_readonly("output", &DiscreteTransformer::output,
                       "Returns output BlockOutput object");
 
     // =========================================================================

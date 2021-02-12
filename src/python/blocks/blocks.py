@@ -211,16 +211,16 @@ class ContextLearner():
         return BlockMemory(self.obj.memory)
 
 # ==============================================================================
-# LabelTransformer
+# DiscreteTransformer
 # ==============================================================================
-class LabelTransformer():
+class DiscreteTransformer():
     def __init__(
             self,
-            num_l=8,   # number of labels
+            num_v=8,   # number of discrete values
             num_s=512, # number of statelets
             num_t=2):  # number of BlockOutput time states (optional)
 
-        self.obj = bb.LabelTransformer(num_l, num_s, num_t)
+        self.obj = bb.DiscreteTransformer(num_v, num_s, num_t)
 
     def clear(self):
         self.obj.clear()

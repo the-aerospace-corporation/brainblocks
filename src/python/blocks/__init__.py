@@ -1,6 +1,6 @@
 from .blocks import BlankBlock
 from .blocks import ContextLearner
-from .blocks import LabelTransformer
+from .blocks import DiscreteTransformer
 from .blocks import PatternClassifier
 from .blocks import PatternClassifierDynamic
 from .blocks import PatternPooler

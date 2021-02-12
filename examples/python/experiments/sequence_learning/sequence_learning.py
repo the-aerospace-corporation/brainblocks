@@ -1,3 +1,8 @@
+# ==============================================================================
+# sequence_learning.py
+#
+# TODO: this is out of data and needs updating!!!
+# ==============================================================================
 import os
 import errno
 import math

@@ -1,7 +1,7 @@
 # ==============================================================================
-# anom_labels.py
+# anom_discrete.py
 # ==============================================================================
-from brainblocks.blocks import LabelTransformer, SequenceLearner
+from brainblocks.blocks import DiscreteTransformer, SequenceLearner
 from sklearn import preprocessing
 
 values = [
@@ -11,14 +11,14 @@ values = [
 
 scores = [0.0 for _ in range(len(values))]
 
-# Convert to integer value labels
+# Convert values to integers
 le = preprocessing.LabelEncoder()
 le.fit(values)
-labels = le.transform(values)
+integers = le.transform(values)
 
 # Setup blocks
-lt = LabelTransformer(
-    num_l=26,  # number of labels
+lt = DiscreteTransformer(
+    num_v=26,  # number of discrete values
     num_s=208) # number of statelets
 
 sl = SequenceLearner(
@@ -34,10 +34,10 @@ sl = SequenceLearner(
 sl.input.add_child(lt.output, 0)
 
 # Loop through the values
-for i in range(len(labels)):
+for i in range(len(integers)):
 
     # Set scalar transformer value
-    lt.set_value(labels[i])
+    lt.set_value(integers[i])
 
     # Compute the scalar transformer
     lt.feedforward()
