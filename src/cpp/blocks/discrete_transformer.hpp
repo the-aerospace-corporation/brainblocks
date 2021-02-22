@@ -1,8 +1,8 @@
 // =============================================================================
 // discrete_transformer.hpp
 // =============================================================================
-#ifndef LABEL_TRANSFORMER_HPP
-#define LABEL_TRANSFORMER_HPP
+#ifndef DISCRETE_TRANSFORMER_HPP
+#define DISCRETE_TRANSFORMER_HPP
 
 #include "../block.hpp"
 #include "../block_output.hpp"
@@ -15,7 +15,7 @@ public:
 
     // Constructor
     DiscreteTransformer(
-        const uint32_t num_l,
+        const uint32_t num_v,
         const uint32_t num_s,
         const uint32_t num_t=2);
 
@@ -37,7 +37,7 @@ private:
 
     uint32_t value = 0;
     uint32_t value_prev = 0xFFFFFFFF;
-    uint32_t num_l; // number of labels
+    uint32_t num_v; // number of discrete values
     uint32_t num_s;  // number of statelets
     uint32_t num_as; // number of active statelets
     uint32_t dif_s;  // num_s - num_as
@@ -45,4 +45,4 @@ private:
 
 } // namespace BrainBlocks
 
-#endif // LABEL_TRANSFORMER_HPP
+#endif // DISCRETE_TRANSFORMER_HPP

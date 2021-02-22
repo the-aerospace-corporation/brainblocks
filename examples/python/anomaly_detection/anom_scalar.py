@@ -1,25 +1,21 @@
 # ==============================================================================
-# anom_labels.py
+# anom_scalar.py
 # ==============================================================================
-from brainblocks.blocks import DiscreteTransformer, SequenceLearner
-from sklearn import preprocessing
+from brainblocks.blocks import ScalarTransformer, SequenceLearner
 
 values = [
-    'a', 'a', 'a', 'a', 'a', 'b', 'c', 'd', 'e', 'f',
-    'a', 'a', 'a', 'a', 'a', 'b', 'c', 'd', 'e', 'f',
-    'a', 'a', 'a', 'a', 'a', 'b', 'c', 'g', 'e', 'f']
+    0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+    0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+    0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.2, 1.0, 1.0] # <-- anomaly is 0.2
 
 scores = [0.0 for _ in range(len(values))]
 
-# Convert to integer value labels
-le = preprocessing.LabelEncoder()
-le.fit(values)
-labels = le.transform(values)
-
 # Setup blocks
-lt = DiscreteTransformer(
-    num_l=26,  # number of labels
-    num_s=208) # number of statelets
+st = ScalarTransformer(
+    min_val=0.0, # minimum input value
+    max_val=1.0, # maximum input value
+    num_s=64,    # number of statelets
+    num_as=8)    # number of active statelets
 
 sl = SequenceLearner(
     num_spc=10,  # number of statelets per column
@@ -31,16 +27,16 @@ sl = SequenceLearner(
     perm_dec=1)  # receptor permanence decrement
 
 # Connect blocks
-sl.input.add_child(lt.output, 0)
+sl.input.add_child(st.output, 0)
 
 # Loop through the values
-for i in range(len(labels)):
+for i in range(len(values)):
 
     # Set scalar transformer value
-    lt.set_value(labels[i])
+    st.set_value(values[i])
 
     # Compute the scalar transformer
-    lt.feedforward()
+    st.feedforward()
 
     # Compute the sequence learner
     sl.feedforward(learn=True)
@@ -51,4 +47,4 @@ for i in range(len(labels)):
 # Print output
 print("val, scr")
 for i in range(len(values)):
-    print("%3s, %0.1f" % (values[i], scores[i]))
+    print("%0.1f, %0.1f" % (values[i], scores[i]))

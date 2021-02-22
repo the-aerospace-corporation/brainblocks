@@ -20,7 +20,7 @@ int_labels = le.transform(LABELS)
 
 # create the transformer
 lt = DiscreteTransformer(
-    num_l=4,   # number of labels
+    num_v=4,   # number of discrete values
     num_s=256) # number of statelets
 
 # Convert scalars to distributed binary representation

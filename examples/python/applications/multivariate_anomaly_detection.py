@@ -63,7 +63,14 @@ X_bits = hgt.transform(X)
 b0 = BlankBlock(num_s=hgt.num_bits)
 
 # Sequence learner of distributed binary representations
-sl = SequenceLearner(num_spc=10, num_dps=10, num_rpd=12, d_thresh=6)
+sl = SequenceLearner(
+    num_spc=10, # number of statelets per column
+    num_dps=10, # number of coincidence detectors per statelet
+    num_rpd=12, # number of receptors per coincidence detector
+    d_thresh=6, # coincidence detector threshold
+    perm_thr=1, # receptor permanence threshold
+    perm_inc=1, # receptor permanence increment
+    perm_dec=0) # receptor permanence decrement
 
 # connect blank block containing hypergrid data to sequence learner
 sl.input.add_child(b0.output)

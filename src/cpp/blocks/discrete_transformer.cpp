@@ -9,7 +9,7 @@ using namespace BrainBlocks;
 // =============================================================================
 // # DiscreteTransformer
 //
-// Converts a discrete scalar value into a single binary representation.
+// Converts a discrete numerical value into a single binary representation.
 // =============================================================================
 
 // =============================================================================
@@ -18,17 +18,17 @@ using namespace BrainBlocks;
 // Constructs a DiscreteTransformer.
 // =============================================================================
 DiscreteTransformer::DiscreteTransformer(
-    const uint32_t num_l,  // number of labels
+    const uint32_t num_v,  // number of discrete values
     const uint32_t num_s,  // number of statelets
     const uint32_t num_t)  // number of BlockOutput time steps (optional)
 : Block() {
 
-    assert(num_l > 0);
+    assert(num_v > 0);
     assert(num_s > 0);
 
-    this->num_l = num_l;
+    this->num_v = num_v;
     this->num_s = num_s;
-    this->num_as = (uint32_t)((double)num_s / (double)num_l);
+    this->num_as = (uint32_t)((double)num_s / (double)num_v);
     this->dif_s = num_s - num_as;
 
     output.setup(num_t, num_s);
@@ -63,11 +63,11 @@ void DiscreteTransformer::step() {
 // =============================================================================
 void DiscreteTransformer::encode() {
 
-    assert(value < num_l);
+    assert(value < num_v);
 
     if (value != value_prev) {
 
-        double percent = (double)value / (double)(num_l - 1);
+        double percent = (double)value / (double)(num_v - 1);
         uint32_t beg = (uint32_t)((double)dif_s * percent);
 
 	output.state.clear_all();

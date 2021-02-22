@@ -146,11 +146,11 @@ def test_read_memories():
 def test_context_learner():
 
     lt0 = DiscreteTransformer(
-        num_l=8,  # number of labels
+        num_v=8,  # number of discrete values
         num_s=64) # number of statelets
 
     lt1 = DiscreteTransformer(
-        num_l=8,  # number of labels
+        num_v=8,  # number of discrete values
         num_s=64) # number of statelets
 
     sl = SequenceLearner(
@@ -183,7 +183,7 @@ def test_context_learner():
 def test_label_encoder():
 
     lt = DiscreteTransformer(
-        num_l=8,    # number of labels
+        num_v=8,    # number of discrete values
         num_s=1024, # number of statelets
         num_t=2)    # number of BlockOutput time steps (optional)
 
@@ -249,7 +249,7 @@ def test_label_encoder():
 def test_pattern_classifier():
 
     lt = DiscreteTransformer(
-        num_l=8,    # number of labels
+        num_v=8,    # number of discrete values
         num_s=1024) # number of statelets
 
     pc = PatternClassifier(
@@ -301,7 +301,7 @@ def test_pattern_classifier():
 def test_pattern_classifier_dynamic():
 
     lt = DiscreteTransformer(
-        num_l=8,    # number of labels
+        num_v=8,    # number of discrete values
         num_s=1024) # number of statelets
 
     pc = PatternClassifierDynamic(
@@ -353,7 +353,7 @@ def test_pattern_classifier_dynamic():
 def test_pattern_pooler():
 
     lt = DiscreteTransformer(
-        num_l=8,    # number of labels
+        num_v=8,    # number of discrete values
         num_s=1024) # number of statelets
 
     pp = PatternPooler(

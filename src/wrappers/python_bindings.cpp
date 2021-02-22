@@ -233,7 +233,7 @@ PYBIND11_MODULE(bb_backend, m) {
             const uint32_t,
             const uint32_t,
             const uint32_t>(),
-        "num_l"_a,
+        "num_v"_a,
         "num_s"_a,
         "num_t"_a=2,
         "Constructs a DiscreteTransformer")
