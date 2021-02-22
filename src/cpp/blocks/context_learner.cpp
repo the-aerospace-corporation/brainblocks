@@ -190,12 +190,12 @@ void ContextLearner::encode() {
         // For every active column
         for (uint32_t k = 0; k < input_acts.size(); k++) {
             uint32_t c = input_acts[k];
-	    suprise_flag = true;
+	    surprise_flag = true;
 
             recognition(c);
 
-            if (suprise_flag)
-                suprise(c);
+            if (surprise_flag)
+                surprise(c);
         }
     }
 }
@@ -265,7 +265,7 @@ void ContextLearner::recognition(const uint32_t c) {
                 uint32_t s = d / num_dps;
                 memory.state.set_bit(d); // activate the dendrite
                 output.state.set_bit(s); // activate the dendrite's statelet
-                suprise_flag = false;
+                surprise_flag = false;
             }
         }
     }
@@ -276,7 +276,7 @@ void ContextLearner::recognition(const uint32_t c) {
 //
 // TODO: add description
 // =============================================================================
-void ContextLearner::suprise(const uint32_t c) {
+void ContextLearner::surprise(const uint32_t c) {
 
     // Update abnormality score
     pct_anom += (1.0 / input_acts.size());

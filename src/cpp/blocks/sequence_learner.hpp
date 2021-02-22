@@ -56,7 +56,7 @@ public:
 private:
 
     void recognition(const uint32_t c);
-    void suprise(const uint32_t c);
+    void surprise(const uint32_t c);
     void set_next_available_dendrite(const uint32_t s);
 
     uint32_t num_c;    // number of columns
@@ -72,7 +72,7 @@ private:
     uint8_t perm_dec;  // permanence decrement
     double pct_anom;   // anomaly score percentage (0.0 to 1.0)
 
-    bool suprise_flag = false;
+    bool surprise_flag = false;
     std::vector<uint32_t> input_acts;
     std::vector<uint32_t> next_sd; // next available dendrite on statelets
     BitArray d_used; // (0 = dendrite available, 1 = dendrite in use)

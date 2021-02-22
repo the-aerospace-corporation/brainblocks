@@ -440,7 +440,7 @@ void BlockMemory::learn_conn(
 // perms[d]: {22    21 21 22 22 20          18    19 18 19   } after
 //                               ^     |
 //                               +-----+
-//                            recetor moved
+//                            receptor moved
 // =============================================================================
 void BlockMemory::learn_move(
     const uint32_t d,
@@ -462,8 +462,13 @@ void BlockMemory::learn_move(
     uint32_t r_beg = d * num_rpd;
     uint32_t r_end = r_beg + num_rpd;
 
+    // FIXME: available input bits here are selected from already connected receptors.
+    // FIXME: should sample over unconnected input space
+
     // Get available input bits
     BitArray available = input;
+
+    // clear bits we are already have receptors
     for (uint32_t r = r_beg; r < r_end; r++) {
         if (r_perms[r] > 0)
             available.clear_bit(r_addrs[r]);
