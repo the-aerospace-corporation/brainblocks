@@ -28,6 +28,7 @@ public:
         const double pct_conn=0.5,
         const double pct_learn=0.3,
         const uint32_t num_t=2,
+        const bool always_update=false,
         const uint32_t seed=0);
 
     // Overrided functions
@@ -59,6 +60,7 @@ private:
     double pct_pool;  // percent pooled
     double pct_conn;  // percent initially connected
     double pct_learn; // percent learn
+    bool always_update; // whether to only update on input changes
 
     std::vector<uint32_t> overlaps; // overlaps
     std::vector<uint32_t> templaps; // temporary overlaps

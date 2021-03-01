@@ -50,6 +50,7 @@ SequenceLearner::SequenceLearner(
     const uint8_t perm_inc,  // receptor permanence increment
     const uint8_t perm_dec,  // receptor permanence decrement
     const uint32_t num_t,    // number of BlockOutput time steps (optional)
+    const bool always_update,  // whether to only update on input changes
     const uint32_t seed)     // seed for random number generator
 : Block() {
 
@@ -67,6 +68,7 @@ SequenceLearner::SequenceLearner(
     this->perm_thr = perm_thr;
     this->perm_inc = perm_inc;
     this->perm_dec = perm_dec;
+    this->always_update = always_update;
 
     num_s = num_c * num_spc;
     num_d = num_s * num_dps;
@@ -205,7 +207,7 @@ void SequenceLearner::encode() {
     assert(init_flag);
 
     // If any BlockInput children have changed
-    if (input.children_changed() || context.children_changed()) {
+    if (always_update || input.children_changed() || context.children_changed()) {
 
         // Get active columns
         input_acts = input.state.get_acts();
@@ -238,7 +240,7 @@ void SequenceLearner::learn() {
     assert(init_flag);
 
     // If any BlockInput children have changed
-    if (input.children_changed() || context.children_changed()) {
+    if (always_update || input.children_changed() || context.children_changed()) {
 
         // For every active column
         for (uint32_t k = 0; k < input_acts.size(); k++) {

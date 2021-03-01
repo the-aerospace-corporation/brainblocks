@@ -8,7 +8,9 @@
     - `anom_labels.py`
 - Example of anomaly detection using a pattern pooler block
     - `anom_blocks_pooler.py`
-- Example anomaly detection resetting the sequence between multiple runs
+- Example of anomaly detection resetting the sequence between multiple runs
     - `anom_reset_sequence.py`
-- Example anomaly detection using the AnomalyDetector template
+- Example of anomaly detection using the AnomalyDetector template
     - `anom_template.py`
+- Example of multivariate time-series anomaly detection
+    - `multivariate_anomaly_detection.py`

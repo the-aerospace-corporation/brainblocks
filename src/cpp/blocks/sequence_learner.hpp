@@ -28,6 +28,7 @@ public:
         const uint8_t perm_inc,
         const uint8_t perm_dec,
         const uint32_t num_t=2,
+        const bool always_update=false,
         const uint32_t seed=0);
 
     // Overrided functions
@@ -71,6 +72,7 @@ private:
     uint8_t perm_inc;  // permanence increment
     uint8_t perm_dec;  // permanence decrement
     double pct_anom;   // anomaly score percentage (0.0 to 1.0)
+    bool always_update; // whether to only update on input changes
 
     bool surprise_flag = false;
     std::vector<uint32_t> input_acts;

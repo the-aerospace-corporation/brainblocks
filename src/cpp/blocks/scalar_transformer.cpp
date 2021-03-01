@@ -76,7 +76,7 @@ void ScalarTransformer::encode() {
         double percent = (value - min_val) / dif_val;
         uint32_t beg = (uint32_t)((double)dif_s * percent);
 
-	output.state.clear_all();
+        output.state.clear_all();
         output.state.set_range(beg, num_as);
     }
 

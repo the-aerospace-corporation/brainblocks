@@ -375,11 +375,12 @@ class PatternPooler():
             pct_conn=0.5,  # percent initially connected
             pct_learn=0.3, # percent learn
             num_t=2,       # number of BlockOutput time steps (optional)
+            always_update=False,  # whether to update when the input doesn't change
             seed=0):       # seed for random number generator
 
         self.obj = bb.PatternPooler(
             num_s, num_as, perm_thr, perm_inc, perm_dec, pct_pool, pct_conn,
-            pct_learn, num_t, seed)
+            pct_learn, num_t, always_update, seed)
 
     def init(self):
         self.obj.init()
@@ -489,11 +490,12 @@ class SequenceLearner():
             perm_inc=2,  # receptor permanence increment
             perm_dec=1,  # receptor permanence decrement
             num_t=2,     # number of BlockOutput time steps (optional)
+            always_update=False,  # whether to update when the input doesn't change
             seed=0):     # seed for random number generator
 
         self.obj = bb.SequenceLearner(
             num_c, num_spc, num_dps, num_rpd, d_thresh, perm_thr, perm_inc,
-            perm_dec, num_t, seed)
+            perm_dec, num_t, always_update, seed)
 
     def init(self):
         self.obj.init()

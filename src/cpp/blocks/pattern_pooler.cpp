@@ -27,6 +27,7 @@ PatternPooler::PatternPooler(
     const double pct_conn,  // percent initially connected
     const double pct_learn, // percent learn
     const uint32_t num_t,   // number of BlockOutput time steps (optional)
+    const bool always_update,  // whether to only update on input changes
     const uint32_t seed)    // seed for random number generator
 : Block(seed) {
 
@@ -41,6 +42,7 @@ PatternPooler::PatternPooler(
     this->pct_pool = pct_pool;
     this->pct_conn = pct_conn;
     this->pct_learn = pct_learn;
+    this->always_update = always_update;
 
     overlaps.resize(num_s);
     templaps.resize(num_s);
@@ -159,7 +161,7 @@ void PatternPooler::encode() {
     assert(init_flag);
 
     // If any BlockInput children have changed
-    if (input.children_changed()) {
+    if (always_update || input.children_changed()) {
 
         // Clear data
         output.state.clear_all();
@@ -209,7 +211,7 @@ void PatternPooler::learn() {
     assert(init_flag);
 
     // If any BlockInput children have changed
-    if (input.children_changed()) {
+    if (always_update || input.children_changed()) {
 
         std::vector<uint32_t> output_acts = output.state.get_acts();
 

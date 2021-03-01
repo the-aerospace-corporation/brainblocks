@@ -361,6 +361,7 @@ PYBIND11_MODULE(bb_backend, m) {
             const double,
             const double,
             const uint32_t,
+            const bool,
             const uint32_t>(),
         "num_s"_a,
         "num_as"_a,
@@ -371,6 +372,7 @@ PYBIND11_MODULE(bb_backend, m) {
         "pct_conn"_a,
         "pct_learn"_a,
         "num_t"_a=2,
+        "always_update"_a=false,
         "seed"_a,
         "Constructs a PatternPooler")
 
@@ -454,6 +456,7 @@ PYBIND11_MODULE(bb_backend, m) {
             const uint8_t,
             const uint8_t,
             const uint32_t,
+            const bool,
             const uint32_t>(),
         "num_c"_a,
         "num_spc"_a,
@@ -464,6 +467,7 @@ PYBIND11_MODULE(bb_backend, m) {
         "perm_inc"_a,
         "perm_dec"_a,
         "num_t"_a=2,
+        "always_update"_a=false,
         "seed"_a=0,
         "Constructs a SequenceLearner")
 
