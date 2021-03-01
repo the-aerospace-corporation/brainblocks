@@ -6,9 +6,9 @@ The current release is **BrainBlocks 0.7.0**.
 
 ## Introduction
 
-BrainBlocks is a framework developed by [The Aerospace Corporation](http://aerospace.org) for building scalable Machine Learning (ML) applications using principles derived from theories about the brain.  It leverages the properties of binary representations, vectors of 1s and 0s, to form a "cortial language" where hierarchies of blocks can share information with one another using a universal communication standard.  The design of BrainBlocks represents the practical experience gained from solving machine learning problems using a [Hierarchical Temporal Memory](https://numenta.com/assets/pdf/biological-and-machine-intelligence/BAMI-Complete.pdf) (HTM) -like approach.  Please see our [extended documentation](docs/extended_readme.md) for more detailed information on BrainBlocks.
+BrainBlocks is a framework developed by [The Aerospace Corporation](http://aerospace.org) for building scalable Machine Learning (ML) applications using principles derived from theories about the brain.  It leverages the properties of binary representations, vectors of 1s and 0s, to form a "cortial language" where hierarchies of blocks can share information with one another using a universal communication standard.  The design of BrainBlocks represents the practical experience gained from solving machine learning problems using a [Hierarchical Temporal Memory](https://numenta.com/assets/pdf/biological-and-machine-intelligence/BAMI-Complete.pdf) (HTM) like approach. 
 
-BrainBlocks is a Python 3 library wrapped around a C++ backend. Currently it only operates on a single CPU thread, but plans are in the works for multi-threaded, GPU-accelerated, and FPGA-accelerated algorithms.  
+BrainBlocks is a Python 3 library wrapped around a single-thread C++ backend.  Earlier versions were GPU or FPGA accelerated, and we plan to return parallelization to BrainBlocks.
 
 BrainBlocks is designed to be:
 
@@ -18,6 +18,8 @@ BrainBlocks is designed to be:
 - **Fast**: leverages low-level bitwise operations (Note: Python tools and templates may not currently be optimized yet)
 - **Low Memory**: maintain as low memory footprint as possible
 - **Lightweight**: small project size
+
+Read our [extended documentation](docs/extended_readme.md) for further information about the what and why of BrainBlocks.
 
 ## Example Usage
 
@@ -51,7 +53,7 @@ sl = SequenceLearner(
     perm_dec=1)  # receptor permanence decrement
 
 # Connect blocks
-sl.input.add_child(st.output, t=0) # 0 = observe current output bits
+sl.input.add_child(st.output) # connect sequence_learner input to scalar_transformer output
 
 # Loop through data
 for value in values:
@@ -100,7 +102,7 @@ Build and install python package from project directory:
 $ python installer.py --install
 ```
 
-Test Python installation (RECCOMENDED):
+Test Python installation (RECOMMENDED):
 
 ```bash
 $ pytest test/
@@ -125,18 +127,18 @@ $ python installer.py --uninstall
 
 ## Running Examples
 
-Run data classification example:
+Run anomaly detection example:
 
 ```bash
-$ python examples/python/applications/sklearn_style_classifier.py
+$ python examples/python/anomaly_detection/multivariate_anomaly_detection.py
 ```
 
 ![Multivariate Abnormalities](docs/assets/multivariate_abnormalities.png)
 
-Run anomaly detection example:
+Run data classification example:
 
 ```bash
-$ python examples/python/applications/multivariate_anomaly_detection.py
+$ python examples/python/experiments/BBClassifier/run_classifier_comparison.py
 ```
 
 ![Data Classification](docs/assets/classifier_comparison.png)
@@ -186,4 +188,4 @@ This projected was developed internally at [The Aerospace Corporation](http://ae
 
 This project is licensed under [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html).
 
-© The Aerospace Corporation 2020
+© The Aerospace Corporation 2021
