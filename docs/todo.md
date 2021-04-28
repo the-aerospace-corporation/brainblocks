@@ -1,5 +1,6 @@
 # BrainBlocks TODO list
 
+- Change `BitArray` class name to `BinaryPattern`
 - Implement C++ HypergridTransformer
 - Implement dendrite cleanup algorithm in SequenceLearner and ContextLearner
 - Add short description of each block in their respective .cpp file
