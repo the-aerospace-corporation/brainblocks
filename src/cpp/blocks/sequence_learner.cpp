@@ -84,7 +84,7 @@ SequenceLearner::SequenceLearner(
     // Setup output
     output.setup(num_t, num_s);
 
-    for ( int i = 1 ; i < num_t ; i++ ) {
+    for (uint32_t i = 1 ; i < num_t ; i++ ) {
         // Connect context to previous output
         context.add_child(&output, i);
     }
@@ -214,13 +214,13 @@ void SequenceLearner::encode() {
 
         // Clear data
         pct_anom = 0.0;
-	output.state.clear_all();
+        output.state.clear_all();
         memory.state.clear_all();
 
         // For every active column
         for (uint32_t k = 0; k < input_acts.size(); k++) {
             uint32_t c = input_acts[k];
-	    surprise_flag = true;
+            surprise_flag = true;
 
             recognition(c);
 
@@ -285,7 +285,7 @@ void SequenceLearner::recognition(const uint32_t c) {
     for (uint32_t d = d_beg; d < d_end; d++) {
 
         // If dendrite is used then overlap
-	if (d_used.get_bit(d)) {
+        if (d_used.get_bit(d)) {
 
             // Overlap dendrite with context
             uint32_t overlap = memory.overlap(d, context.state);
@@ -330,6 +330,7 @@ void SequenceLearner::surprise(const uint32_t c) {
         // - statelet has at least 1 dendrite
         //if(s != s_rand ) {
         if(s != s_rand && next_sd[s] > 0) {
+
             // Activate historical statelet
             output.state.set_bit(s);
 

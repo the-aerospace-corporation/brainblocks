@@ -77,7 +77,7 @@ void BlockOutput::clear() {
 
     for (uint32_t i = 0; i < history.size(); i++) {
         history[i].clear_all();
-	changes[i] = true;
+        changes[i] = true;
     }
 }
 

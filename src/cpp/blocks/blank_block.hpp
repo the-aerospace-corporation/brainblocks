@@ -16,7 +16,7 @@ public:
     // Constructor
     BlankBlock(
         const uint32_t num_s,
-	const uint32_t num_t=2);
+        const uint32_t num_t=2);
 
     // Overrided virtual functions
     void clear() override;

@@ -174,7 +174,7 @@ void PatternPooler::encode() {
 
         // Activate statelets with k-highest overlap
         for (uint32_t k = 0; k < num_as; k++) {
-	    //uint32_t beg_idx = utils_rand_uint(0, num_s - 1);
+        //uint32_t beg_idx = utils_rand_uint(0, num_s - 1);
             uint32_t beg_idx = 0;
             uint32_t max_val = 0;
             uint32_t max_idx = beg_idx;
@@ -191,7 +191,7 @@ void PatternPooler::encode() {
                 if (templaps[s] > max_val) {
                     max_val = templaps[s];
                     max_idx = s;
-		}
+                }
             }
 
             // Activate statelet with highest overlap

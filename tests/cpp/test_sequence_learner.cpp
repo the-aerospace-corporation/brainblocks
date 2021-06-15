@@ -18,7 +18,7 @@ int main() {
     std::vector<double> values = {
         0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
         0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
-	0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
+        0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
 
     //std::vector<double> values = {
     //    0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
@@ -46,12 +46,12 @@ int main() {
 
         // Compute sequence learner
         t0 = std::chrono::high_resolution_clock::now();
-	sl.feedforward(true);
+        sl.feedforward(true);
         t1 = std::chrono::high_resolution_clock::now();
         duration = t1 - t0;
         std::cout << "t=" << duration.count() << "s" << std::endl;
 
-	scores[i] = sl.get_anomaly_score();
+    scores[i] = sl.get_anomaly_score();
     }
 
     // Print results
@@ -59,7 +59,7 @@ int main() {
     std::cout << std::fixed;
     for (uint32_t i = 0; i < scores.size(); i++) {
         std::cout << std::setprecision(4) << values[i] << ", " << scores[i]
-		  << std::endl;
+        << std::endl;
     }
 
     return 0;

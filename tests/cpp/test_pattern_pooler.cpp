@@ -15,7 +15,7 @@ int main() {
     std::vector<double> values = {
         0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
         0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
-	0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
+        0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
 
     ScalarTransformer st(0.0, 1.0, 1024, 8);
     PatternPooler pp(1024, 8, 20, 2, 1, 0.8, 0.5, 0.3, 2);
@@ -26,10 +26,10 @@ int main() {
 
     for (uint32_t i = 0; i < values.size(); i++) {
         st.set_value(values[i]);
-	st.feedforward();
+        st.feedforward();
 
         t0 = std::chrono::high_resolution_clock::now();
-	pp.feedforward(true);
+        pp.feedforward(true);
         t1 = std::chrono::high_resolution_clock::now();
         duration = t1 - t0;
         std::cout << "t=" << duration.count() << "s" << std::endl;

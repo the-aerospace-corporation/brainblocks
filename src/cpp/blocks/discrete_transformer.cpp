@@ -70,7 +70,7 @@ void DiscreteTransformer::encode() {
         double percent = (double)value / (double)(num_v - 1);
         uint32_t beg = (uint32_t)((double)dif_s * percent);
 
-	output.state.clear_all();
+        output.state.clear_all();
         output.state.set_range(beg, num_as);
     }
 

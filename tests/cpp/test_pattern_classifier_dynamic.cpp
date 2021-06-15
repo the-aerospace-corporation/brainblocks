@@ -27,7 +27,7 @@ int main() {
         st.feedforward();
         pc.feedforward(true);
         probs = pc.get_probabilities();
-	std::cout << "{" << probs[0] << ", " << probs[1] << "}" << std::endl;
+        std::cout << "{" << probs[0] << ", " << probs[1] << "}" << std::endl;
     }
 
     std::cout << std::endl;
@@ -38,7 +38,7 @@ int main() {
         st.feedforward();
         pc.feedforward(true);
         probs = pc.get_probabilities();
-	std::cout << "{" << probs[0] << ", " << probs[1] << "}" << std::endl;
+        std::cout << "{" << probs[0] << ", " << probs[1] << "}" << std::endl;
     }
 
     std::cout << std::endl;

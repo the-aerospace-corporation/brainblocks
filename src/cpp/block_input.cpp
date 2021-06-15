@@ -119,7 +119,7 @@ void BlockInput::clear() {
 void BlockInput::pull() {
 
     for (uint32_t c = 0; c < children.size(); c++) {
-	BitArray* child  = &children[c]->get_bitarray(times[c]);
+    BitArray* child  = &children[c]->get_bitarray(times[c]);
         bitarray_copy(&state, child, word_offsets[c], 0, word_sizes[c]);
     }
 }
@@ -166,7 +166,7 @@ void BlockInput::push() {
 
     for (uint32_t c = 0; c < children.size(); c++) {
         BitArray* child  = &children[c]->state;
-	bitarray_copy(child, &state, 0, word_offsets[c], word_sizes[c]);
+        bitarray_copy(child, &state, 0, word_offsets[c], word_sizes[c]);
     }
 }
 
@@ -180,7 +180,7 @@ bool BlockInput::children_changed() {
     bool changed = false;
 
     for (uint32_t c = 0; c < children.size(); c++) {
-	if (children[c]->has_changed(times[c])) {
+        if (children[c]->has_changed(times[c])) {
             changed = true;
             break;
         }
