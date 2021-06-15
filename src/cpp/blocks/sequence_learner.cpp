@@ -215,7 +215,8 @@ void SequenceLearner::encode() {
         // Clear data
         pct_anom = 0.0;
         output.state.clear_all();
-        memory.state.clear_all();
+        //memory.state.clear_all();
+        d_acts.clear();
 
         // For every active column
         for (uint32_t k = 0; k < input_acts.size(); k++) {
@@ -242,6 +243,7 @@ void SequenceLearner::learn() {
     // If any BlockInput children have changed
     if (always_update || input.children_changed() || context.children_changed()) {
 
+        /*
         // For every active column
         for (uint32_t k = 0; k < input_acts.size(); k++) {
             uint32_t c = input_acts[k];
@@ -258,6 +260,14 @@ void SequenceLearner::learn() {
                 }
             }
         }
+        */
+
+        for (uint32_t i = 0; i < d_acts.size(); i++) {
+            uint32_t d = d_acts[i];
+            memory.learn_move(dm context.state, rng);
+            d_used.set_bit(d);
+        }
+
     }
 }
 
@@ -293,7 +303,8 @@ void SequenceLearner::recognition(const uint32_t c) {
             // If dendrite overlap is above the threshold
             if (overlap >= d_thresh) {
                 uint32_t s = d / num_dps;
-                memory.state.set_bit(d); // activate the dendrite
+                //memory.state.set_bit(d); // activate the dendrite
+                d_acts.push_back(d);
                 output.state.set_bit(s); // activate the dendrite's statelet
                 surprise_flag = false;
             }
@@ -352,7 +363,8 @@ void SequenceLearner::set_next_available_dendrite(const uint32_t s) {
     uint32_t d_next = d_beg + next_sd[s];
 
     // Activate random statelet's next available dendrite
-    memory.state.set_bit(d_next);
+    //memory.state.set_bit(d_next);
+    d_acts.push_back(d_next);
 
     // Update random statelet's next available dendrite
     if(next_sd[s] < num_dps - 1)

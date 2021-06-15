@@ -77,6 +77,7 @@ private:
     bool surprise_flag = false;
     std::vector<uint32_t> input_acts;
     std::vector<uint32_t> next_sd; // next available dendrite on statelets
+    std::vector<uint32_t> d_acts; // active dendrite indices
     BitArray d_used; // (0 = dendrite available, 1 = dendrite in use)
 };
 
