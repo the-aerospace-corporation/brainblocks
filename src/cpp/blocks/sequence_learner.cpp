@@ -264,7 +264,7 @@ void SequenceLearner::learn() {
 
         for (uint32_t i = 0; i < d_acts.size(); i++) {
             uint32_t d = d_acts[i];
-            memory.learn_move(dm context.state, rng);
+            memory.learn_move(d, context.state, rng);
             d_used.set_bit(d);
         }
 
