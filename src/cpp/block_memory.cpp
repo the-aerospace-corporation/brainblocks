@@ -493,8 +493,8 @@ void BlockMemory::learn_move(
             }
 
             // If receptor permanence is below zero then move address to an
-        // unused active input bit
-        else {
+            // unused active input bit
+            else {
                 bool pass = available.find_next_set_bit(next_addr, &next_addr);
 
                 if (!pass)
@@ -503,7 +503,7 @@ void BlockMemory::learn_move(
                 r_addrs[r] = next_addr;
                 r_perms[r] = perm_thr;
                 available.clear_bit(next_addr);
-        }
+            }
         }
     }
 }
