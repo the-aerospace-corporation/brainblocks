@@ -219,6 +219,11 @@ void BlockMemory::save(FILE* fptr) {
 
     std::fwrite(r_addrs.data(), sizeof(r_addrs[0]), r_addrs.size(), fptr);
     std::fwrite(r_perms.data(), sizeof(r_perms[0]), r_perms.size(), fptr);
+    if (conns_flag==true) {
+        for (int i=0; i<d_conns.size(); i++) {
+            d_conns[i].save(fptr);
+        }
+    }
 }
 
 // =============================================================================
@@ -230,6 +235,11 @@ void BlockMemory::load(FILE* fptr) {
 
     std::fread(r_addrs.data(), sizeof(r_addrs[0]), r_addrs.size(), fptr);
     std::fread(r_perms.data(), sizeof(r_perms[0]), r_perms.size(), fptr);
+    if (conns_flag==true) {
+        for (int i=0; i<d_conns.size(); i++) {
+            d_conns[i].load(fptr);
+        }
+    }
 }
 
 // =============================================================================
