@@ -5,7 +5,9 @@ import os
 import re
 import sys
 import platform
+import sysconfig
 import subprocess
+import pprint
 
 from setuptools import setup, Extension, find_packages, find_namespace_packages
 from setuptools.command.build_ext import build_ext
@@ -84,9 +86,13 @@ class CMakeBuild(build_ext):
         cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir]
         cmake_args += ['-DPYTHON_EXTENSION=1']
         cmake_args += ['-DPYTHON_EXECUTABLE=' + sys.executable]
+        cmake_args += ['-DPYTHON_PATHS=' + ';'.join(sys.path)]
         build_args += ['--config', cfg]
         cxxflags += ' -DVERSION_INFO=\\"{}\\"'.format(
                     self.distribution.get_version())
+
+        env = os.environ.copy()
+        osname, host, release, version, machine = os.uname()
 
         # If Windows
         if platform.system() == "Windows":
@@ -98,15 +104,26 @@ class CMakeBuild(build_ext):
             build_args += ['--', '/m']
             cxxflags += ' /O2'
 
-        # If Linux or MacOS
+        # If MacOS
+        elif platform.system() == "Darwin":
+            cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
+            print(cmake_args)
+            build_args += ['--', '-j2']
+            cxxflags += ' -O3 -g -fPIC'
+            #cxxflags += ' -Wall -Wextra' # for build warnings
+
+            # macos deployment target same as python ABI version
+            config_vars = sysconfig.get_config_vars()
+            env['MACOSX_DEPLOYMENT_TARGET'] = config_vars['MACOSX_DEPLOYMENT_TARGET']
+
+        # assume Linux
         else:
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
             build_args += ['--', '-j2']
             cxxflags += ' -O3 -g -fPIC'
             #cxxflags += ' -Wall -Wextra' # for build warnings
 
-        # Setup environment
-        env = os.environ.copy()
+        # C++ flags
         env['CXXFLAGS'] = cxxflags
 
         # Make current working directory if it doesnt already exist
@@ -125,7 +142,7 @@ class CMakeBuild(build_ext):
         print('Building C++ BrainBlocks')
         print('=' * 80, flush=True)
         subprocess.check_call(
-            ['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
+            ['cmake', '--build', '.'] + build_args, cwd=self.build_temp, env=env)
 
 # ==============================================================================
 # Setup

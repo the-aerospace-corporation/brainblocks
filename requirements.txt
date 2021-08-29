@@ -3,6 +3,8 @@ setuptools
 wheel
 numpy
 pytest
+cmake
+pybind11
 
 # Optional
 scipy

@@ -24,10 +24,21 @@ endif()
 # If called then build a python extension with pybind11
 if(PYTHON_EXTENSION)
 
-    include_directories(${BRAINBLOCKS_SOURCE_DIR}/src/cpp)
+    set(Python_FIND_REGISTRY NEVER)
+    #set(CMAKE_FIND_FRAMEWORK NEVER)
+    set(Python_FIND_FRAMEWORK NEVER)
 
-    # Cmake pybind11
-    add_subdirectory(src/3rdparty/pybind11)
+    message(STATUS "print_all_variables------------------------------------------{")
+    get_cmake_property(_variableNames VARIABLES)
+    foreach (_variableName ${_variableNames})
+        message(STATUS "${_variableName}=${${_variableName}}")
+    endforeach()
+    message(STATUS "print_all_variables------------------------------------------}")
+
+    # find pybind11 in python libraries
+    find_package(pybind11 REQUIRED PATHS ${PYTHON_PATHS})
+
+    include_directories(${BRAINBLOCKS_SOURCE_DIR}/src/cpp)
 
     # Handle python wrapper
     pybind11_add_module(bb_backend src/wrappers/python_bindings.cpp)
