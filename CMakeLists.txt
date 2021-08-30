@@ -28,12 +28,12 @@ if(PYTHON_EXTENSION)
     #set(CMAKE_FIND_FRAMEWORK NEVER)
     set(Python_FIND_FRAMEWORK NEVER)
 
-    message(STATUS "print_all_variables------------------------------------------{")
-    get_cmake_property(_variableNames VARIABLES)
-    foreach (_variableName ${_variableNames})
-        message(STATUS "${_variableName}=${${_variableName}}")
-    endforeach()
-    message(STATUS "print_all_variables------------------------------------------}")
+    #message(STATUS "print_all_variables------------------------------------------{")
+    #get_cmake_property(_variableNames VARIABLES)
+    #foreach (_variableName ${_variableNames})
+    #    message(STATUS "${_variableName}=${${_variableName}}")
+    #endforeach()
+    #message(STATUS "print_all_variables------------------------------------------}")
 
     # find pybind11 in python libraries
     find_package(pybind11 REQUIRED PATHS ${PYTHON_PATHS})

@@ -92,7 +92,6 @@ class CMakeBuild(build_ext):
                     self.distribution.get_version())
 
         env = os.environ.copy()
-        osname, host, release, version, machine = os.uname()
 
         # If Windows
         if platform.system() == "Windows":
@@ -107,7 +106,6 @@ class CMakeBuild(build_ext):
         # If MacOS
         elif platform.system() == "Darwin":
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
-            print(cmake_args)
             build_args += ['--', '-j2']
             cxxflags += ' -O3 -g -fPIC'
             #cxxflags += ' -Wall -Wextra' # for build warnings
