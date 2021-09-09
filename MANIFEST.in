@@ -1,0 +1,13 @@
+
+
+include CMakeLists.txt
+recursive-include docs *
+recursive-include examples *
+recursive-include src/cpp *
+include src/wrappers
+recursive-include tests *
+
+global-exclude .DS_Store
+global-exclude *.png
+global-exclude *py[cod]
+global-exclude Makefile

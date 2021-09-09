@@ -9,6 +9,11 @@ dist/
 *.egg-info/
 *.png
 .pytest_cache/
+.pypirc
+*.so
+*.a
+*.dll
+*.lib
 
 CMakeCache.txt
 CMakeFiles/

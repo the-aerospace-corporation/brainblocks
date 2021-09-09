@@ -14,6 +14,7 @@ from setuptools.command.build_ext import build_ext
 from setuptools.command.test import test as TestCommand
 from distutils.version import LooseVersion
 
+
 # ==============================================================================
 # PyTest
 # ==============================================================================
@@ -35,6 +36,7 @@ class PyTest(TestCommand):
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
 
+
 # ==============================================================================
 # CMakeExtension
 # ==============================================================================
@@ -42,6 +44,7 @@ class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
         Extension.__init__(self, name, sources=[])
         self.sourcedir = os.path.abspath(sourcedir)
+
 
 # ==============================================================================
 # CMakeBuild
@@ -78,7 +81,7 @@ class CMakeBuild(build_ext):
         cxxflags = ''
 
         extdir = os.path.abspath(
-                 os.path.dirname(self.get_ext_fullpath(ext.name)))
+            os.path.dirname(self.get_ext_fullpath(ext.name)))
 
         cfg = 'Debug' if self.debug else 'Release'
 
@@ -89,14 +92,14 @@ class CMakeBuild(build_ext):
         cmake_args += ['-DPYTHON_PATHS=' + ';'.join(sys.path)]
         build_args += ['--config', cfg]
         cxxflags += ' -DVERSION_INFO=\\"{}\\"'.format(
-                    self.distribution.get_version())
+            self.distribution.get_version())
 
         env = os.environ.copy()
 
         # If Windows
         if platform.system() == "Windows":
             cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(
-                          cfg.upper(), extdir)]
+                cfg.upper(), extdir)]
             # If 64-bit then specifiy the platform name
             if sys.maxsize > 2 ** 32:
                 cmake_args += ['-A', 'x64']
@@ -108,7 +111,7 @@ class CMakeBuild(build_ext):
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
             build_args += ['--', '-j2']
             cxxflags += ' -O3 -g -fPIC'
-            #cxxflags += ' -Wall -Wextra' # for build warnings
+            # cxxflags += ' -Wall -Wextra' # for build warnings
 
             # macos deployment target same as python ABI version
             config_vars = sysconfig.get_config_vars()
@@ -119,7 +122,7 @@ class CMakeBuild(build_ext):
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
             build_args += ['--', '-j2']
             cxxflags += ' -O3 -g -fPIC'
-            #cxxflags += ' -Wall -Wextra' # for build warnings
+            # cxxflags += ' -Wall -Wextra' # for build warnings
 
         # C++ flags
         env['CXXFLAGS'] = cxxflags
@@ -142,6 +145,7 @@ class CMakeBuild(build_ext):
         subprocess.check_call(
             ['cmake', '--build', '.'] + build_args, cwd=self.build_temp, env=env)
 
+
 # ==============================================================================
 # Setup
 # ==============================================================================
@@ -152,48 +156,6 @@ with open("README.md", "r") as fh:
 
 # Setup
 setup(
-    name="brainblocks",
-    version="0.7.0",
-    packages=[
-        "brainblocks",
-        "brainblocks.blocks",
-        "brainblocks.datasets",
-        "brainblocks.metrics",
-        "brainblocks.templates",
-        "brainblocks.tools",
-    ],
-    package_dir={'brainblocks': 'src/python'},
-    python_requires=">=3.6",
-    author="Jacob Everist, David Di Giorgio",
-    author_email="jacob.s.everist@aero.org, david.digiorgio@aero.org",
-    description="BrainBlocks Toolkit",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    # url="https://aerosource2.aero.org/bitbucket/projects/BRAINBLOCKS/repos/brainblocks-c",
-    keywords="brainblocks htm classification anomaly abnormality time-series neuroscience cognitive distributed representation",
-
-    project_urls={
-        "JIRA": "https://aerosource2.aero.org/jira/projects/BRAINBLOCK",
-        "Confluence": "https://aerosource2.aero.org/confluence/display/BRAINBLOCKS/BrainBlocks",
-        "Source Code": "https://aerosource2.aero.org/bitbucket/projects/BRAINBLOCKS/repos/brainblocks",
-    },
-    install_requires=[
-        #'numpy',
-        #'scipy',
-        #'sklearn'
-    ],
-    tests_require=['pytest'],
-    classifiers=[
-        "Topic :: Scientific/Engineering :: Artificial Intelligence",
-        "Programming Language :: C",
-        "Programming Language :: Python :: 3",
-        "Development Status :: 3 - Alpha"
-        "Operating System :: MacOS :: MacOS X",
-        "Operating System :: Microsoft :: Windows",
-        "Operating System :: POSIX :: Linux",
-    ],
     cmdclass=dict(build_ext=CMakeBuild, test=PyTest),
-    # cmdclass=dict(build_ext=CMakeBuild),
-    ext_modules=[CMakeExtension('brainblocks.bb_backend')],
-    zip_safe=False,
+    ext_modules=[CMakeExtension('brainblocks.bb_backend')]
 )

@@ -31,11 +31,11 @@ def rm_r(path):
 def install():
 
     # Install Python requirements
-    print('=' * 80)
-    print('Installing Python requirements')
-    print('=' * 80, flush=True)
-    subprocess.check_call(
-        [sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
+    #print('=' * 80)
+    #print('Installing Python requirements')
+    #print('=' * 80, flush=True)
+    #subprocess.check_call(
+    #    [sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
 
     # Uninstall Python BrainBlocks if it already exists
     print('=' * 80)
