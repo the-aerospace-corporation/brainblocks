@@ -1,7 +1,5 @@
 # BrainBlocks
 
-The current release is **BrainBlocks 0.7.0**.
-
 ![BrainBlocks Logo](docs/assets/brainblocks_logo.png "BrainBlocks")
 
 ## Introduction
