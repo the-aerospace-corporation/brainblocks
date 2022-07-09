@@ -700,6 +700,90 @@ def test_sequence_learner_save_load():
 
 
 # ==============================================================================
+# SequenceLearner Save and Load
+# ==============================================================================
+def test_pattern_classifier_save_load():
+
+
+
+    lt0 = DiscreteTransformer(
+        num_v=8,    # number of discrete values
+        num_s=1024) # number of statelets
+    lt1 = DiscreteTransformer(
+        num_v=8,    # number of discrete values
+        num_s=1024) # number of statelets
+
+    pc0 = PatternClassifier(
+        num_l=2,       # number of labels
+        num_s=512,     # number of statelets
+        num_as=8,      # number of active statelets
+        perm_thr=20,   # receptor permanence threshold
+        perm_inc=2,    # receptor permanence increment
+        perm_dec=1,    # receptor permanence decrement
+        pct_pool=0.8,  # pooling percentage
+        pct_conn=0.5,  # initially connected percentage
+        pct_learn=0.3) # learn percentage
+
+    pc1 = PatternClassifier(
+        num_l=2,       # number of labels
+        num_s=512,     # number of statelets
+        num_as=8,      # number of active statelets
+        perm_thr=20,   # receptor permanence threshold
+        perm_inc=2,    # receptor permanence increment
+        perm_dec=1,    # receptor permanence decrement
+        pct_pool=0.8,  # pooling percentage
+        pct_conn=0.5,  # initially connected percentage
+        pct_learn=0.3) # learn percentage
+
+    pc0.input.add_child(lt0.output, 0)
+    pc1.input.add_child(lt1.output, 0)
+
+
+
+    # Train
+    for _ in range(10):
+
+        lt0.set_value(0)
+        pc0.set_label(0)
+        lt0.feedforward()
+        pc0.feedforward(learn=True)
+
+        lt0.set_value(1)
+        pc0.set_label(1)
+        lt0.feedforward()
+        pc0.feedforward(learn=True)
+
+
+    # Test Success
+    lt0.set_value(0)
+    lt0.feedforward()
+    pc0.feedforward(learn=False)
+    probs = pc0.get_probabilities()
+    labels = pc0.get_labels()
+    actual_label = np.array(labels[np.argmax(probs)])
+    expect_label = 0
+    np.testing.assert_equal(actual_label, expect_label)
+
+    # Save sl0 memories
+    pc0.save('pc.bin')
+
+    # load sl0 memories into sl1
+    pc1.load('pc.bin')
+
+    # Test Success of Reloaded PC
+    lt1.set_value(1)
+    lt1.feedforward()
+    pc1.feedforward(learn=False)
+    probs = pc1.get_probabilities()
+    labels = pc1.get_labels()
+    actual_label = np.array(labels[np.argmax(probs)])
+    expect_label = 1
+    np.testing.assert_equal(actual_label, expect_label)
+
+    os.remove('pc.bin')
+
+
+# ==============================================================================
 # Main
 # ==============================================================================
 if __name__ == '__main__':
@@ -717,3 +801,4 @@ if __name__ == '__main__':
     test_sequence_learner_triangle()
     test_sequence_learner_sine()
     test_sequence_learner_save_load()
+    test_pattern_classifier_save_load()
