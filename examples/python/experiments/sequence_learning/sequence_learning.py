@@ -9,12 +9,15 @@ import math
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import brainblocks.bb_backend as bb
-from brainblocks.blocks import SymbolsEncoder, SequenceLearner
+
+from brainblocks.blocks import DiscreteTransformer, SequenceLearner, PatternClassifier
+
+#import brainblocks.bb_backend as bb
+#from brainblocks.blocks import SymbolsEncoder, SequenceLearner
 from sklearn import preprocessing
 
 # seed for deterministic random generator
-bb.seed(0)
+#bb.seed(0)
 
 # printing boolean arrays neatly
 np.set_printoptions(precision=3, suppress=True, threshold=1000000, linewidth=100,
@@ -31,7 +34,8 @@ def mkdir_p(path):
 # ==============================================================================
 # Plot Results
 # ==============================================================================
-def plot_results(directory, title, values, scores, total_statelets, total_hidden_statelets, total_historical, total_coincidence_sets, s_upper_limit, cs_upper_limit):
+#def plot_results(directory, title, values, scores, total_statelets, total_context_statelets, total_historical, total_coincidence_sets, s_upper_limit, cs_upper_limit):
+def plot_results(directory, title, values, scores, total_statelets, total_context_statelets, s_upper_limit, cs_upper_limit):
     t = [i for i in range(len(values))]
 
     plt.clf()
@@ -51,7 +55,7 @@ def plot_results(directory, title, values, scores, total_statelets, total_hidden
 
     # axis 2: statelets
     ax2.plot(t, total_statelets, drawstyle='steps-mid', label='output')
-    ax2.plot(t, total_hidden_statelets, drawstyle='steps-mid', label='hidden')
+    ax2.plot(t, total_context_statelets, drawstyle='steps-mid', label='context')
     #ax2.fill_between(t, total_historical, 0, alpha=0.2, label='historical')
     ax2.set_ylabel('statelets')
     #ax2.set_ylim(0, s_upper_limit)
@@ -66,9 +70,9 @@ def plot_results(directory, title, values, scores, total_statelets, total_hidden
                bbox_transform=ax2.transAxes)
 
     # axis 3: coincidence sets
-    ax3.plot(t, total_coincidence_sets, drawstyle='steps-mid')
-    ax3.set_ylabel('coincidence sets')
-    ax3.set_ylim(0, cs_upper_limit)
+    #ax3.plot(t, total_coincidence_sets, drawstyle='steps-mid')
+    #ax3.set_ylabel('coincidence sets')
+    #ax3.set_ylim(0, cs_upper_limit)
 
     # save plot
     #fig.suptitle()
@@ -130,6 +134,74 @@ def plot_statelet_usage(directory, title, statelets, vmax=None):
     plt.savefig('./%s/statelet_usage_%s.png' % (directory, title))
     plt.close(fig)
 
+
+def loop_sequence(directory, e, sl, values, vmax=40, statelet_snapshots_on=False):
+
+    le = preprocessing.LabelEncoder()
+    le.fit(values)
+    int_values = le.transform(values)
+
+    scores = [0.0 for _ in range(len(values))]
+    count_s_output_acts = [0 for _ in range(len(values))]
+    count_s_context_acts = [0 for _ in range(len(values))]
+    #count_s_hist = [0 for _ in range(len(values))]
+    #count_cs = [0 for _ in range(len(values))]
+    context_s_usage = [0 for _ in range(2240)]
+    output_s_usage = [0 for _ in range(2240)]
+
+    print('val  scr  s_act  s_his    cs  active output statelets')
+
+    ## Set label transformer value
+    #lt.set_value(int_labels[i])
+    # Compute label transformer
+    #lt.feedforward()
+
+    for i in range(len(int_values)):
+
+        ## Set label transformer value
+        e.set_value(int_values[i])
+
+        # Compute label transformer
+        e.feedforward()
+        sl.feedforward(learn=True)
+
+        # update information
+        context_s_bits = sl.context.bits
+        context_s_acts = sl.context.acts
+        output_s_bits = sl.output.bits
+        output_s_acts = sl.output.acts
+        scores[i] = sl.get_anomaly_score()
+        count_s_output_acts[i] = len(output_s_acts)
+        count_s_context_acts[i] = len(context_s_acts)
+
+        #count_s_hist[i] = sl.get_historical_count()
+        #count_cs[i] = sl.get_coincidence_set_count()
+
+        # update statelet usage
+        for s in range(len(output_s_usage)):
+            context_s_usage[s] += context_s_bits[s]
+            output_s_usage[s] += output_s_bits[s]
+
+        # plot statelets
+        if statelet_snapshots_on and (i+1) % 5 == 0:
+            title = 'step_' + str(i) + '_' + values[i] + '_' + values[i-1]
+            plot_statelets(directory, 'context_'+title, context_s_bits)
+            plot_statelets(directory, 'output_'+title, output_s_bits)
+
+        # print information
+        output_s_acts_str = '[' + ', '.join(str(act).rjust(4) for act in output_s_acts) + ']'
+        print('{0:>3}  {1:0.1f}  {2:5d}  {3:>4}'.format(
+            values[i], scores[i], count_s_output_acts[i], output_s_acts_str))
+        #print('{0:>3}  {1:0.1f}  {2:5d}  {3:5d}  {4:4d}  {5:>4}'.format(
+        #    values[i], scores[i], count_s_output_acts[i], count_s_hist[i], count_cs[i], output_s_acts_str))
+
+    # plot information
+    #plot_results(directory, 'results', values, scores, count_s_output_acts, count_s_context_acts, count_s_hist, count_cs, 400, 400)
+    plot_results(directory, 'results', values, scores, count_s_output_acts, count_s_context_acts, 400, 400)
+    plot_statelet_usage(directory, 'context', context_s_usage, vmax)
+    plot_statelet_usage(directory, 'output', output_s_usage, vmax)
+
+
 # ==============================================================================
 # One Event
 # ==============================================================================
@@ -140,9 +212,10 @@ def one_event(statelet_snapshots_on=False):
     print()
     print('experiment=\'%s\'' % (experiment_name))
 
-    e = SymbolsEncoder(
-        max_symbols=26, # maximum number of symbols
-        num_s=208)      # number of statelets
+    # create the transformer
+    e = DiscreteTransformer(
+        num_v=26,  # max number of discrete values
+        num_s=208)  # number of statelets
 
     sl = SequenceLearner(
         num_spc=10, # number of statelets per column
@@ -168,55 +241,7 @@ def one_event(statelet_snapshots_on=False):
         'a', 'a', 'a', 'a', 'a',
         'a', 'a', 'a', 'a', 'a']
 
-    le = preprocessing.LabelEncoder()
-    le.fit(values)
-    int_values = le.transform(values)
-
-    scores = [0.0 for _ in range(len(values))]
-    count_s_output_acts = [0 for _ in range(len(values))]
-    count_s_hidden_acts = [0 for _ in range(len(values))]
-    count_s_hist = [0 for _ in range(len(values))]
-    count_cs = [0 for _ in range(len(values))]
-    hidden_s_usage = [0 for _ in range(2240)]
-    output_s_usage = [0 for _ in range(2240)]
-
-    print('val  scr  s_act  s_his    cs  active output statelets')
-
-    for i in range(len(int_values)):
-        e.compute(value=int_values[i])
-        sl.compute(learn=True)
-
-        # update information
-        hidden_s_bits = sl.hidden.bits
-        hidden_s_acts = sl.hidden.acts
-        output_s_bits = sl.output.bits
-        output_s_acts = sl.output.acts
-        scores[i] = sl.get_score()
-        count_s_output_acts[i] = len(output_s_acts)
-        count_s_hidden_acts[i] = len(hidden_s_acts)
-        count_s_hist[i] = sl.get_historical_count()
-        count_cs[i] = sl.get_coincidence_set_count()
-
-        # update statelet usage
-        for s in range(len(output_s_usage)):
-            hidden_s_usage[s] += hidden_s_bits[s]
-            output_s_usage[s] += output_s_bits[s]
-
-        # plot statelets
-        if statelet_snapshots_on and (i+1) % 5 == 0:
-            title = 'step_' + str(i) + '_' + values[i] + '_' + values[i-1]
-            plot_statelets(directory, 'hidden_'+title, hidden_s_bits)
-            plot_statelets(directory, 'output_'+title, output_s_bits)
-
-        # print information
-        output_s_acts_str = '[' + ', '.join(str(act).rjust(4) for act in output_s_acts) + ']'
-        print('{0:>3}  {1:0.1f}  {2:5d}  {3:5d}  {4:4d}  {5:>4}'.format(
-            values[i], scores[i], count_s_output_acts[i], count_s_hist[i], count_cs[i], output_s_acts_str))
-
-    # plot information
-    plot_results(directory, 'results', values, scores, count_s_output_acts, count_s_hidden_acts, count_s_hist, count_cs, 400, 400)
-    plot_statelet_usage(directory, 'hidden', hidden_s_usage, 40)
-    plot_statelet_usage(directory, 'output', output_s_usage, 40)
+    loop_sequence(directory, e, sl, values, statelet_snapshots_on=statelet_snapshots_on, vmax=40)
 
 # ==============================================================================
 # Two Events
@@ -228,9 +253,10 @@ def two_events(statelet_snapshots_on=False):
     print()
     print('experiment=\'%s\'' % (experiment_name))
 
-    e = SymbolsEncoder(
-        max_symbols=26, # maximum number of symbols
-        num_s=208)      # number of statelets
+    # create the transformer
+    e = DiscreteTransformer(
+        num_v=26,  # max number of discrete values
+        num_s=208)  # number of statelets
 
     sl = SequenceLearner(
         num_spc=10, # number of statelets per column
@@ -265,55 +291,9 @@ def two_events(statelet_snapshots_on=False):
         'a', 'a', 'a', 'a', 'a',
         'a', 'a', 'a', 'a', 'a']
 
-    le = preprocessing.LabelEncoder()
-    le.fit(values)
-    int_values = le.transform(values)
+    loop_sequence(directory, e, sl, values, statelet_snapshots_on=statelet_snapshots_on, vmax=75)
 
-    scores = [0.0 for _ in range(len(values))]
-    count_s_output_acts = [0 for _ in range(len(values))]
-    count_s_hidden_acts = [0 for _ in range(len(values))]
-    count_s_hist = [0 for _ in range(len(values))]
-    count_cs = [0 for _ in range(len(values))]
-    hidden_s_usage = [0 for _ in range(2240)]
-    output_s_usage = [0 for _ in range(2240)]
 
-    print('val  scr  s_act  s_his    cs  active output statelets')
-
-    for i in range(len(int_values)):
-        e.compute(value=int_values[i])
-        sl.compute(learn=True)
-
-        # update information
-        hidden_s_bits = sl.hidden.bits
-        hidden_s_acts = sl.hidden.acts
-        output_s_bits = sl.output.bits
-        output_s_acts = sl.output.acts
-        scores[i] = sl.get_score()
-        count_s_output_acts[i] = len(output_s_acts)
-        count_s_hidden_acts[i] = len(hidden_s_acts)
-        count_s_hist[i] = sl.get_historical_count()
-        count_cs[i] = sl.get_coincidence_set_count()
-
-        # update statelet usage
-        for s in range(len(output_s_usage)):
-            hidden_s_usage[s] += hidden_s_bits[s]
-            output_s_usage[s] += output_s_bits[s]
-
-        # plot statelets
-        if statelet_snapshots_on and (i+1) % 5 == 0:
-            title = 'step_' + str(i) + '_' + values[i] + '_' + values[i-1]
-            plot_statelets(directory, 'hidden_'+title, hidden_s_bits)
-            plot_statelets(directory, 'output_'+title, output_s_bits)
-
-        # print information
-        output_s_acts_str = '[' + ', '.join(str(act).rjust(4) for act in output_s_acts) + ']'
-        print('{0:>3}  {1:0.1f}  {2:5d}  {3:5d}  {4:4d}  {5:>4}'.format(
-            values[i], scores[i], count_s_output_acts[i], count_s_hist[i], count_cs[i], output_s_acts_str))
-
-    # plot information
-    plot_results(directory, 'results', values, scores, count_s_output_acts, count_s_hidden_acts, count_s_hist, count_cs, 400, 400)
-    plot_statelet_usage(directory, 'hidden', hidden_s_usage, 75)
-    plot_statelet_usage(directory, 'output', output_s_usage, 75)
 
 # ==============================================================================
 # Three Events
@@ -330,8 +310,9 @@ def three_events(statelet_snapshots_on=False):
     TOTAL_NUM_S = NUM_S * NUM_SPC
 
 
-    e = SymbolsEncoder(
-        max_symbols=26,  # maximum number of symbols
+    # create the transformer
+    e = DiscreteTransformer(
+        num_v=26,  # number of discrete values
         num_s=NUM_S)  # number of statelets
 
     sl = SequenceLearner(
@@ -357,55 +338,8 @@ def three_events(statelet_snapshots_on=False):
         'b', 'c', 'd', 'c', 'b',
         'a', 'a', 'a', 'a', 'a']
 
-    le = preprocessing.LabelEncoder()
-    le.fit(values)
-    int_values = le.transform(values)
 
-    scores = [0.0 for _ in range(len(values))]
-    count_s_output_acts = [0 for _ in range(len(values))]
-    count_s_hidden_acts = [0 for _ in range(len(values))]
-    count_s_hist = [0 for _ in range(len(values))]
-    count_cs = [0 for _ in range(len(values))]
-    hidden_s_usage = [0 for _ in range(TOTAL_NUM_S)]
-    output_s_usage = [0 for _ in range(TOTAL_NUM_S)]
-
-    print('val  scr  s_act  s_his    cs  active output statelets')
-
-    for i in range(len(int_values)):
-        e.compute(value=int_values[i])
-        sl.compute(learn=True)
-
-        # update information
-        hidden_s_bits = sl.hidden.bits
-        hidden_s_acts = sl.hidden.acts
-        output_s_bits = sl.output.bits
-        output_s_acts = sl.output.acts
-        scores[i] = sl.get_score()
-        count_s_output_acts[i] = len(output_s_acts)
-        count_s_hidden_acts[i] = len(hidden_s_acts)
-        count_s_hist[i] = sl.get_historical_count()
-        count_cs[i] = sl.get_coincidence_set_count()
-
-        # update statelet usage
-        for s in range(len(output_s_usage)):
-            hidden_s_usage[s] += hidden_s_bits[s]
-            output_s_usage[s] += output_s_bits[s]
-
-        # plot statelets
-        if statelet_snapshots_on and (i+1) % 5 == 0 or i == 43:
-            title = 'step_' + str(i) + '_' + values[i] + '_' + values[i-1]
-            plot_statelets(directory, 'hidden_'+title, hidden_s_bits)
-            plot_statelets(directory, 'output_'+title, output_s_bits)
-
-        # print information
-        output_s_acts_str = '[' + ', '.join(str(act).rjust(4) for act in output_s_acts) + ']'
-        print('{0:>3}  {1:0.1f}  {2:5d}  {3:5d}  {4:4d}  {5:>4}'.format(
-            values[i], scores[i], count_s_output_acts[i], count_s_hist[i], count_cs[i], output_s_acts_str))
-
-    # plot information
-    plot_results(directory, 'results', values, scores, count_s_output_acts, count_s_hidden_acts, count_s_hist, count_cs, 400, 400)
-    plot_statelet_usage(directory, 'hidden', hidden_s_usage, 75)
-    plot_statelet_usage(directory, 'output', output_s_usage, 75)
+    loop_sequence(directory, e, sl, values, statelet_snapshots_on=statelet_snapshots_on, vmax=75)
 
 # ==============================================================================
 # Multiple Prior Contexts
@@ -417,9 +351,10 @@ def multiple_prior_contexts(statelet_snapshots_on=False):
     print()
     print('experiment=\'%s\'' % (experiment_name))
 
-    e = SymbolsEncoder(
-        max_symbols=26, # maximum number of symbols
-        num_s=208)      # number of statelets
+    # create the transformer
+    e = DiscreteTransformer(
+        num_v=26,  # max number of discrete values
+        num_s=208)  # number of statelets
 
     sl = SequenceLearner(
         num_spc=10, # number of statelets per column
@@ -459,55 +394,7 @@ def multiple_prior_contexts(statelet_snapshots_on=False):
         'x', 'z', 'x', 'z', 'x', 'z',
         'y', 'z', 'y', 'z', 'y', 'z']
 
-    le = preprocessing.LabelEncoder()
-    le.fit(values)
-    int_values = le.transform(values)
-
-    scores = [0.0 for _ in range(len(values))]
-    count_s_output_acts = [0 for _ in range(len(values))]
-    count_s_hidden_acts = [0 for _ in range(len(values))]
-    count_s_hist = [0 for _ in range(len(values))]
-    count_cs = [0 for _ in range(len(values))]
-    hidden_s_usage = [0 for _ in range(2240)]
-    output_s_usage = [0 for _ in range(2240)]
-
-    print('val  scr  s_act  s_his    cs  active output statelets')
-
-    for i in range(len(int_values)):
-        e.compute(value=int_values[i])
-        sl.compute(learn=True)
-
-        # update information
-        hidden_s_bits = sl.hidden.bits
-        hidden_s_acts = sl.hidden.acts
-        output_s_bits = sl.output.bits
-        output_s_acts = sl.output.acts
-        scores[i] = sl.get_score()
-        count_s_output_acts[i] = len(output_s_acts)
-        count_s_hidden_acts[i] = len(hidden_s_acts)
-        count_s_hist[i] = sl.get_historical_count()
-        count_cs[i] = sl.get_coincidence_set_count()
-
-        # update statelet usage
-        for s in range(len(output_s_usage)):
-            hidden_s_usage[s] += hidden_s_bits[s]
-            output_s_usage[s] += output_s_bits[s]
-
-        # plot statelets
-        if statelet_snapshots_on and (i+1) % 6 == 0:
-            title = values[i] + '_' + values[i-1]
-            plot_statelets(directory, 'hidden_'+title, hidden_s_bits)
-            plot_statelets(directory, 'output_'+title, output_s_bits)
-
-        # print information
-        output_s_acts_str = '[' + ', '.join(str(act).rjust(4) for act in output_s_acts) + ']'
-        print('{0:>3}  {1:0.1f}  {2:5d}  {3:5d}  {4:4d}  {5:>4}'.format(
-            values[i], scores[i], count_s_output_acts[i], count_s_hist[i], count_cs[i], output_s_acts_str))
-
-    # plot information
-    plot_results(directory, 'results', values, scores, count_s_output_acts, count_s_hidden_acts, count_s_hist, count_cs, 400, 400)
-    plot_statelet_usage(directory, 'hidden', hidden_s_usage, 75)
-    plot_statelet_usage(directory, 'output', output_s_usage, 75)
+    loop_sequence(directory, e, sl, values, statelet_snapshots_on=statelet_snapshots_on, vmax=75)
 
     '''
     # ========================================
