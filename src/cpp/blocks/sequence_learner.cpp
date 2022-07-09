@@ -52,7 +52,7 @@ SequenceLearner::SequenceLearner(
     const uint32_t num_t,    // number of BlockOutput time steps (optional)
     const bool always_update,  // whether to only update on input changes
     const uint32_t seed)     // seed for random number generator
-: Block() {
+: Block(seed) {
 
     assert(num_c > 0);
     assert(num_spc > 0);
