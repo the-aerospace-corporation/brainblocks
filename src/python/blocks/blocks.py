@@ -143,7 +143,8 @@ class BlankBlock():
     def __init__(
             self,
             num_s=512, # number of statelets
-            num_t=2):  # number of BlockOutput time steps (optional)
+            num_t=2,  # number of BlockOutput time steps (optional)
+            seed=0):     # seed for random number generator
 
         self.obj = bb.BlankBlock(num_s, num_t)
 
@@ -218,7 +219,8 @@ class DiscreteTransformer():
             self,
             num_v=8,   # number of discrete values
             num_s=512, # number of statelets
-            num_t=2):  # number of BlockOutput time states (optional)
+            num_t=2,  # number of BlockOutput time states (optional)
+            seed=0):     # seed for random number generator
 
         self.obj = bb.DiscreteTransformer(num_v, num_s, num_t)
 
@@ -421,7 +423,8 @@ class PersistenceTransformer():
             num_s=512,    # number of statelets
             num_as=64,    # number of active statelets
             max_step=10,  # maximum number of persistence steps
-            num_t=2):     # number of BlockOutput time steps (optional)
+            num_t=2,     # number of BlockOutput time steps (optional)
+            seed=0):     # seed for random number generator
 
         self.obj = bb.PersistenceTransformer(
             min_val, max_val, num_s, num_as, max_step, num_t)
@@ -453,7 +456,8 @@ class ScalarTransformer():
             max_val=1.0,  # maximum input value
             num_s=512,    # number of statelets
             num_as=64,    # number of active statelets
-            num_t=2):     # number of BlockOutput time steps (optional)
+            num_t=2,     # number of BlockOutput time steps (optional)
+            seed=0):     # seed for random number generator
 
         self.obj = bb.ScalarTransformer(
             min_val, max_val, num_s, num_as, num_t)

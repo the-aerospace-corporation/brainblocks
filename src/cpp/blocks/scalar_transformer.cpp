@@ -24,7 +24,8 @@ ScalarTransformer::ScalarTransformer(
     const double max_val,  // maximum input value
     const uint32_t num_s,  // number of statelets
     const uint32_t num_as, // number of active statelets
-    const uint32_t num_t)  // number of BlockOutput time steps (optional)
+    const uint32_t num_t,  // number of BlockOutput time steps (optional)
+    const uint32_t seed)     // seed for random number generator
 : Block() {
 
     assert(min_val < max_val);

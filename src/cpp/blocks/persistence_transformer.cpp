@@ -24,7 +24,9 @@ PersistenceTransformer::PersistenceTransformer(
     const uint32_t num_s,
     const uint32_t num_as,
     const uint32_t max_step,
-    const uint32_t num_t)
+    const uint32_t num_t,
+    const uint32_t seed)     // seed for random number generator
+
 : Block() {
 
     assert(min_val < max_val);

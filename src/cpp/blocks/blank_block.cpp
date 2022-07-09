@@ -22,8 +22,9 @@ using namespace BrainBlocks;
 // =============================================================================
 BlankBlock::BlankBlock(
         const uint32_t num_s,
-        const uint32_t num_t
-    ) : Block() {
+        const uint32_t num_t,
+        const uint32_t seed     // seed for random number generator
+    ) : Block(seed) {
 
     // Check parameters
     assert(num_s > 0);

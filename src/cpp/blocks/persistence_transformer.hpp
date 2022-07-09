@@ -20,7 +20,8 @@ public:
         const uint32_t num_s,
         const uint32_t num_as,
         const uint32_t max_step,
-        const uint32_t num_t=2);
+        const uint32_t num_t=2,
+        const uint32_t seed=0);
 
     // Overrided virtual functions
     void clear() override;

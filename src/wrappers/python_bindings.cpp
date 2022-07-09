@@ -173,9 +173,11 @@ PYBIND11_MODULE(bb_backend, m) {
 
         .def(py::init<
 	        const uint32_t,
+            const uint32_t,
 	        const uint32_t>(),
         "num_s"_a,
 	    "num_t"_a,
+        "seed"_a=0,
 	    "Constructs a BlankBlock")
 
         .def_readonly("output", &BlankBlock::output,
@@ -232,10 +234,12 @@ PYBIND11_MODULE(bb_backend, m) {
         .def(py::init<
             const uint32_t,
             const uint32_t,
+            const uint32_t,
             const uint32_t>(),
         "num_v"_a,
         "num_s"_a,
         "num_t"_a=2,
+        "seed"_a=0,
         "Constructs a DiscreteTransformer")
 
         .def("set_value", &DiscreteTransformer::set_value, "value"_a,
@@ -396,6 +400,7 @@ PYBIND11_MODULE(bb_backend, m) {
             const uint32_t,
             const uint32_t,
             const uint32_t,
+            const uint32_t,
             const uint32_t>(),
         "min_val"_a,
         "max_val"_a,
@@ -403,6 +408,7 @@ PYBIND11_MODULE(bb_backend, m) {
         "num_as"_a,
         "max_step"_a,
         "num_t"_a=2,
+        "seed"_a=0,
         "Constructs a PersistenceTransformer")
 
         .def("set_value", &PersistenceTransformer::set_value, "value"_a,
@@ -424,12 +430,14 @@ PYBIND11_MODULE(bb_backend, m) {
             const double,
             const uint32_t,
             const uint32_t,
+            const uint32_t,
             const uint32_t>(),
         "min_val"_a,
         "max_val"_a,
         "num_s"_a,
         "num_as"_a,
         "num_t"_a=2,
+        "seed"_a=0,
         "Constructs a ScalarTransformer")
 
         .def("set_value", &ScalarTransformer::set_value, "value"_a,

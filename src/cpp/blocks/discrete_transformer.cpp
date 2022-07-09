@@ -20,8 +20,9 @@ using namespace BrainBlocks;
 DiscreteTransformer::DiscreteTransformer(
     const uint32_t num_v,  // number of discrete values
     const uint32_t num_s,  // number of statelets
-    const uint32_t num_t)  // number of BlockOutput time steps (optional)
-: Block() {
+    const uint32_t num_t,  // number of BlockOutput time steps (optional)
+    const uint32_t seed)     // seed for random number generator
+: Block(seed) {
 
     assert(num_v > 0);
     assert(num_s > 0);
