@@ -180,10 +180,10 @@ class ContextLearner():
         self.obj.init()
 
     def save(self, file='./file.bin'):
-        self.obj.save(file.encode('utf-8'))
+        return self.obj.save(file.encode('utf-8'))
 
     def load(self, file='./file.bin'):
-        self.obj.load(file.encode('utf-8'))
+        return self.obj.load(file.encode('utf-8'))
 
     def clear(self):
         self.obj.clear()
@@ -265,10 +265,10 @@ class PatternClassifier():
         self.obj.init()
 
     def save(self, file='./file.bin'):
-        self.obj.save(file.encode('utf-8'))
+        return self.obj.save(file.encode('utf-8'))
 
     def load(self, file='./file.bin'):
-        self.obj.load(file.encode('utf-8'))
+        return self.obj.load(file.encode('utf-8'))
 
     def clear(self):
         self.obj.clear()
@@ -324,10 +324,10 @@ class PatternClassifierDynamic():
         self.obj.init()
 
     def save(self, file='./file.bin'):
-        self.obj.save(file.encode('utf-8'))
+        return self.obj.save(file.encode('utf-8'))
 
     def load(self, file='./file.bin'):
-        self.obj.load(file.encode('utf-8'))
+        return self.obj.load(file.encode('utf-8'))
 
     def clear(self):
         self.obj.clear()
@@ -386,10 +386,10 @@ class PatternPooler():
         self.obj.init()
 
     def save(self, file='./file.bin'):
-        self.obj.save(file.encode('utf-8'))
+        return self.obj.save(file.encode('utf-8'))
 
     def load(self, file='./file.bin'):
-        self.obj.load(file.encode('utf-8'))
+        return self.obj.load(file.encode('utf-8'))
 
     def clear(self):
         self.obj.clear()
@@ -501,10 +501,10 @@ class SequenceLearner():
         self.obj.init()
 
     def save(self, file='./file.bin'):
-        self.obj.save(file.encode('utf-8'))
+        return self.obj.save(file.encode('utf-8'))
 
     def load(self, file='./file.bin'):
-        self.obj.load(file.encode('utf-8'))
+        return self.obj.load(file.encode('utf-8'))
 
     def clear(self):
         self.obj.clear()
