@@ -482,6 +482,9 @@ PYBIND11_MODULE(bb_backend, m) {
         .def("get_anomaly_score", &SequenceLearner::get_anomaly_score,
              "Returns anomaly score")
 
+        .def("get_historical_count", &SequenceLearner::get_historical_count,
+             "Get number of historical statelets")
+
         .def_readonly("input", &SequenceLearner::input,
                       "Returns input BlockInput object")
 

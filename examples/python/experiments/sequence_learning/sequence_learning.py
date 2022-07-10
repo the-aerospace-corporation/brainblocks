@@ -35,7 +35,8 @@ def mkdir_p(path):
 # Plot Results
 # ==============================================================================
 #def plot_results(directory, title, values, scores, total_statelets, total_context_statelets, total_historical, total_coincidence_sets, s_upper_limit, cs_upper_limit):
-def plot_results(directory, title, values, scores, total_statelets, total_context_statelets, s_upper_limit, cs_upper_limit):
+#def plot_results(directory, title, values, scores, total_statelets, total_context_statelets, s_upper_limit, cs_upper_limit):
+def plot_results(directory, title, values, scores, total_statelets, total_input_statelets, total_historical, s_upper_limit, cs_upper_limit):
     t = [i for i in range(len(values))]
 
     plt.clf()
@@ -55,7 +56,7 @@ def plot_results(directory, title, values, scores, total_statelets, total_contex
 
     # axis 2: statelets
     ax2.plot(t, total_statelets, drawstyle='steps-mid', label='output')
-    ax2.plot(t, total_context_statelets, drawstyle='steps-mid', label='context')
+    ax2.plot(t, total_input_statelets, drawstyle='steps-mid', label='input')
     #ax2.fill_between(t, total_historical, 0, alpha=0.2, label='historical')
     ax2.set_ylabel('statelets')
     #ax2.set_ylim(0, s_upper_limit)
@@ -71,7 +72,10 @@ def plot_results(directory, title, values, scores, total_statelets, total_contex
 
     # axis 3: coincidence sets
     #ax3.plot(t, total_coincidence_sets, drawstyle='steps-mid')
-    #ax3.set_ylabel('coincidence sets')
+
+    # axis 3: historical statelet count
+    ax3.plot(t, total_historical, drawstyle='steps-mid')
+    ax3.set_ylabel('historical statelets')
     #ax3.set_ylim(0, cs_upper_limit)
 
     # save plot
@@ -142,9 +146,10 @@ def loop_sequence(directory, e, sl, values, vmax=40, statelet_snapshots_on=False
     int_values = le.transform(values)
 
     scores = [0.0 for _ in range(len(values))]
+    count_s_input_acts = [0 for _ in range(len(values))]
     count_s_output_acts = [0 for _ in range(len(values))]
     count_s_context_acts = [0 for _ in range(len(values))]
-    #count_s_hist = [0 for _ in range(len(values))]
+    count_s_hist = [0 for _ in range(len(values))]
     #count_cs = [0 for _ in range(len(values))]
     context_s_usage = [0 for _ in range(2240)]
     output_s_usage = [0 for _ in range(2240)]
@@ -166,15 +171,17 @@ def loop_sequence(directory, e, sl, values, vmax=40, statelet_snapshots_on=False
         sl.feedforward(learn=True)
 
         # update information
-        context_s_bits = sl.context.bits
-        context_s_acts = sl.context.acts
         output_s_bits = sl.output.bits
         output_s_acts = sl.output.acts
+        context_s_bits = sl.context.bits
+        context_s_acts = sl.context.acts
+        input_s_acts = sl.input.acts
         scores[i] = sl.get_anomaly_score()
+        count_s_input_acts[i] = len(input_s_acts)
         count_s_output_acts[i] = len(output_s_acts)
         count_s_context_acts[i] = len(context_s_acts)
 
-        #count_s_hist[i] = sl.get_historical_count()
+        count_s_hist[i] = sl.get_historical_count()
         #count_cs[i] = sl.get_coincidence_set_count()
 
         # update statelet usage
@@ -190,14 +197,14 @@ def loop_sequence(directory, e, sl, values, vmax=40, statelet_snapshots_on=False
 
         # print information
         output_s_acts_str = '[' + ', '.join(str(act).rjust(4) for act in output_s_acts) + ']'
-        print('{0:>3}  {1:0.1f}  {2:5d}  {3:>4}'.format(
-            values[i], scores[i], count_s_output_acts[i], output_s_acts_str))
+        print('{0:>3}  {1:0.1f}  {2:5d}  {3:5d} {4:>4}'.format(
+            values[i], scores[i], count_s_output_acts[i], count_s_hist[i], output_s_acts_str))
         #print('{0:>3}  {1:0.1f}  {2:5d}  {3:5d}  {4:4d}  {5:>4}'.format(
         #    values[i], scores[i], count_s_output_acts[i], count_s_hist[i], count_cs[i], output_s_acts_str))
 
     # plot information
     #plot_results(directory, 'results', values, scores, count_s_output_acts, count_s_context_acts, count_s_hist, count_cs, 400, 400)
-    plot_results(directory, 'results', values, scores, count_s_output_acts, count_s_context_acts, 400, 400)
+    plot_results(directory, 'results', values, scores, count_s_output_acts, count_s_input_acts, count_s_hist, 400, 500)
     plot_statelet_usage(directory, 'context', context_s_usage, vmax)
     plot_statelet_usage(directory, 'output', output_s_usage, vmax)
 

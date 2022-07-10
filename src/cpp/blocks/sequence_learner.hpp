@@ -47,6 +47,7 @@ public:
 
     // Getters
     double get_anomaly_score() { return pct_anom; };
+    uint32_t get_historical_count();
 
     // Block IO and memory variables
     BlockInput input;

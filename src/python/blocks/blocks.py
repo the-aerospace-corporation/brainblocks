@@ -519,6 +519,9 @@ class SequenceLearner():
     def get_anomaly_score(self):
         return self.obj.get_anomaly_score()
 
+    def get_historical_count(self):
+        return self.obj.get_historical_count()
+
     @property
     def input(self):
         return BlockInput(self.obj.input)

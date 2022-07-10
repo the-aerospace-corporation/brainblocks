@@ -370,3 +370,26 @@ void SequenceLearner::set_next_available_dendrite(const uint32_t s) {
     if(next_sd[s] < num_dps - 1)
         next_sd[s]++;
 }
+
+
+// =============================================================================
+// Suprise
+//
+// TODO: add description
+// =============================================================================
+uint32_t SequenceLearner::get_historical_count() {
+
+    uint32_t count = 0;
+
+    // For each statelet on the active column
+    for (uint32_t s = 0; s <= num_s; s++) {
+
+        // Check if it is a historical statelet
+        // - statelet has at least 1 dendrite
+        if(next_sd[s] > 0) {
+            count += 1;
+        }
+    }
+
+    return count;
+}
