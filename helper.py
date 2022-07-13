@@ -55,7 +55,7 @@ def install():
     print('=' * 80)
     print('Install Python BrainBlocks')
     print('=' * 80, flush=True)
-    shutil.rmtree('brainblocks.egg-info')
+    shutil.rmtree('brainblocks.egg-info', ignore_errors=True)
     wheel_path = next(Path("dist").glob("*.whl"))
     subprocess.check_call(
         [sys.executable, "-m", "pip", "install", str(wheel_path)])
@@ -69,6 +69,44 @@ def uninstall():
 
     subprocess.check_call(
         [sys.executable, '-m', 'pip', 'uninstall', 'brainblocks', '-y'])
+
+
+# ==============================================================================
+# Publish
+#
+# Publish BrainBlocks to PyPI
+# ==============================================================================
+def publish():
+
+    # Install Python build requirements
+    print('=' * 80)
+    print('Installing build requirements')
+    print('=' * 80, flush=True)
+    subprocess.check_call(
+        [sys.executable, "-m", "pip", "install", "--upgrade", "build"])
+
+    # Create wheel package and install
+    print('=' * 80)
+    print('Create packages in virtual environment')
+    print('=' * 80, flush=True)
+    subprocess.check_call([sys.executable, "-m", "build"])
+
+
+    # -m twine upload --repository testpypi dist/*
+
+    # Upload to PyPI
+    print('=' * 80)
+    print('Upload to PyPI')
+    print('=' * 80, flush=True)
+
+    # test pypi server
+    subprocess.check_call(
+        [sys.executable, "-m", "twine", "upload", "--repository", "testpypi", "dist/*"])
+
+    # main pypi server
+    #subprocess.check_call(
+    #    [sys.executable, "-m", "twine", "upload", "dist/*"])
+
 
 
 # ==============================================================================
