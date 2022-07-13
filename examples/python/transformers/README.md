@@ -1,11 +1,11 @@
 # Transforming Data to Binary Representations Examples
 
-- [ScalarTransformer](scalar_transformer.py)
-    - convert a bounded continuous scalar value to a binary pattern 
-- [DiscreteTransformer](discrete_transformer.py)
-    - convert a symbol value to binary representation
-- [PersistenceTransformer](persistence_transformer.py)
-    - convert the persistence of an unchanging input into a short-term timer in binary pattern representation
-- [HyperGridTransformer](hypergrid_transformer.py)
-    - convert a vector value into binary representation using the grid cell concept generalized to arbibrary dimensions
+- [scalar_transformer.py](scalar_transformer.py)
+    - `ScalarTransformer`: encode a bounded continuous scalar value as a binary pattern 
+- [discrete_transformer.py](discrete_transformer.py)
+    - `DiscreteTransformer`: encode a symbol value as a binary pattern
+- [persistence_transformer.py](persistence_transformer.py)
+    - `PersistenceTransformer`: encode the persistence of an unchanging input into a short-term timer into a binary pattern representation
+- [hypergrid_transformer.py](hypergrid_transformer.py)
+    - `HyperGridTransformer`: encode a vector value as a binary pattern using the grid cell concept generalized to arbibrary dimensions
    
