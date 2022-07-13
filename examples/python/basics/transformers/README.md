@@ -1,10 +1,6 @@
 # Transforming Data to Binary Representations Examples
 
-- HyperGrid Transformer
-    - `hypergrid_transformer.py`
-- Discrete Transformer
-    - `discrete_transformer.py`
-- Persistence Transformer
-    - `persistence_transformer.py`
-- Scalar Transformer
-    - `scalar_transformer.py`
+- [HyperGridTransformer](hypergrid_transformer.py)
+- [DiscreteTransformer](discrete_transformer.py)
+- [PersistenceTransformer](persistence_transformer.py)
+- [ScalarTransformer](scalar_transformer.py)

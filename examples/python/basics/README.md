@@ -1,6 +1,6 @@
 # Basic Usage
 
-- Transformers
+- [Transformers](transformers)
     - [ScalarTransformer](transformers/scalar_transformer.py)
     - [DiscreteTransformer](transformers/discrete_transformer.py)
     - [PersistenceTransformer](transformers/persistence_transformer.py)
