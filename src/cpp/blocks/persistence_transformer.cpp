@@ -78,7 +78,6 @@ void PersistenceTransformer::encode() {
     if (value < min_val) value = min_val;
     if (value > max_val) value = max_val;
 
-    double pct_t = (double)counter / (double)max_step;
     double pct_val = (value - min_val) / dif_val;
     double pct_delta = pct_val - pct_val_prev;
     bool reset_timer_flag = false;
@@ -96,6 +95,7 @@ void PersistenceTransformer::encode() {
         pct_val_prev = pct_val;
     }
 
+    double pct_t = (double)counter / (double)max_step;
     uint32_t beg = (uint32_t)((double)dif_s * pct_t);
 
     output.state.clear_all();
