@@ -17,6 +17,7 @@ X, y = make_classification(n_samples=100, n_features=5, n_informative=3,
                            random_state=42)
 
 # create hypergrid transform
+# num_grids * num_bins = total_bits
 hgt = HyperGridTransform(num_grids=10, num_bins=8, num_subspace_dims=1)
 
 # fit the data

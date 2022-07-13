@@ -1,10 +1,10 @@
 # Basic Usage
 
 - Transformers
-    - ScalarTransformer
-    - DiscreteTransformer
-    - PersistenceTransformer
-    - HyperGridTransformer
+    - [ScalarTransformer](transformers/scalar_transformer.py)
+    - [DiscreteTransformer](transformers/discrete_transformer.py)
+    - [PersistenceTransformer](transformers/persistence_transformer.py)
+    - [HyperGridTransformer](transformers/hypergrid_transformer.py)
 
 - SequenceLearner
     - Train & Test Anomaly Detection
