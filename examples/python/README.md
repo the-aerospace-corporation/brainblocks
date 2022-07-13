@@ -21,4 +21,12 @@
         - Vector encoding with HGT
         - Hierarchy of SequenceLearners
 
+- [Experiments](experiments)
+    - Classifier comparison with sklearn
+    - Dataset generation
+    - Sequence event classification
+    - Hypergrid transform visuals
+    - Image classification
+    - Scalability tests
+    - Anomaly detection tests
 
