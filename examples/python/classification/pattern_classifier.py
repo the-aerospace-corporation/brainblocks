@@ -1,5 +1,5 @@
 # ==============================================================================
-# classif.py
+# pattern_classifier.py
 # ==============================================================================
 from brainblocks.blocks import ScalarTransformer, PatternClassifier
 from sklearn import preprocessing

@@ -1,8 +1,8 @@
 # Classification Examples
 
-- Example classification network
-    - `classif_blocks.py`
-- Example classification using the Classifier template
-    - `classif_template.py`
-- Example of classification using sklearn-style interface.  Uses Hypergrid Transform under the hood.
-    - `sklearn_style_classifier.py`
+- [PatternClassifier](pattern_classifier.py)
+    - example PatternClassifier setup
+- [Classifier template](classifier_template.py)
+    - classifier setup using template
+- [Sklearn-style classifier](sklearn_style_classifier.py)
+    - classifier using sklearn-style wrapper with HypergridTransfomr under the hood

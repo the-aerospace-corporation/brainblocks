@@ -1,5 +1,5 @@
 # ==============================================================================
-# classif_template.py
+# classifier_template.py
 # ==============================================================================
 from brainblocks.templates import Classifier
 from sklearn import preprocessing

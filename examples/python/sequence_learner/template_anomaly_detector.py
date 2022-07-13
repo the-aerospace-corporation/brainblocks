@@ -1,5 +1,5 @@
 # ==============================================================================
-# anom_template.py
+# template_anomaly_detector.py
 # ==============================================================================
 from brainblocks.templates import AnomalyDetector
 
