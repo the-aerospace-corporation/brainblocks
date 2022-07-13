@@ -10,15 +10,15 @@ np.set_printoptions(
     formatter={"bool": lambda bin_val: "X" if bin_val else "-"})
 
 values = [
-    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-    1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
 pt = PersistenceTransformer(
     min_val=0.0, # minimum input value
     max_val=1.0, # maximum input value
-    num_s=1024,  # number of statelets
-    num_as=128,  # number of active statelets
+    num_s=128,  # number of statelets
+    num_as=16,  # number of active statelets
     max_step=8)  # maxumum persistence step
 
 # Convert persistences to distributed binary representation

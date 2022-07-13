@@ -11,7 +11,7 @@ np.set_printoptions(
     formatter={"bool": lambda bin_val: "X" if bin_val else "-"})
 
 # List of labels
-LABELS = ['a', 'b', 'c']
+LABELS = ['a', 'b', 'c', 'd']
 
 # Use scikit-learn to convert string labels to discrete integers
 le = preprocessing.LabelEncoder()
@@ -21,7 +21,7 @@ int_labels = le.transform(LABELS)
 # create the transformer
 lt = DiscreteTransformer(
     num_v=4,   # number of discrete values
-    num_s=256) # number of statelets
+    num_s=128) # number of statelets
 
 # Convert scalars to distributed binary representation
 for i in range(len(int_labels)):
