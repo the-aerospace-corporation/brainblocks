@@ -30,35 +30,38 @@ def rm_r(path):
 # ==============================================================================
 def install():
 
-    # Install Python requirements
-    #print('=' * 80)
-    #print('Installing Python requirements')
-    #print('=' * 80, flush=True)
-    #subprocess.check_call(
-    #    [sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
-
     # Uninstall Python BrainBlocks if it already exists
-    print('=' * 80)
-    print('Uninstall Python BrainBlocks if it already exists')
-    print('=' * 80, flush=True)
-    result = subprocess.check_output([sys.executable, "-m", "pip", "list"])
-    if "brainblocks" in str(result):
-        uninstall()
+    uninstall()
 
-    # Create wheel package and install
-    print('=' * 80)
-    print('Create wheel package and install')
-    print('=' * 80, flush=True)
-    subprocess.check_call([sys.executable, "setup.py", "bdist_wheel"])
+    # Clean
+    clean()
+
+    # Create wheel package
+    build()
 
     # Install Python BrainBlocks
     print('=' * 80)
-    print('Install Python BrainBlocks')
+    print('Install Wheel Package')
     print('=' * 80, flush=True)
     shutil.rmtree('brainblocks.egg-info', ignore_errors=True)
     wheel_path = next(Path("dist").glob("*.whl"))
     subprocess.check_call(
         [sys.executable, "-m", "pip", "install", str(wheel_path)])
+
+    # Clean
+    clean()
+
+# ==============================================================================
+# Build
+#
+# Builds Python wheel package
+# ==============================================================================
+def build():
+    # Create wheel package
+    print('=' * 80)
+    print('Build Python Packages')
+    print('=' * 80, flush=True)
+    subprocess.check_call([sys.executable, "-m", "build"])
 
 # ==============================================================================
 # Uninstall
@@ -67,46 +70,14 @@ def install():
 # ==============================================================================
 def uninstall():
 
-    subprocess.check_call(
-        [sys.executable, '-m', 'pip', 'uninstall', 'brainblocks', '-y'])
-
-
-# ==============================================================================
-# Publish
-#
-# Publish BrainBlocks to PyPI
-# ==============================================================================
-def publish():
-
-    # Install Python build requirements
+    # Uninstall Python BrainBlocks if it already exists
     print('=' * 80)
-    print('Installing build requirements')
+    print('Uninstall Any Existing BrainBlocks')
     print('=' * 80, flush=True)
-    subprocess.check_call(
-        [sys.executable, "-m", "pip", "install", "--upgrade", "build"])
-
-    # Create wheel package and install
-    print('=' * 80)
-    print('Create packages in virtual environment')
-    print('=' * 80, flush=True)
-    subprocess.check_call([sys.executable, "-m", "build"])
-
-
-    # -m twine upload --repository testpypi dist/*
-
-    # Upload to PyPI
-    print('=' * 80)
-    print('Upload to PyPI')
-    print('=' * 80, flush=True)
-
-    # test pypi server
-    subprocess.check_call(
-        [sys.executable, "-m", "twine", "upload", "--repository", "testpypi", "dist/*"])
-
-    # main pypi server
-    #subprocess.check_call(
-    #    [sys.executable, "-m", "twine", "upload", "dist/*"])
-
+    result = subprocess.check_output([sys.executable, "-m", "pip", "list"])
+    if "brainblocks" in str(result):
+        subprocess.check_call(
+            [sys.executable, '-m', 'pip', 'uninstall', 'brainblocks', '-y'])
 
 
 # ==============================================================================
@@ -167,8 +138,13 @@ def cpptests():
 # ==============================================================================
 def clean():
 
+    print('=' * 80)
+    print('Clean Previous Builds')
+    print('=' * 80, flush=True)
+
     directories = [
         'cmake_install.cmake',
+        'brainblocks.egg-info',
         'CMakeCache.txt',
         'Makefile',
         'CMakeFiles',
@@ -185,6 +161,18 @@ def clean():
             rm_r(path.name)
 
 # ==============================================================================
+# Tests
+#
+# Run Python unit tests
+# ==============================================================================
+def test():
+
+    print('=' * 80)
+    print('Run Python Tests')
+    print('=' * 80, flush=True)
+    subprocess.check_call([sys.executable, "-m", "pytest"])
+
+# ==============================================================================
 # Main
 # ==============================================================================
 if __name__ == '__main__':
@@ -198,11 +186,17 @@ if __name__ == '__main__':
     parser.add_argument('--uninstall', action='store_true',
                         help='Uninstalls Python BrainBlocks')
 
-    parser.add_argument('--cpptests', action='store_true',
-                        help='Compiles C++ unit tests')
+    parser.add_argument('--build', action='store_true',
+                        help='Build Python Packages')
 
     parser.add_argument('--clean', action='store_true',
                         help='Cleans up project directory')
+
+    parser.add_argument('--test', action='store_true',
+                        help='Run Python Unit Tests')
+
+    parser.add_argument('--cpptests', action='store_true',
+                        help='Compiles C++ unit tests')
 
     args = parser.parse_args()
 
@@ -213,8 +207,15 @@ if __name__ == '__main__':
     if args.uninstall:
         uninstall()
 
-    if args.cpptests:
-        cpptests()
+    if args.build:
+        build()
 
     if args.clean:
         clean()
+
+    if args.test:
+        test()
+
+    if args.cpptests:
+        cpptests()
+
