@@ -423,13 +423,6 @@ def test_persistence_encoder():
     pt.feedforward()
     actual_bits = np.array(pt.output.bits)
     expect_bits = np.array([0 for i in range(1024)])
-    expect_bits[0:128] = 1
-    np.testing.assert_array_equal(actual_bits, expect_bits)
-
-    pt.set_value(0.0)
-    pt.feedforward()
-    actual_bits = np.array(pt.output.bits)
-    expect_bits = np.array([0 for i in range(1024)])
     expect_bits[224:352] = 1
     np.testing.assert_array_equal(actual_bits, expect_bits)
 
@@ -445,13 +438,6 @@ def test_persistence_encoder():
     actual_bits = np.array(pt.output.bits)
     expect_bits = np.array([0 for i in range(1024)])
     expect_bits[672:800] = 1
-    np.testing.assert_array_equal(actual_bits, expect_bits)
-
-    pt.set_value(0.0)
-    pt.feedforward()
-    actual_bits = np.array(pt.output.bits)
-    expect_bits = np.array([0 for i in range(1024)])
-    expect_bits[896:1024] = 1
     np.testing.assert_array_equal(actual_bits, expect_bits)
 
     pt.set_value(0.0)
