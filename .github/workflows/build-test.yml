@@ -3,9 +3,7 @@
 
 name: Build and Test Python Packages
 
-on:
-  push:
-    branches: [ workflow-test ]
+on: push
 
 jobs:
   build-test:
