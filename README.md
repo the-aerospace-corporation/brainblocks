@@ -21,6 +21,21 @@ BrainBlocks is designed to be:
 
 Further discussion on the theory of BrainBlocks can be found [here](docs/extended_readme.md).
 
+
+
+### Machine Learning
+
+#### [Multivariate Time-Series Anomaly Detection](examples/python/sequence_learner/multivariate_anomaly_detection.py)
+
+![Multivariate Abnormalities](docs/assets/multivariate_abnormalities.png)
+
+
+#### [Comparison with Scikit-learn Classifiers](examples/python/experiments/BBClassifier/run_classifier_comparison.py)
+
+![Data Classification](docs/assets/classifier_comparison.png)
+
+
+
 ## System Requirements
 BrainBlocks is known to run on the following platforms:
 
@@ -76,19 +91,6 @@ for i in range(len(values)):
     # print scalar value and its binary representation
     print(values[i], st.output.bits)
 ```
-
-
-## Machine Learning Examples
-
-### [Multivariate Time-Series Anomaly Detection](examples/python/sequence_learner/multivariate_anomaly_detection.py)
-
-![Multivariate Abnormalities](docs/assets/multivariate_abnormalities.png)
-
-
-### [Classifier Comparison with SKLearn Algorithms](examples/python/experiments/BBClassifier/run_classifier_comparison.py)
-
-![Data Classification](docs/assets/classifier_comparison.png)
-
 
 
 ## Development
