@@ -45,8 +45,9 @@ Further discussion on the theory of BrainBlocks can be found [here](docs/extende
 ![Data Classification](docs/assets/classifier_comparison.png)
 
 
+## Getting Started
 
-## System Requirements
+### System Requirements
 BrainBlocks is known to run on the following platforms:
 
 - Windows (7,8,10,11)
@@ -61,8 +62,6 @@ To install and run, you need at least the following
 If you want to develop BrainBlocks on your system, you need at least the following additional dependencies:
 - `git`
 - C/C++ compiler (`clang`, `visual studio`, `gcc`, etc.)
-
-## Getting Started
 
 ### Install
 The easiest way to install BrainBlocks is using `pip`.
