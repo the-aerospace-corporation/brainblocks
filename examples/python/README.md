@@ -9,6 +9,9 @@
 
 - [PatternPooler](pooling)
     - Basic setup
+    
+- [ContextLearner](context_learner)
+    - Basic setup
 
 - [SequenceLearner](sequence_learner)
     - Batch learning anomaly detection
