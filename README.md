@@ -181,6 +181,7 @@ python helper.py --build
 ├── examples                 # Examples of BrainBlocks usage
 │   └── python
 │       └── classification   # PatternClassifier examples
+│       └── context_learner  # ContextLearner examples
 │       └── pooling          # PatternPooler example
 │       └── experiments      # Experiments and visualizations
 │       └── sequence_learner # SequenceLearner examples
