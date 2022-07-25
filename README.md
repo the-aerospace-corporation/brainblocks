@@ -4,9 +4,11 @@
 
 ## Introduction
 
-BrainBlocks is a framework developed by [The Aerospace Corporation](http://aerospace.org) for building scalable Machine Learning (ML) applications using principles derived from theories about the brain.  It leverages the properties of binary representations, vectors of 1s and 0s, to form a "cortical language" where hierarchies of blocks can share information with one another using a universal communication standard.  The design of BrainBlocks represents the practical experience gained from solving machine learning problems using a [Hierarchical Temporal Memory](https://numenta.com/assets/pdf/biological-and-machine-intelligence/BAMI-Complete.pdf) (HTM) like approach. 
+BrainBlocks is a framework developed by [The Aerospace Corporation](http://aerospace.org) for building scalable Machine Learning (ML) applications using principles derived from computational neuroscience.  It models neuron activations with **binary patterns** (vectors of 1s and 0s) which form a kind of "cortical language".  Assemblages of computational **blocks** transmit these binary patterns between each other to create computational workflows that exploit these neuroscience principles.
 
-BrainBlocks is a Python 3 library wrapped around a single-thread C++ backend.  Earlier versions were GPU or FPGA accelerated, and we eventually plan to return parallelization options to BrainBlocks.
+BrainBlocks is a Python 3 library wrapped around a single-thread C++ backend.  The design of BrainBlocks represents the practical experience gained from solving machine learning problems using a [Hierarchical Temporal Memory](https://numenta.com/assets/pdf/biological-and-machine-intelligence/BAMI-Complete.pdf) (HTM) like approach. 
+
+### Design
 
 BrainBlocks is designed to be:
 
@@ -16,6 +18,14 @@ BrainBlocks is designed to be:
 - **Fast**: leverages low-level bitwise operations
 - **Low Memory**: maintain as low memory footprint as possible
 - **Lightweight**: small project size
+
+The current computational **blocks** provided are:
+- **Transformers**: Encodes symbols, scalars, or vectors into binary patterns for processing by BrainBlocks.
+- **PatternClassifier**: Supervised learning classifier for binary patterns.
+- **PatternPooler**: Learns mapping from one representation to a pooled representation.
+- **ContextLearner**: Learn inputs in provided contexts.  Flags anomaly if inputs are out-of-context.
+- **SequenceLearner**: Learns input sequences.  Flags anomaly if previously unseen sequences are detected.  
+    
 
 ### Theory
 
